@@ -175,7 +175,7 @@ const FreelancerDashboard = ({ data }) => (
                 <p>Active Projects</p>
             </div>
             <div className="stat-card">
-                <h3>${data.hourlyRate}/hr</h3>
+                <h3>{data.hourlyRate}/hr</h3>
                 <p>Hourly Rate</p>
             </div>
             <div className="stat-card">
@@ -195,7 +195,7 @@ const FreelancerDashboard = ({ data }) => (
                     <Link key={job._id} to={`/jobs/${job._id}`} className="dashboard-card">
                         <h4>{job.title}</h4>
                         <p>{job.postedBy?.name}</p>
-                        <span className="card-tag">{job.budget?.min && `$${job.budget.min}-${job.budget.max}`}</span>
+                        <span className="card-tag">{job.budget?.min && `${job.budget.min}-${job.budget.max}`}</span>
                     </Link>
                 ))}
             </div>
@@ -269,8 +269,8 @@ const StartupDashboard = ({ data }) => (
                     {data.myFundingRequests.map((request) => (
                         <Link key={request._id} to={`/funding/${request._id}`} className="funding-item">
                             <div>
-                                <strong>{request.title}</strong>
-                                <span className="funding-meta">${request.fundingAmount.toLocaleString()}</span>
+                                 <strong>{request.title}</strong>
+                                 <span className="funding-meta">{request.fundingAmount.toLocaleString()}</span>
                             </div>
                             <span className="interests-count">{request.interests?.length || 0} interests</span>
                         </Link>
@@ -311,9 +311,9 @@ const InvestorDashboard = ({ data }) => (
             <div className="dashboard-grid">
                 {data.recommendedStartups?.slice(0, 3).map((request) => (
                     <Link key={request._id} to={`/funding/${request._id}`} className="dashboard-card">
-                        <h4>{request.title}</h4>
-                        <p>{request.startup?.startupProfile?.startupName}</p>
-                        <span className="card-tag">${request.fundingAmount.toLocaleString()}</span>
+                    <h4>{request.title}</h4>
+                    <p>{request.startup?.startupProfile?.startupName}</p>
+                    <span className="card-tag">{request.fundingAmount.toLocaleString()}</span>
                     </Link>
                 ))}
             </div>

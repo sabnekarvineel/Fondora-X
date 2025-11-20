@@ -143,7 +143,7 @@ const Jobs = () => {
               <div className="job-footer">
                 {job.budget && (
                   <span className="job-budget">
-                    💰 ${job.budget.min} - ${job.budget.max}
+                    💰 {job.budget.min} - {job.budget.max}
                   </span>
                 )}
                 {job.duration && (

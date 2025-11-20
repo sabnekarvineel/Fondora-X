@@ -308,7 +308,7 @@ const Search = () => {
               </div>
 
               <div className="filter-group">
-                <label>Hourly Rate ($)</label>
+                <label>Hourly Rate</label>
                 <div className="range-inputs">
                   <input
                     type="number"

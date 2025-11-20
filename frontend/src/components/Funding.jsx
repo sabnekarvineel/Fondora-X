@@ -131,14 +131,14 @@ const Funding = () => {
                 <div className="funding-amount">
                   <span className="label">Seeking:</span>
                   <span className="value">
-                    ${request.fundingAmount?.toLocaleString()} {request.currency}
+                    {request.fundingAmount?.toLocaleString()} {request.currency}
                   </span>
                 </div>
 
                 {request.valuation && (
                   <div className="funding-valuation">
                     <span className="label">Valuation:</span>
-                    <span className="value">${request.valuation?.toLocaleString()}</span>
+                    <span className="value">{request.valuation?.toLocaleString()}</span>
                   </div>
                 )}
 

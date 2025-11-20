@@ -228,7 +228,7 @@ const JobDetail = () => {
                 {job.budget && (
                   <div className="detail-item">
                     <strong>Budget:</strong>
-                    <span>${job.budget.min} - ${job.budget.max}</span>
+                    <span>{job.budget.min} - {job.budget.max}</span>
                   </div>
                 )}
                 {job.duration && (
@@ -404,7 +404,7 @@ const JobDetail = () => {
                           </p>
                         )}
                         {application.proposedRate && (
-                          <p><strong>Proposed Rate:</strong> ${application.proposedRate}/hr</p>
+                          <p><strong>Proposed Rate:</strong> {application.proposedRate}/hr</p>
                         )}
                       </div>
 

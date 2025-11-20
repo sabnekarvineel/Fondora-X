@@ -121,6 +121,22 @@ const FundingDetail = () => {
     }
   }, [fundingRequest]);
 
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this funding request? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const token = user?.token;
+      await axios.delete(`/api/funding/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      navigate('/funding');
+    } catch (error) {
+      setError(error.response?.data?.message || 'Failed to delete funding request');
+    }
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
   if (!fundingRequest) return <div className="error">Funding request not found</div>;
 
@@ -173,6 +189,24 @@ const FundingDetail = () => {
                 <span className="badge">{fundingRequest.industry}</span>
                 <span className={`status-badge ${fundingRequest.status}`}>{fundingRequest.status}</span>
               </div>
+              {isOwner && (
+                <button
+                  onClick={handleDelete}
+                  className="btn"
+                  style={{
+                    backgroundColor: '#dc3545',
+                    color: 'white',
+                    marginTop: '15px',
+                    padding: '8px 16px',
+                    fontSize: '14px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🗑️ Delete Request
+                </button>
+              )}
             </div>
 
             <div className="startup-card">
@@ -201,13 +235,13 @@ const FundingDetail = () => {
               <div className="funding-details-grid">
                 <div className="detail-item-large">
                   <strong>Seeking:</strong>
-                  <span className="amount">${fundingRequest.fundingAmount?.toLocaleString()} {fundingRequest.currency}</span>
+                  <span className="amount">{fundingRequest.fundingAmount?.toLocaleString()} {fundingRequest.currency}</span>
                 </div>
                 
                 {fundingRequest.valuation && (
                   <div className="detail-item-large">
                     <strong>Valuation:</strong>
-                    <span className="amount">${fundingRequest.valuation?.toLocaleString()}</span>
+                    <span className="amount">{fundingRequest.valuation?.toLocaleString()} {fundingRequest.currency}</span>
                   </div>
                 )}
 
@@ -285,7 +319,7 @@ const FundingDetail = () => {
                         <h3>Express Your Interest</h3>
                         <form onSubmit={handleExpressInterest}>
                           <div className="form-group">
-                            <label>Message to Startup *</label>
+                            <label>Message / Offer Details *</label>
                             <textarea
                               value={interestData.message}
                               onChange={(e) =>
@@ -296,12 +330,12 @@ const FundingDetail = () => {
                               }
                               rows="6"
                               required
-                              placeholder="Why are you interested in this startup?"
+                              placeholder="Describe your offer and why you are interested in this startup..."
                             />
                           </div>
 
                           <div className="form-group">
-                            <label>Proposed Investment Amount ($)</label>
+                            <label>Proposed Investment Amount</label>
                             <input
                               type="number"
                               value={interestData.proposedAmount}
@@ -332,7 +366,7 @@ const FundingDetail = () => {
                           </div>
 
                           <div className="form-group">
-                            <label>Terms & Conditions</label>
+                            <label>Terms and Conditions</label>
                             <textarea
                               value={interestData.terms}
                               onChange={(e) =>
@@ -342,7 +376,7 @@ const FundingDetail = () => {
                                 })
                               }
                               rows="4"
-                              placeholder="Any specific terms or conditions (optional)"
+                              placeholder="Any specific terms or conditions for this offer (e.g., Board seat, Voting rights)"
                             />
                           </div>
 

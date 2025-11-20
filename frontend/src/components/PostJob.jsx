@@ -205,7 +205,7 @@ const PostJob = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Budget Min ($)</label>
+              <label>Budget Min</label>
               <input
                 type="number"
                 name="budgetMin"
@@ -216,7 +216,7 @@ const PostJob = () => {
             </div>
 
             <div className="form-group">
-              <label>Budget Max ($)</label>
+              <label>Budget Max</label>
               <input
                 type="number"
                 name="budgetMax"

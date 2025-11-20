@@ -239,7 +239,7 @@ const Profile = () => {
                 <div className="profile-section">
                   <h3>Funding Requirements</h3>
                   <p className="funding-amount">
-                    ${profile.startupProfile.fundingRequirements.amount?.toLocaleString()}{' '}
+                    {profile.startupProfile.fundingRequirements.amount?.toLocaleString()}{' '}
                     {profile.startupProfile.fundingRequirements.currency}
                   </p>
                 </div>
@@ -292,7 +292,7 @@ const Profile = () => {
                 <div className="profile-section">
                   <h3>Investment Range</h3>
                   <p>
-                    ${profile.investorProfile.investmentRange.min?.toLocaleString()} - $
+                    {profile.investorProfile.investmentRange.min?.toLocaleString()} -{' '}
                     {profile.investorProfile.investmentRange.max?.toLocaleString()}{' '}
                     {profile.investorProfile.investmentRange.currency}
                   </p>

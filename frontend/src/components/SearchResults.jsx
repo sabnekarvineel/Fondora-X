@@ -53,7 +53,7 @@ const SearchResults = ({ results, searchType, loading }) => {
         {startup.location && <p className="result-location">📍 {startup.location}</p>}
         {startup.startupProfile?.fundingRequirements?.amount && (
           <p className="funding-info">
-            💰 Seeking: ${startup.startupProfile.fundingRequirements.amount.toLocaleString()}
+            💰 Seeking: {startup.startupProfile.fundingRequirements.amount.toLocaleString()}
           </p>
         )}
       </div>
@@ -72,7 +72,7 @@ const SearchResults = ({ results, searchType, loading }) => {
         {freelancer.bio && <p className="result-bio">{freelancer.bio}</p>}
         {freelancer.location && <p className="result-location">📍 {freelancer.location}</p>}
         {freelancer.freelancerProfile?.hourlyRate > 0 && (
-          <p className="rate-info">💵 ${freelancer.freelancerProfile.hourlyRate}/hour</p>
+          <p className="rate-info">💵 {freelancer.freelancerProfile.hourlyRate}/hour</p>
         )}
         {freelancer.freelancerProfile?.services && freelancer.freelancerProfile.services.length > 0 && (
           <div className="result-skills">

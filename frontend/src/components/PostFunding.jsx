@@ -104,7 +104,7 @@ const PostFunding = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Funding Amount ($) *</label>
+              <label>Funding Amount</label>
               <input
                 type="number"
                 name="fundingAmount"
@@ -154,7 +154,7 @@ const PostFunding = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Company Valuation ($)</label>
+              <label>Company Valuation</label>
               <input
                 type="number"
                 name="valuation"
@@ -216,7 +216,7 @@ const PostFunding = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Current Revenue ($)</label>
+              <label>Current Revenue</label>
               <input
                 type="number"
                 name="currentRevenue"
@@ -227,7 +227,7 @@ const PostFunding = () => {
             </div>
 
             <div className="form-group">
-              <label>Projected Revenue ($)</label>
+              <label>Projected Revenue</label>
               <input
                 type="number"
                 name="projectedRevenue"
