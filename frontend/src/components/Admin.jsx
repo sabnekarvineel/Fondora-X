@@ -301,11 +301,11 @@ const Admin = () => {
                 onChange={(e) => setFilters({ ...filters, role: e.target.value })}
               >
                 <option value="">All Roles</option>
-                <option value="student">👨‍🎓 Student</option>
-                <option value="freelancer">💼 Freelancer</option>
-                <option value="startup">🚀 Startup</option>
-                <option value="investor">💎 Investor</option>
-                <option value="admin">🛡️ Admin</option>
+                <option value="student">Student</option>
+                <option value="freelancer"> Freelancer</option>
+                <option value="startup">Startup</option>
+                <option value="investor"> Investor</option>
+                <option value="admin"> Admin</option>
               </select>
               <select
                 value={filters.verified}
