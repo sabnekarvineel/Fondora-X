@@ -128,3 +128,4 @@ InnovateX-Hub/
 - Google OAuth integration
 - Email verification
 - Profile management 
+- Ai integration 
