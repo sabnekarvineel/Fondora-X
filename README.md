@@ -130,3 +130,4 @@ InnovateX-Hub/
 - Profile management 
 - Ai integration
 - Finding Mentor features
+- streaks function
