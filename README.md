@@ -127,4 +127,4 @@ InnovateX-Hub/
 - Forgot Password functionality
 - Google OAuth integration
 - Email verification
-- Profile management
+- Profile management 
