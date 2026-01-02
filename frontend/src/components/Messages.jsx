@@ -5,6 +5,9 @@ import Navbar from './Navbar';
 import ConversationList from './ConversationList';
 import ChatBox from './ChatBox';
 
+// ✅ ADD THIS (only new line)
+const API = import.meta.env.VITE_API_URL;
+
 const Messages = () => {
   const { user } = useContext(AuthContext);
   const [conversations, setConversations] = useState([]);
@@ -12,26 +15,37 @@ const Messages = () => {
   const [loading, setLoading] = useState(true);
   const [showSidebarMobile, setShowSidebarMobile] = useState(true);
 
+  // ✅ WAIT for user before fetching
   useEffect(() => {
-    fetchConversations();
-  }, []);
+    if (user?.token) {
+      fetchConversations();
+    }
+  }, [user]);
 
   const fetchConversations = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/messages/conversations', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setConversations(data);
-      setLoading(false);
+
+      const { data } = await axios.get(
+        `${API}/api/messages/conversations`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // ✅ ALWAYS SET ARRAY
+      setConversations(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
+      setConversations([]);
+    } finally {
       setLoading(false);
     }
   };
 
   const handleConversationSelect = (conversation) => {
     setSelectedConversation(conversation);
+
     // Hide sidebar on mobile when conversation is selected
     if (window.innerWidth <= 768) {
       setShowSidebarMobile(false);
@@ -39,8 +53,9 @@ const Messages = () => {
   };
 
   const handleNewConversation = (conversation) => {
-    setConversations([conversation, ...conversations]);
+    setConversations((prev) => [conversation, ...prev]);
     setSelectedConversation(conversation);
+
     // Hide sidebar on mobile when new conversation is started
     if (window.innerWidth <= 768) {
       setShowSidebarMobile(false);
@@ -61,16 +76,16 @@ const Messages = () => {
             showOnMobile={showSidebarMobile}
             onHideMobile={() => setShowSidebarMobile(false)}
           />
-          
+
           <ChatBox
-             conversation={selectedConversation}
-             onConversationUpdate={fetchConversations}
-             onShowSidebar={() => setShowSidebarMobile(true)}
-             onCloseChat={() => {
-               setSelectedConversation(null);
-               setShowSidebarMobile(true);
-             }}
-           />
+            conversation={selectedConversation}
+            onConversationUpdate={fetchConversations}
+            onShowSidebar={() => setShowSidebarMobile(true)}
+            onCloseChat={() => {
+              setSelectedConversation(null);
+              setShowSidebarMobile(true);
+            }}
+          />
         </div>
       </div>
     </div>
