@@ -53,7 +53,7 @@ const SearchResults = ({ results, searchType, loading }) => {
         {startup.location && <p className="result-location">📍 {startup.location}</p>}
         {startup.startupProfile?.fundingRequirements?.amount && (
           <p className="funding-info">
-            💰 Seeking: {startup.startupProfile.fundingRequirements.amount.toLocaleString()}
+             Seeking: {startup.startupProfile.fundingRequirements.amount.toLocaleString()}
           </p>
         )}
       </div>

@@ -21,18 +21,25 @@ export const NotificationProvider = ({ children }) => {
 
   useEffect(() => {
     if (socket) {
-      socket.on('newNotification', (notification) => {
-        setNotifications((prev) => [notification, ...prev]);
+      const handleNewNotification = (notification) => {
+        // Fetch fresh notification from server to ensure all data is populated
+        if (user) {
+          fetchNotifications();
+        }
         setUnreadCount((prev) => prev + 1);
         
         showBrowserNotification(notification);
-      });
+      };
+
+      socket.on('newNotification', handleNewNotification);
+      socket.on('notification', handleNewNotification);
 
       return () => {
-        socket.off('newNotification');
+        socket.off('newNotification', handleNewNotification);
+        socket.off('notification', handleNewNotification);
       };
     }
-  }, [socket]);
+  }, [socket, user]);
 
   const fetchNotifications = async () => {
     try {

@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import Navbar from './Navbar';
 
 const Funding = () => {
   const { user } = useContext(AuthContext);
@@ -40,7 +41,9 @@ const Funding = () => {
   };
 
   return (
-    <div className="funding-container">
+    <div>
+      <Navbar />
+      <div className="funding-container">
       <div className="funding-header">
         <h2> Funding Opportunities</h2>
         {user?.role === 'startup' && (
@@ -159,6 +162,7 @@ const Funding = () => {
             </Link>
           ))
         )}
+        </div>
       </div>
     </div>
   );

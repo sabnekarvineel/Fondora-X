@@ -1,5 +1,8 @@
-import { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { createContext, useState, useEffect, useCallback } from "react";
+import axios from "axios";
+
+// Backend API URL
+const API = import.meta.env.VITE_API_URL;
 
 const AuthContext = createContext();
 
@@ -7,35 +10,46 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Logout
+  const logout = useCallback(() => {
+    localStorage.removeItem("user");
+    setUser(null);
+  }, []);
+
   useEffect(() => {
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
     }
     setLoading(false);
 
-    // Setup axios interceptor to handle banned/deactivated accounts
+    // Axios response interceptor
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response) {
-          // Handle banned account
-          if (error.response.data?.isBanned) {
+          const { status, data } = error.response;
+
+          if (data?.isBanned) {
             logout();
-            alert(`Your account has been banned. Reason: ${error.response.data.reason || 'Violated platform policies'}`);
-            window.location.href = '/login';
+            alert(
+              `Your account has been banned. Reason: ${
+                data.reason || "Policy violation"
+              }`
+            );
+            window.location.replace("/login");
           }
-          // Handle deactivated account
-          if (error.response.data?.isActive === false) {
+
+          if (data?.isActive === false) {
             logout();
-            alert('Your account is deactivated. Please login again to reactivate.');
-            window.location.href = '/login';
+            alert("Your account is deactivated. Please login again.");
+            window.location.replace("/login");
           }
-          // Handle token expiration
-          if (error.response.status === 401 && error.response.data?.message === 'Token expired') {
+
+          if (status === 401 && data?.message === "Token expired") {
             logout();
-            alert('Your session has expired. Please login again.');
-            window.location.href = '/login';
+            alert("Session expired. Please login again.");
+            window.location.replace("/login");
           }
         }
         return Promise.reject(error);
@@ -45,52 +59,61 @@ export const AuthProvider = ({ children }) => {
     return () => {
       axios.interceptors.response.eject(interceptor);
     };
-  }, []);
+  }, [logout]);
 
-  const register = async (name, email, password, role) => {
-    try {
-      const { data } = await axios.post('/api/auth/register', {
+  /* =========================
+     REGISTER
+  ========================= */
+  const register = async (name, email, mobile, password, role) => {
+    const { data } = await axios.post(
+      `${API}/api/auth/register`,
+      {
         name,
         email,
+        mobile, // ✅ FIXED: send mobile
         password,
         role,
-      });
-      localStorage.setItem('user', JSON.stringify(data));
-      setUser(data);
-      return data;
-    } catch (error) {
-      throw error;
-    }
+      }
+    );
+
+    localStorage.setItem("user", JSON.stringify(data));
+    setUser(data);
+    return data;
   };
 
+  /* =========================
+     LOGIN
+  ========================= */
   const login = async (email, password) => {
-    try {
-      const { data } = await axios.post('/api/auth/login', {
-        email,
-        password,
-      });
-      
-      // Check if account is banned (backend should prevent this, but double check)
-      if (data.isBanned) {
-        throw new Error('Account is banned');
-      }
+    const { data } = await axios.post(`${API}/api/auth/login`, {
+      email,
+      password,
+    });
 
-      localStorage.setItem('user', JSON.stringify(data));
-      setUser(data);
-      return data;
-    } catch (error) {
-      // Handle banned account error
-      if (error.response?.data?.isBanned) {
-        throw new Error(error.response.data.reason || 'Your account has been banned');
-      }
-      throw error;
+    if (data.isBanned) {
+      throw new Error(data.reason || "Account banned");
     }
+
+    localStorage.setItem("user", JSON.stringify(data));
+    setUser(data);
+    return data;
   };
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-  };
+  // Attach token to requests
+  useEffect(() => {
+    const reqInterceptor = axios.interceptors.request.use((config) => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const token = JSON.parse(storedUser)?.token;
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+      return config;
+    });
+
+    return () => axios.interceptors.request.eject(reqInterceptor);
+  }, []);
 
   return (
     <AuthContext.Provider

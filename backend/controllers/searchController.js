@@ -261,3 +261,33 @@ export const getAvailableLocations = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Quick user search for share modal
+export const quickSearchUsers = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ message: 'Search query is required' });
+    }
+
+    const users = await User.find({
+      $and: [
+        { _id: { $ne: req.user._id } }, // Exclude current user
+        {
+          $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { email: { $regex: query, $options: 'i' } },
+            { bio: { $regex: query, $options: 'i' } },
+          ],
+        },
+      ],
+    })
+      .select('_id name email profilePhoto role')
+      .limit(20); // Limit results to 20
+
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import Navbar from './Navbar';
 
 const JobDetail = () => {
   const { id } = useParams();
@@ -129,37 +130,7 @@ const JobDetail = () => {
 
   return (
     <div>
-      <nav className="navbar">
-        <div className="container">
-          <h1>InnovateX Hub</h1>
-          <div className="navbar-actions">
-            {user?.role === 'admin' ? (
-              <>
-                <Link to="/admin" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Admin
-                </Link>
-                <Link to="/settings" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Settings
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/feed" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Home
-                </Link>
-                <Link to="/jobs" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Jobs
-                </Link>
-                <Link to={`/profile/${user?._id}`} style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Profile
-                </Link>
-              </>
-            )}
-            <button onClick={logout} style={{ marginLeft: '10px' }}>Logout</button>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar />
       <div className="container">
         <div className="job-detail-container">
           {error && <div className="error-message">{error}</div>}

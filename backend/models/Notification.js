@@ -22,6 +22,7 @@ const notificationSchema = new mongoose.Schema(
         'profile_view',
         'investor_interest',
         'post_share',
+        'post_tag',
       ],
       required: true,
     },

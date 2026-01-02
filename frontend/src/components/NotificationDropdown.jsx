@@ -49,9 +49,18 @@ const NotificationDropdown = () => {
         return '💼';
       case 'post_share':
         return '🔄';
+      case 'post_tag':
+        return '🏷️';
       default:
         return '🔔';
     }
+  };
+
+  const getNotificationLink = (notification) => {
+    if (notification.link) return notification.link;
+    if (notification.post?._id) return `/feed?post=${notification.post._id}`;
+    if (notification.sender?._id) return `/profile/${notification.sender._id}`;
+    return '/dashboard';
   };
 
   const formatTime = (date) => {
@@ -94,7 +103,7 @@ const NotificationDropdown = () => {
               notifications.slice(0, 10).map((notification) => (
                 <Link
                   key={notification._id}
-                  to={notification.link || '/dashboard'}
+                  to={getNotificationLink(notification)}
                   className={`notification-item ${!notification.read ? 'unread' : ''}`}
                   onClick={() => handleNotificationClick(notification)}
                 >

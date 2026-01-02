@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import Navbar from './Navbar';
 import SearchResults from './SearchResults';
 
 const Search = () => {
@@ -154,7 +155,9 @@ const Search = () => {
   };
 
   return (
-    <div className="search-container">
+    <div>
+      <Navbar />
+      <div className="search-container">
       <div className="search-header">
         <h2>Search & Discover</h2>
         <p>Find students, freelancers, startups, investors, projects, and more</p>
@@ -165,31 +168,31 @@ const Search = () => {
           className={searchType === 'users' ? 'search-type-btn active' : 'search-type-btn'}
           onClick={() => setSearchType('users')}
         >
-          👥 Users
+           Users
         </button>
         <button
           className={searchType === 'startups' ? 'search-type-btn active' : 'search-type-btn'}
           onClick={() => setSearchType('startups')}
         >
-          🚀 Startups
+           Startups
         </button>
         <button
           className={searchType === 'freelancers' ? 'search-type-btn active' : 'search-type-btn'}
           onClick={() => setSearchType('freelancers')}
         >
-          💼 Freelancers
+           Freelancers
         </button>
         <button
           className={searchType === 'projects' ? 'search-type-btn active' : 'search-type-btn'}
           onClick={() => setSearchType('projects')}
         >
-          📁 Projects
+           Projects
         </button>
         <button
           className={searchType === 'skills' ? 'search-type-btn active' : 'search-type-btn'}
           onClick={() => setSearchType('skills')}
         >
-          🎯 Skills
+           Skills
         </button>
       </div>
 
@@ -350,6 +353,7 @@ const Search = () => {
       </form>
 
       <SearchResults results={results} searchType={searchType} loading={loading} />
+      </div>
     </div>
   );
 };

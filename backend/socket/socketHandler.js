@@ -4,7 +4,10 @@ import User from '../models/User.js';
 const onlineUsers = new Map();
 let io;
 
-export const setupSocketIO = (io) => {
+export const setupSocketIO = (ioInstance) => {
+  // Store the io instance in the module
+  io = ioInstance;
+
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth.token;
@@ -36,40 +39,60 @@ export const setupSocketIO = (io) => {
     io.emit('userOnline', socket.userId);
 
     socket.on('sendMessage', (message) => {
-      const receiverSocketId = onlineUsers.get(message.receiver._id || message.receiver);
-      
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit('receiveMessage', message);
+      try {
+        const receiverId = message.receiver._id || message.receiver;
+        const receiverSocketId = onlineUsers.get(receiverId);
+        
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit('receiveMessage', message);
+          console.log(`Message sent from ${socket.userId} to ${receiverId}`);
+        } else {
+          console.log(`Receiver ${receiverId} not online, message saved to DB`);
+        }
+      } catch (error) {
+        console.error('Error in sendMessage socket handler:', error.message);
       }
     });
 
     socket.on('typing', ({ conversationId, receiverId }) => {
-      const receiverSocketId = onlineUsers.get(receiverId);
-      
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit('userTyping', {
-          conversationId,
-          userId: socket.userId,
-        });
+      try {
+        const receiverSocketId = onlineUsers.get(receiverId);
+        
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit('userTyping', {
+            conversationId,
+            userId: socket.userId,
+          });
+        }
+      } catch (error) {
+        console.error('Error in typing event:', error.message);
       }
     });
 
     socket.on('stopTyping', ({ conversationId, receiverId }) => {
-      const receiverSocketId = onlineUsers.get(receiverId);
-      
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit('userStoppedTyping', {
-          conversationId,
-          userId: socket.userId,
-        });
+      try {
+        const receiverSocketId = onlineUsers.get(receiverId);
+        
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit('userStoppedTyping', {
+            conversationId,
+            userId: socket.userId,
+          });
+        }
+      } catch (error) {
+        console.error('Error in stopTyping event:', error.message);
       }
     });
 
     socket.on('messageSeen', ({ messageId, senderId }) => {
-      const senderSocketId = onlineUsers.get(senderId);
-      
-      if (senderSocketId) {
-        io.to(senderSocketId).emit('messageMarkedAsSeen', messageId);
+      try {
+        const senderSocketId = onlineUsers.get(senderId);
+        
+        if (senderSocketId) {
+          io.to(senderSocketId).emit('messageMarkedAsSeen', messageId);
+        }
+      } catch (error) {
+        console.error('Error in messageSeen event:', error.message);
       }
     });
 

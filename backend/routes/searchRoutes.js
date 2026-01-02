@@ -7,12 +7,14 @@ import {
   searchFreelancers,
   getAvailableSkills,
   getAvailableLocations,
+  quickSearchUsers,
 } from '../controllers/searchController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
 router.get('/users', protect, searchUsers);
+router.get('/quick-search', protect, quickSearchUsers); // For share modal
 router.get('/skills', protect, searchBySkill);
 router.get('/projects', protect, searchProjects);
 router.get('/startups', protect, searchStartups);

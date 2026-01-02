@@ -47,10 +47,10 @@
 
 ---
 
-## 2. Project Renamed to "InnovateX Hub" 
+## 2. Project Renamed to "Fondora-X" 
 
 **Changed From**: TechConHub  
-**Changed To**: InnovateX Hub
+**Changed To**: Fondora-X
 
 ### Files Updated:
 
@@ -66,7 +66,7 @@
 ### Documentation
 6. **README.md** - Project title and structure
 
-### Where Users See "InnovateX Hub":
+### Where Users See "Fondora-X":
 - ✅ Navigation bar (all pages)
 - ✅ API root endpoint message
 - ✅ Project documentation
@@ -164,7 +164,7 @@ const AdminDashboard = () => {
   - Added admin case in renderRoleDashboard switch
   - Added comprehensive styling
 
-### Branding Update (TechConHub → InnovateX Hub)
+### Branding Update (TechConHub → Fondora-X)
 - `frontend/src/components/Dashboard.jsx`
 - `frontend/src/components/Settings.jsx`
 - `frontend/src/components/JobDetail.jsx`
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
 ✅ One-click navigation to management tools
 
 ### For Platform:
-✅ Professional branding (InnovateX Hub)  
+✅ Professional branding (Fondora-X)  
 ✅ Consistent naming across all components  
 ✅ Better user experience  
 ✅ Complete admin functionality

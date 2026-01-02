@@ -23,18 +23,53 @@ const messageSchema = new mongoose.Schema(
     },
     messageType: {
       type: String,
-      enum: ['text', 'image'],
+      enum: ['text', 'image', 'video'],
       default: 'text',
     },
     imageUrl: {
       type: String,
       default: '',
     },
+    videoUrl: {
+      type: String,
+      default: '',
+    },
+    encryptedMediaUrl: {
+      type: String,
+      default: '',
+    },
+    mediaIv: {
+      type: String,
+      default: '',
+    },
+    originalFileName: {
+      type: String,
+      default: '',
+    },
+    mediaMimeType: {
+      type: String,
+      default: '',
+    },
+    isMediaEncrypted: {
+      type: Boolean,
+      default: false,
+    },
     seen: {
       type: Boolean,
       default: false,
     },
     seenAt: {
+      type: Date,
+    },
+    isEncrypted: {
+      type: Boolean,
+      default: false,
+    },
+    edited: {
+      type: Boolean,
+      default: false,
+    },
+    editedAt: {
       type: Date,
     },
   },

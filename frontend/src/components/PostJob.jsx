@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import Navbar from './Navbar';
 
 const PostJob = () => {
   const { user } = useContext(AuthContext);
@@ -87,7 +88,9 @@ const PostJob = () => {
   };
 
   return (
-    <div className="container">
+    <div>
+      <Navbar />
+      <div className="container">
       <div className="post-job-container">
         <h2>Post a {user?.role === 'startup' ? 'Job' : 'Service'}</h2>
         {error && <div className="error-message">{error}</div>}
@@ -264,6 +267,7 @@ const PostJob = () => {
             {loading ? 'Posting...' : 'Post Job'}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );

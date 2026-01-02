@@ -5,7 +5,7 @@ import { getIO } from '../socket/socketHandler.js';
 
 export const createPost = async (req, res) => {
   try {
-    const { content, mediaType, mediaUrl, sharedPost } = req.body;
+    const { content, mediaType, mediaUrl, mediaUrls, mediaItems, sharedPost, taggedUsers } = req.body;
 
     if (!content || content.trim().length === 0) {
       return res.status(400).json({ message: 'Post content is required' });
@@ -16,12 +16,57 @@ export const createPost = async (req, res) => {
       content,
       mediaType: mediaType || 'none',
       mediaUrl: mediaUrl || '',
+      mediaUrls: mediaUrls || [],
+      mediaItems: mediaItems || [],
       sharedPost: sharedPost || null,
+      taggedUsers: taggedUsers || [],
     });
 
     const populatedPost = await Post.findById(post._id)
       .populate('author', 'name profilePhoto role')
-      .populate('sharedPost');
+      .populate('sharedPost')
+      .populate('taggedUsers', 'name profilePhoto');
+
+    // Send notifications to tagged users
+    if (taggedUsers && taggedUsers.length > 0) {
+      for (const userId of taggedUsers) {
+        const userIdStr = userId.toString();
+        if (userIdStr !== req.user._id.toString()) {
+          try {
+            // Create notification in database
+            const notification = await createNotification({
+              recipient: userId,
+              sender: req.user._id,
+              type: 'post_tag',
+              post: post._id,
+              message: `${req.user.name} tagged you in a post`,
+            });
+
+            console.log(`Notification created for user ${userIdStr}:`, notification?._id);
+
+            // Emit real-time notification
+            try {
+              const io = getIO();
+              if (io) {
+                io.to(userIdStr).emit('notification', {
+                  type: 'post_tag',
+                  userId: req.user._id,
+                  userName: req.user.name,
+                  postId: post._id,
+                  message: `${req.user.name} tagged you in a post`,
+                });
+                console.log(`Real-time notification emitted to user ${userIdStr}`);
+              }
+            } catch (socketError) {
+              console.error(`Socket error for user ${userIdStr}:`, socketError.message);
+              // Continue even if socket notification fails - DB notification is still created
+            }
+          } catch (notifError) {
+            console.error(`Failed to create notification for user ${userIdStr}:`, notifError.message);
+          }
+        }
+      }
+    }
 
     res.status(201).json(populatedPost);
   } catch (error) {
@@ -43,9 +88,10 @@ export const getFeed = async (req, res) => {
     }
 
     const posts = await Post.find(query)
-      .populate('author', 'name profilePhoto role')
+      .populate('author', 'name profilePhoto role fundingStage')
       .populate('sharedPost')
       .populate('comments.user', 'name profilePhoto')
+      .populate('taggedUsers', 'name profilePhoto')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -356,6 +402,32 @@ export const uploadPostMedia = async (req, res) => {
       message: 'Media uploaded successfully',
       mediaUrl,
       mediaType,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const uploadMultipleMedia = async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
+    }
+
+    const mediaItems = req.files.map(file => {
+      const isVideo = file.mimetype.startsWith('video');
+      return {
+        url: file.path,
+        type: isVideo ? 'video' : 'image',
+      };
+    });
+
+    const mediaUrls = mediaItems.map(item => item.url);
+
+    res.json({
+      message: 'Media uploaded successfully',
+      mediaUrls,
+      mediaItems,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,8 +1,9 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import SocketContext from '../context/SocketContext';
+import { decryptMessage, getStoredConversationKey } from '../utils/encryption';
 
 const ConversationList = ({
   conversations,
@@ -10,13 +11,46 @@ const ConversationList = ({
   onSelectConversation,
   onNewConversation,
   loading,
+  showOnMobile,
+  onHideMobile,
 }) => {
   const { user } = useContext(AuthContext);
   const { onlineUsers } = useContext(SocketContext);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [decryptedMessages, setDecryptedMessages] = useState({});
   const navigate = useNavigate();
+
+  // Decrypt last message for each conversation
+  useEffect(() => {
+    const decryptLastMessages = async () => {
+      const decrypted = {};
+      
+      for (const conversation of conversations) {
+        if (conversation.lastMessage?.content) {
+          try {
+            const key = await getStoredConversationKey(conversation._id);
+            if (key) {
+              const decryptedText = await decryptMessage(conversation.lastMessage.content, key);
+              decrypted[conversation._id] = decryptedText;
+            } else {
+              decrypted[conversation._id] = '[Encrypted message]';
+            }
+          } catch (error) {
+            console.error(`Failed to decrypt message for conversation ${conversation._id}:`, error);
+            decrypted[conversation._id] = '[Unable to decrypt]';
+          }
+        }
+      }
+      
+      setDecryptedMessages(decrypted);
+    };
+
+    if (conversations.length > 0) {
+      decryptLastMessages();
+    }
+  }, [conversations]);
 
   const handleSearch = async (query) => {
     setSearchQuery(query);
@@ -62,11 +96,11 @@ const ConversationList = ({
   };
 
   if (loading) {
-    return <div className="conversations-sidebar">Loading...</div>;
+    return <div className={`conversations-sidebar ${showOnMobile ? 'show-mobile' : 'hide-mobile'}`}>Loading...</div>;
   }
 
   return (
-    <div className="conversations-sidebar">
+    <div className={`conversations-sidebar ${showOnMobile ? 'show-mobile' : 'hide-mobile'}`}>
       <div className="conversations-header">
         <h2>Messages</h2>
       </div>
@@ -131,11 +165,11 @@ const ConversationList = ({
                   {isOnline(otherUser?._id) && <div className="online-indicator" />}
                 </div>
                 <div className="conversation-info">
-                  <h4>{otherUser?.name}</h4>
-                  <p className="last-message">
-                    {conversation.lastMessage?.content || 'No messages yet'}
-                  </p>
-                </div>
+                   <h4>{otherUser?.name}</h4>
+                   <p className="last-message">
+                     {decryptedMessages[conversation._id] || conversation.lastMessage?.content || 'No messages yet'}
+                   </p>
+                 </div>
               </div>
             );
           })

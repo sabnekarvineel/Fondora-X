@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import Navbar from './Navbar';
 
 const FundingDetail = () => {
   const { id } = useParams();
@@ -14,6 +15,8 @@ const FundingDetail = () => {
   const [showInterestForm, setShowInterestForm] = useState(false);
   const [hasExpressedInterest, setHasExpressedInterest] = useState(false);
   const [interests, setInterests] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState(null);
 
   const [interestData, setInterestData] = useState({
     message: '',
@@ -121,6 +124,49 @@ const FundingDetail = () => {
     }
   }, [fundingRequest]);
 
+  const handleEdit = () => {
+    setEditData(fundingRequest);
+    setIsEditing(true);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({ ...editData, [name]: value });
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    try {
+      const token = user?.token;
+      const updateData = {
+        title: editData.title,
+        description: editData.description,
+        fundingAmount: parseInt(editData.fundingAmount),
+        currency: editData.currency,
+        stage: editData.stage,
+        industry: editData.industry,
+        pitchDeck: editData.pitchDeck,
+        valuation: editData.valuation ? parseInt(editData.valuation) : undefined,
+        equityOffered: editData.equityOffered ? parseFloat(editData.equityOffered) : undefined,
+        useOfFunds: editData.useOfFunds,
+        status: editData.status,
+      };
+
+      const { data } = await axios.put(`/api/funding/${id}`, updateData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setFundingRequest(data);
+      setIsEditing(false);
+      setSuccess('Funding request updated successfully!');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update funding request');
+    }
+  };
+
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this funding request? This action cannot be undone.')) {
       return;
@@ -145,42 +191,152 @@ const FundingDetail = () => {
 
   return (
     <div>
-      <nav className="navbar">
-        <div className="container">
-          <h1>InnovateX Hub</h1>
-          <div className="navbar-actions">
-            {user?.role === 'admin' ? (
-              <>
-                <Link to="/admin" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Admin
-                </Link>
-                <Link to="/settings" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Settings
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/feed" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Home
-                </Link>
-                <Link to="/funding" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Funding
-                </Link>
-                <Link to={`/profile/${user?._id}`} style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Profile
-                </Link>
-              </>
-            )}
-            <button onClick={logout} style={{ marginLeft: '10px' }}>Logout</button>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar />
       <div className="container">
         <div className="funding-detail-container">
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
 
+          {isEditing && editData ? (
+            <div className="funding-edit-form">
+              <h2>Edit Funding Request</h2>
+              <form onSubmit={handleSaveEdit}>
+                <div className="form-group">
+                  <label>Title *</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={editData.title}
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Description *</label>
+                  <textarea
+                    name="description"
+                    value={editData.description}
+                    onChange={handleEditChange}
+                    required
+                    rows="6"
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Funding Amount</label>
+                    <input
+                      type="number"
+                      name="fundingAmount"
+                      value={editData.fundingAmount}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Currency</label>
+                    <select name="currency" value={editData.currency} onChange={handleEditChange}>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                      <option value="INR">INR</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Stage</label>
+                    <select name="stage" value={editData.stage} onChange={handleEditChange}>
+                      <option value="idea">Idea</option>
+                      <option value="seed">Seed</option>
+                      <option value="series-a">Series A</option>
+                      <option value="series-b">Series B</option>
+                      <option value="series-c">Series C</option>
+                      <option value="series-d">Series D</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Industry</label>
+                    <input
+                      type="text"
+                      name="industry"
+                      value={editData.industry}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Valuation</label>
+                    <input
+                      type="number"
+                      name="valuation"
+                      value={editData.valuation}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Equity Offered (%)</label>
+                    <input
+                      type="number"
+                      name="equityOffered"
+                      value={editData.equityOffered}
+                      onChange={handleEditChange}
+                      step="0.1"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Pitch Deck URL</label>
+                  <input
+                    type="url"
+                    name="pitchDeck"
+                    value={editData.pitchDeck}
+                    onChange={handleEditChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Use of Funds</label>
+                  <textarea
+                    name="useOfFunds"
+                    value={editData.useOfFunds}
+                    onChange={handleEditChange}
+                    rows="4"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Status</label>
+                  <select name="status" value={editData.status} onChange={handleEditChange}>
+                    <option value="open">Open</option>
+                    <option value="closed">Closed</option>
+                    <option value="paused">Paused</option>
+                  </select>
+                </div>
+
+                <div className="form-actions">
+                  <button type="submit" className="btn btn-primary">
+                    Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <>
           <div className="funding-detail-header">
             <div className="funding-detail-title-section">
               <h1>{fundingRequest.title}</h1>
@@ -190,22 +346,40 @@ const FundingDetail = () => {
                 <span className={`status-badge ${fundingRequest.status}`}>{fundingRequest.status}</span>
               </div>
               {isOwner && (
-                <button
-                  onClick={handleDelete}
-                  className="btn"
-                  style={{
-                    backgroundColor: '#dc3545',
-                    color: 'white',
-                    marginTop: '15px',
-                    padding: '8px 16px',
-                    fontSize: '14px',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  🗑️ Delete Request
-                </button>
+                <div className="funding-actions">
+                  <button
+                    onClick={handleEdit}
+                    className="btn"
+                    style={{
+                      backgroundColor: '#0F766E',
+                      color: 'white',
+                      marginTop: '15px',
+                      padding: '8px 16px',
+                      fontSize: '14px',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                     Edit Request
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="btn"
+                    style={{
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      marginTop: '15px',
+                      padding: '8px 16px',
+                      fontSize: '14px',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                     Delete Request
+                  </button>
+                </div>
               )}
             </div>
 
@@ -270,7 +444,7 @@ const FundingDetail = () => {
                   rel="noopener noreferrer"
                   className="btn btn-secondary"
                 >
-                  📄 View Pitch Deck
+                   View Pitch Deck
                 </a>
               </section>
             )}
@@ -477,6 +651,8 @@ const FundingDetail = () => {
               </section>
             )}
           </div>
+            </>
+          )}
         </div>
       </div>
     </div>

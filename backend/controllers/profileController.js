@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Post from '../models/Post.js';
 import { createNotification } from './notificationController.js';
 import { getIO } from '../socket/socketHandler.js';
 
@@ -6,14 +7,24 @@ export const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
       .select('-password')
-      .populate('followers', 'name profilePhoto')
-      .populate('following', 'name profilePhoto');
+      .populate('followers', 'name profilePhoto role')
+      .populate('following', 'name profilePhoto role');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json(user);
+    // Fetch user's posts
+    const posts = await Post.find({ author: req.params.id })
+      .populate('author', 'name profilePhoto role')
+      .populate('comments.user', 'name profilePhoto')
+      .populate('taggedUsers', 'name profilePhoto')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      ...user.toObject(),
+      posts,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

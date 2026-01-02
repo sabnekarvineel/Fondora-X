@@ -13,6 +13,7 @@ import {
   deleteComment,
   sharePost,
   uploadPostMedia,
+  uploadMultipleMedia,
 } from '../controllers/postController.js';
 import { protect } from '../middleware/auth.js';
 import upload from '../middleware/upload.js';
@@ -32,5 +33,6 @@ router.post('/:id/comment', protect, addComment);
 router.delete('/:id/comment/:commentId', protect, deleteComment);
 router.post('/:id/share', protect, sharePost);
 router.post('/upload/media', protect, upload.single('media'), uploadPostMedia);
+router.post('/upload/multiple', protect, upload.array('media', 10), uploadMultipleMedia);
 
 export default router;

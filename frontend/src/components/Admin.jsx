@@ -2,9 +2,10 @@ import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import Navbar from './Navbar';
 
 const Admin = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [analytics, setAnalytics] = useState(null);
   const [users, setUsers] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -174,25 +175,17 @@ const Admin = () => {
   };
 
   if (user?.role !== 'admin') {
-    return <div className="container">Access Denied. Admin only.</div>;
+    return (
+      <div>
+        <Navbar />
+        <div className="container">Access Denied. Admin only.</div>
+      </div>
+    );
   }
 
   return (
     <div>
-      <nav className="navbar">
-        <div className="container">
-          <h1>InnovateX Hub</h1>
-          <div className="navbar-actions">
-            <Link to="/admin" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-              Admin
-            </Link>
-            <Link to="/settings" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-              Settings
-            </Link>
-            <button onClick={logout} style={{ marginLeft: '10px' }}>Logout</button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="admin-container">
         <h1>🛡️ Admin Panel</h1>

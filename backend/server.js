@@ -1,5 +1,5 @@
-import express from 'express';
 import dotenv from 'dotenv';
+import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -13,13 +13,18 @@ import searchRoutes from './routes/searchRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import jobRoutes from './routes/jobRoutes.js';
-import applicationRoutes from './routes/applicationRoutes.js';
+import applicationRoutes from './routes/applicationRoutes.js';  
 import fundingRoutes from './routes/fundingRoutes.js';
 import investorInterestRoutes from './routes/investorInterestRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
+import feedbackRoutes from './routes/feedbackRoutes.js';
 import { setupSocketIO } from './socket/socketHandler.js';
+
+
+
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +38,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   },
 });
@@ -59,9 +64,30 @@ app.use('/api/investor-interest', investorInterestRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 app.get('/', (req, res) => {
-  res.json({ message: 'InnovateX Hub API is running' });
+  res.json({ message: 'Fondora-X API is running' });
+});
+
+// Global error handling middleware
+app.use((err, req, res, next) => {
+  console.error('API Error:', {
+    message: err.message,
+    status: err.status || 500,
+    path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+  });
+
+  const status = err.status || 500;
+  const message = err.message || 'Internal Server Error';
+
+  res.status(status).json({
+    success: false,
+    message,
+    error: process.env.NODE_ENV === 'development' ? err : {},
+  });
 });
 
 const PORT = process.env.PORT || 5000;

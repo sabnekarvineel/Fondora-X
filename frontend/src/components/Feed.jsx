@@ -1,13 +1,12 @@
 import { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
-import NotificationDropdown from './NotificationDropdown';
+import Navbar from './Navbar';
 import CreatePost from './CreatePost';
 import PostCard from './PostCard';
 
 const Feed = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -35,7 +34,28 @@ const Feed = () => {
       if (showTrending) {
         setPosts(data);
       } else {
-        setPosts(data.posts);
+        // Sort startups by stage if filtering by startup role
+        let posts = data.posts;
+        if (filter === 'startup') {
+          const stageOrder = {
+            'Idea': 1,
+            'Pre-Seed': 2,
+            'Seed': 3,
+            'Series A': 4,
+            'Series B': 5,
+            'Series C': 6,
+            'Series D': 7,
+            'Series E+': 8,
+            'Post-IPO': 9
+          };
+          
+          posts = posts.sort((a, b) => {
+            const stageA = stageOrder[a.author?.fundingStage] || 999;
+            const stageB = stageOrder[b.author?.fundingStage] || 999;
+            return stageA - stageB;
+          });
+        }
+        setPosts(posts);
         setTotalPages(data.totalPages);
       }
       
@@ -60,51 +80,7 @@ const Feed = () => {
 
   return (
     <div>
-      <nav className="navbar">
-        <div className="container">
-          <h1>InnovateX Hub</h1>
-          <div className="navbar-actions">
-            {user?.role === 'admin' ? (
-              <>
-                <Link to="/admin" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Admin
-                </Link>
-                <Link to="/settings" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Settings
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/feed" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Home
-                </Link>
-                <Link to="/dashboard" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Dashboard
-                </Link>
-                <Link to="/search" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Search
-                </Link>
-                <Link to="/messages" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Messages
-                </Link>
-                <Link to="/jobs" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Jobs
-                </Link>
-                {(user?.role === 'startup' || user?.role === 'investor') && (
-                  <Link to="/funding" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                    Funding
-                  </Link>
-                )}
-                <Link to={`/profile/${user?._id}`} style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                  Profile
-                </Link>
-                <NotificationDropdown />
-              </>
-            )}
-            <button onClick={logout} style={{ marginLeft: '10px' }}>Logout</button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
       
       <div className="container">
         <div className="feed-container">

@@ -9,6 +9,7 @@ const EditProfile = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [userRole, setUserRole] = useState(''); // Track fetched role
 
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -32,6 +33,13 @@ const EditProfile = () => {
   const fetchProfile = async () => {
     try {
       const { data } = await axios.get(`/api/profile/${user._id}`);
+      console.log("Profile data:", data);
+      console.log("User role:", data.role);
+      console.log("Startup profile:", data.startupProfile);
+      
+      // Store the role
+      setUserRole(data.role);
+      
       setFormData({
         name: data.name,
         bio: data.bio || '',
@@ -45,12 +53,13 @@ const EditProfile = () => {
       } else if (data.role === 'freelancer') {
         setRoleData(data.freelancerProfile || {});
       } else if (data.role === 'startup') {
+        console.log("Setting startup role data:", data.startupProfile || {});
         setRoleData(data.startupProfile || {});
       } else if (data.role === 'investor') {
         setRoleData(data.investorProfile || {});
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching profile:", error);
     }
   };
 
@@ -63,6 +72,10 @@ const EditProfile = () => {
       ...formData,
       socialLinks: { ...formData.socialLinks, [e.target.name]: e.target.value },
     });
+  };
+
+  const onRoleDataChange = (e) => {
+    setRoleData({ ...roleData, [e.target.name]: e.target.value });
   };
 
   const addSkill = () => {
@@ -91,13 +104,13 @@ const EditProfile = () => {
         ...formData,
       };
 
-      if (user.role === 'student') {
+      if (userRole === 'student') {
         profileData.studentProfile = roleData;
-      } else if (user.role === 'freelancer') {
+      } else if (userRole === 'freelancer') {
         profileData.freelancerProfile = roleData;
-      } else if (user.role === 'startup') {
+      } else if (userRole === 'startup') {
         profileData.startupProfile = roleData;
-      } else if (user.role === 'investor') {
+      } else if (userRole === 'investor') {
         profileData.investorProfile = roleData;
       }
 
@@ -139,6 +152,7 @@ const EditProfile = () => {
     <div className="container">
       <div className="edit-profile-container">
         <h2>Edit Profile</h2>
+        <p style={{ color: '#666', fontSize: '12px' }}>Role: {userRole || 'Loading...'}</p>
         
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
@@ -242,6 +256,104 @@ const EditProfile = () => {
               placeholder="https://linkedin.com/in/username"
             />
           </div>
+
+          {/* ✅ Startup-specific fields */}
+          {userRole === 'startup' && (
+            <>
+              <h3>Startup Information</h3>
+              
+              <div className="form-group">
+                <label>Company Name</label>
+                <input
+                  type="text"
+                  name="companyName"
+                  value={roleData.companyName || ''}
+                  onChange={onRoleDataChange}
+                  placeholder="Your company name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Founder Name</label>
+                <input
+                  type="text"
+                  name="founderName"
+                  value={roleData.founderName || ''}
+                  onChange={onRoleDataChange}
+                  placeholder="Founder name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Founder Mobile Number</label>
+                <input
+                  type="tel"
+                  name="founderNumber"
+                  value={roleData.founderNumber || ''}
+                  onChange={onRoleDataChange}
+                  placeholder="10-digit mobile number"
+                  maxLength="10"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Co-founder Name (Optional)</label>
+                <input
+                  type="text"
+                  name="coFounderName"
+                  value={roleData.coFounderName || ''}
+                  onChange={onRoleDataChange}
+                  placeholder="Co-founder name (optional)"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Co-founder Mobile Number (Optional)</label>
+                <input
+                  type="tel"
+                  name="coFounderNumber"
+                  value={roleData.coFounderNumber || ''}
+                  onChange={onRoleDataChange}
+                  placeholder="10-digit mobile number (optional)"
+                  maxLength="10"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Startup Name</label>
+                <input
+                  type="text"
+                  name="startupName"
+                  value={roleData.startupName || ''}
+                  onChange={onRoleDataChange}
+                  placeholder="Startup name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Mission</label>
+                <textarea
+                  name="mission"
+                  value={roleData.mission || ''}
+                  onChange={onRoleDataChange}
+                  rows="3"
+                  placeholder="What is your startup's mission?"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Stage</label>
+                <select name="stage" value={roleData.stage || ''} onChange={onRoleDataChange}>
+                  <option value="">Select stage</option>
+                  <option value="idea">Idea</option>
+                  <option value="seed">Seed</option>
+                  <option value="series-a">Series A</option>
+                  <option value="series-b">Series B</option>
+                  <option value="series-c">Series C</option>
+                </select>
+              </div>
+            </>
+          )}
 
           <button type="submit" className="btn" disabled={loading}>
             {loading ? 'Saving...' : 'Save Changes'}

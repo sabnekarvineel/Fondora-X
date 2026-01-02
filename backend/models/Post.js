@@ -18,6 +18,21 @@ const commentSchema = new mongoose.Schema(
   }
 );
 
+const mediaItemSchema = new mongoose.Schema(
+  {
+    url: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ['image', 'video'],
+      required: true,
+    },
+  },
+  { _id: false }
+);
+
 const postSchema = new mongoose.Schema(
   {
     author: {
@@ -39,6 +54,11 @@ const postSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    mediaUrls: [{
+      type: String,
+      default: '',
+    }],
+    mediaItems: [mediaItemSchema],
     likes: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -52,6 +72,10 @@ const postSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Post',
     },
+    taggedUsers: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    }],
     views: {
       type: Number,
       default: 0,

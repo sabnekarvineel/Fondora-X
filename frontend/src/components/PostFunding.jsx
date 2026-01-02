@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import Navbar from './Navbar';
 
 const PostFunding = () => {
   const { user } = useContext(AuthContext);
@@ -72,9 +73,11 @@ const PostFunding = () => {
   };
 
   return (
-    <div className="container">
+    <div>
+      <Navbar />
+      <div className="container">
       <div className="post-funding-container">
-        <h2>💰 Post Funding Request</h2>
+        <h2> Post Funding Request</h2>
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -266,6 +269,7 @@ const PostFunding = () => {
             {loading ? 'Posting...' : 'Post Funding Request'}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );

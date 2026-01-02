@@ -7,12 +7,17 @@ const upload = multer({
     fileSize: 50 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/avi', 'video/mov', 'application/pdf'];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'video/mp4', 'video/avi', 'video/mov', 'application/pdf', 'application/octet-stream'];
     
-    if (allowedTypes.includes(file.mimetype) || file.mimetype.startsWith('video/') || file.mimetype.startsWith('image/')) {
+    if (
+      allowedTypes.includes(file.mimetype) ||
+      file.mimetype.startsWith('video/') ||
+      file.mimetype.startsWith('image/') ||
+      file.mimetype === 'application/octet-stream'
+    ) {
       cb(null, true);
     } else {
-      cb(new Error('Only images, videos, and PDFs are allowed'));
+      cb(new Error('Only images, videos, PDFs, and encrypted media are allowed'));
     }
   },
 });

@@ -4,6 +4,7 @@ import {
   getFundingRequests,
   getFundingRequest,
   getMyFundingRequests,
+  getUserFundingRequests,
   updateFundingRequest,
   deleteFundingRequest,
 } from '../controllers/fundingController.js';
@@ -14,6 +15,7 @@ const router = express.Router();
 router.post('/', protect, createFundingRequest);
 router.get('/', protect, getFundingRequests);
 router.get('/my-requests', protect, getMyFundingRequests);
+router.get('/user/:userId', getUserFundingRequests);
 router.get('/:id', protect, getFundingRequest);
 router.put('/:id', protect, updateFundingRequest);
 router.delete('/:id', protect, deleteFundingRequest);

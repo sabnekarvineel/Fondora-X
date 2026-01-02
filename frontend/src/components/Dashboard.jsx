@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Feed from './Feed';
-import NotificationDropdown from './NotificationDropdown';
+import Navbar from './Navbar';
 
 const Dashboard = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -57,52 +57,7 @@ const Dashboard = () => {
 
     return (
         <div>
-            <nav className="navbar">
-                <div className="container">
-                    <h1>InnovateX Hub</h1>
-                    <div className="navbar-actions">
-                        {user?.role !== 'admin' ? (
-                            <>
-                                <Link to="/feed" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                                    Home
-                                </Link>
-                                <Link to="/dashboard" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                                    Dashboard
-                                </Link>
-                                <Link to="/search" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                                    Search
-                                </Link>
-                                <Link to="/messages" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                                    Messages
-                                </Link>
-                                <Link to="/jobs" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                                    Jobs
-                                </Link>
-                                {(user?.role === 'startup' || user?.role === 'investor') && (
-                                    <Link to="/funding" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                                        Funding
-                                    </Link>
-                                )}
-                                <Link to={`/profile/${user?._id}`} style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                                    Profile
-                                </Link>
-                                <Link to="/edit-profile" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                                    Edit Profile
-                                </Link>
-                            </>
-                        ) : (
-                            <Link to="/admin" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                                Admin
-                            </Link>
-                        )}
-                        <Link to="/settings" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>
-                            Settings
-                        </Link>
-                        {user?.role !== 'admin' && <NotificationDropdown />}
-                        <button onClick={logout} style={{ marginLeft: '10px' }}>Logout</button>
-                    </div>
-                </div>
-            </nav>
+            <Navbar />
             <div className="container">
                 {renderRoleDashboard()}
             </div>
@@ -112,7 +67,7 @@ const Dashboard = () => {
 
 const StudentDashboard = ({ data }) => (
     <div className="role-dashboard">
-        <h2>👨‍🎓 Student Dashboard</h2>
+        <h2> Student Dashboard</h2>
 
         <div className="dashboard-stats">
             <div className="stat-card">
@@ -134,7 +89,7 @@ const StudentDashboard = ({ data }) => (
         </div>
 
         <div className="dashboard-section">
-            <h3>🎯 Suggested Internships</h3>
+            <h3> Suggested Internships</h3>
             <div className="dashboard-grid">
                 {data.suggestedJobs?.slice(0, 3).map((job) => (
                     <Link key={job._id} to={`/jobs/${job._id}`} className="dashboard-card">
@@ -148,7 +103,7 @@ const StudentDashboard = ({ data }) => (
         </div>
 
         <div className="dashboard-section">
-            <h3>📝 Recent Applications</h3>
+            <h3> Recent Applications</h3>
             {data.applications?.length > 0 ? (
                 <div className="applications-list">
                     {data.applications.map((app) => (
@@ -167,7 +122,7 @@ const StudentDashboard = ({ data }) => (
 
 const FreelancerDashboard = ({ data }) => (
     <div className="role-dashboard">
-        <h2>💼 Freelancer Dashboard</h2>
+        <h2> Freelancer Dashboard</h2>
 
         <div className="dashboard-stats">
             <div className="stat-card">
@@ -189,7 +144,7 @@ const FreelancerDashboard = ({ data }) => (
         </div>
 
         <div className="dashboard-section">
-            <h3>🎯 Suggested Projects</h3>
+            <h3>Search Projects</h3>
             <div className="dashboard-grid">
                 {data.suggestedProjects?.slice(0, 3).map((job) => (
                     <Link key={job._id} to={`/jobs/${job._id}`} className="dashboard-card">
@@ -203,7 +158,7 @@ const FreelancerDashboard = ({ data }) => (
         </div>
 
         <div className="dashboard-section">
-            <h3>📋 My Services</h3>
+            <h3> My Services</h3>
             {data.myJobs?.length > 0 ? (
                 <div className="jobs-list">
                     {data.myJobs.map((job) => (
@@ -222,7 +177,7 @@ const FreelancerDashboard = ({ data }) => (
 
 const StartupDashboard = ({ data }) => (
     <div className="role-dashboard">
-        <h2>🚀 Startup Dashboard</h2>
+        <h2> Startup Dashboard</h2>
 
         <div className="dashboard-stats">
             <div className="stat-card">
@@ -244,7 +199,7 @@ const StartupDashboard = ({ data }) => (
         </div>
 
         <div className="dashboard-section">
-            <h3>💼 Job Postings</h3>
+            <h3> Job Postings</h3>
             {data.myJobs?.length > 0 ? (
                 <div className="jobs-list">
                     {data.myJobs.map((job) => (
@@ -263,7 +218,7 @@ const StartupDashboard = ({ data }) => (
         </div>
 
         <div className="dashboard-section">
-            <h3>💰 Funding Requests</h3>
+            <h3> Funding Requests</h3>
             {data.myFundingRequests?.length > 0 ? (
                 <div className="funding-list">
                     {data.myFundingRequests.map((request) => (
@@ -285,7 +240,7 @@ const StartupDashboard = ({ data }) => (
 
 const InvestorDashboard = ({ data }) => (
     <div className="role-dashboard">
-        <h2>💎 Investor Dashboard</h2>
+        <h2> Investor Dashboard</h2>
 
         <div className="dashboard-stats">
             <div className="stat-card">
@@ -307,7 +262,7 @@ const InvestorDashboard = ({ data }) => (
         </div>
 
         <div className="dashboard-section">
-            <h3>🎯 Recommended Startups</h3>
+            <h3> Explore Startups</h3>
             <div className="dashboard-grid">
                 {data.recommendedStartups?.slice(0, 3).map((request) => (
                     <Link key={request._id} to={`/funding/${request._id}`} className="dashboard-card">
@@ -321,7 +276,7 @@ const InvestorDashboard = ({ data }) => (
         </div>
 
         <div className="dashboard-section">
-            <h3>📊 My Interests</h3>
+            <h3> My Interests</h3>
             {data.myInterests?.length > 0 ? (
                 <div className="interests-list">
                     {data.myInterests.map((interest) => (

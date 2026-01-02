@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import Navbar from './Navbar';
 
 const Jobs = () => {
   const { user } = useContext(AuthContext);
@@ -40,7 +41,9 @@ const Jobs = () => {
   };
 
   return (
-    <div className="jobs-container">
+    <div>
+      <Navbar />
+      <div className="jobs-container">
       <div className="jobs-header">
         <h2>Jobs & Opportunities</h2>
         {(user?.role === 'startup' || user?.role === 'freelancer') && (
@@ -143,12 +146,12 @@ const Jobs = () => {
               <div className="job-footer">
                 {job.budget && (
                   <span className="job-budget">
-                    💰 {job.budget.min} - {job.budget.max}
+                     {job.budget.min} - {job.budget.max}
                   </span>
                 )}
                 {job.duration && (
                   <span className="job-duration">
-                    ⏱️ {job.duration.value} {job.duration.unit}
+                     {job.duration.value} {job.duration.unit}
                   </span>
                 )}
                 <span className="job-applications">
@@ -158,6 +161,7 @@ const Jobs = () => {
             </Link>
           ))
         )}
+        </div>
       </div>
     </div>
   );

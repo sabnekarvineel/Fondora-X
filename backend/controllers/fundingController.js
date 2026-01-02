@@ -163,6 +163,26 @@ export const getMyFundingRequests = async (req, res) => {
   }
 };
 
+export const getUserFundingRequests = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const fundingRequests = await FundingRequest.find({ startup: userId })
+      .populate({
+        path: 'interests',
+        populate: {
+          path: 'investor',
+          select: 'name profilePhoto investorProfile',
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    res.json(fundingRequests);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const updateFundingRequest = async (req, res) => {
   try {
     const fundingRequest = await FundingRequest.findById(req.params.id);

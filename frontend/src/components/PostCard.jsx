@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import ShareModal from './ShareModal';
 
 const PostCard = ({ post, onDelete, onUpdate }) => {
   const { user } = useContext(AuthContext);
@@ -12,6 +13,7 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
   const [commentText, setCommentText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(post.content);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const handleLike = async () => {
     try {
@@ -86,20 +88,8 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      const token = user?.token;
-      await axios.post(
-        `/api/posts/${post._id}/share`,
-        { content: `Check this out!` },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      alert('Post shared!');
-    } catch (error) {
-      console.error(error);
-    }
+  const handleShare = () => {
+    setShowShareModal(true);
   };
 
   const formatDate = (date) => {
@@ -162,11 +152,45 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
           <p>{post.content}</p>
         )}
 
-        {post.mediaUrl && post.mediaType === 'image' && (
+        {/* Display multiple media items in grid */}
+        {post.mediaItems && post.mediaItems.length > 0 && (
+          <div className={`media-grid grid-${Math.min(post.mediaItems.length, 4)}`}>
+            {post.mediaItems.map((item, index) => (
+              <div key={index} className="grid-media-wrapper">
+                {item.type === 'video' ? (
+                  <video 
+                    src={item.url} 
+                    controls 
+                    className="grid-media" 
+                    title={`Video ${index + 1}`}
+                  />
+                ) : (
+                  <img 
+                    src={item.url} 
+                    alt={`Post media ${index + 1}`} 
+                    className="grid-media" 
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Fallback to mediaUrls for backward compatibility */}
+        {(!post.mediaItems || post.mediaItems.length === 0) && post.mediaUrls && post.mediaUrls.length > 0 && (
+          <div className={`media-grid grid-${Math.min(post.mediaUrls.length, 4)}`}>
+            {post.mediaUrls.map((url, index) => (
+              <img key={index} src={url} alt={`Post media ${index + 1}`} className="grid-media" />
+            ))}
+          </div>
+        )}
+
+        {/* Single media fallback (old format) */}
+        {(!post.mediaItems || post.mediaItems.length === 0) && (!post.mediaUrls || post.mediaUrls.length === 0) && post.mediaUrl && post.mediaType === 'image' && (
           <img src={post.mediaUrl} alt="Post media" className="post-media" />
         )}
 
-        {post.mediaUrl && post.mediaType === 'video' && (
+        {(!post.mediaItems || post.mediaItems.length === 0) && (!post.mediaUrls || post.mediaUrls.length === 0) && post.mediaUrl && post.mediaType === 'video' && (
           <video src={post.mediaUrl} controls className="post-media" />
         )}
 
@@ -174,6 +198,25 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
           <div className="shared-post">
             <p>Shared post from {post.sharedPost.author?.name}</p>
             <p>{post.sharedPost.content}</p>
+          </div>
+        )}
+
+        {/* Display tagged users */}
+        {post.taggedUsers && post.taggedUsers.length > 0 && (
+          <div className="tagged-users-section">
+            <span className="tagged-label">Tagged: </span>
+            <div className="tagged-users-list">
+              {post.taggedUsers.map((user) => (
+                <Link
+                  key={user._id}
+                  to={`/profile/${user._id}`}
+                  className="tagged-user-link"
+                  title={user.name}
+                >
+                  {user.name}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -232,6 +275,12 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
           </div>
         </div>
       )}
+
+      <ShareModal
+        post={post}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   );
 };
