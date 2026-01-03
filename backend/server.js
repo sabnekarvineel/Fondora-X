@@ -36,22 +36,36 @@ connectDB();
 const app = express();
 const httpServer = createServer(app);
 
-// Define allowed origins for CORS and Socket.IO
-const allowedOrigins = [
-  'https://fondora-x.vercel.app',
-  'https://fondora-9d01qrw6m-sabnekarvineels-projects.vercel.app',
-  'http://localhost:3000', // Development
-];
+// Dynamic CORS origin validator for Vercel preview deployments
+const corsOriginValidator = (origin, callback) => {
+  // Whitelist of static origins
+  const whitelistedOrigins = [
+    'https://fondora-x.vercel.app', // Production Vercel
+    'http://localhost:3000', // Local development
+  ];
 
-// Add CLIENT_URL from env if provided (for custom deployments)
-if (process.env.CLIENT_URL && !allowedOrigins.includes(process.env.CLIENT_URL)) {
-  allowedOrigins.push(process.env.CLIENT_URL);
-}
+  // Add CLIENT_URL from env if provided (for custom deployments)
+  if (process.env.CLIENT_URL && !whitelistedOrigins.includes(process.env.CLIENT_URL)) {
+    whitelistedOrigins.push(process.env.CLIENT_URL);
+  }
 
-// Socket.IO configuration with multi-origin CORS support
+  // Allow all Vercel preview deployments (pattern: *.vercel.app)
+  // Also allow undefined origin for same-origin requests and mobile apps
+  if (
+    !origin || // same-origin requests
+    whitelistedOrigins.includes(origin) ||
+    /^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin) // All Vercel preview/production URLs
+  ) {
+    callback(null, true);
+  } else {
+    callback(new Error(`CORS not allowed for origin: ${origin}`));
+  }
+};
+
+// Socket.IO configuration with dynamic CORS support
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: corsOriginValidator,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowEIO3: true, // Enable compatibility with older Socket.IO clients
@@ -60,9 +74,9 @@ const io = new Server(httpServer, {
 
 setupSocketIO(io);
 
-// Express CORS middleware with same allowed origins
+// Express CORS middleware with same dynamic origin validator
 app.use(cors({
-  origin: allowedOrigins,
+  origin: corsOriginValidator,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
