@@ -2,6 +2,9 @@ import { useState, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 
+const API = import.meta.env.VITE_API_URL;
+
+
 const CreatePost = ({ onPostCreated }) => {
   const { user } = useContext(AuthContext);
   const [content, setContent] = useState('');
@@ -38,12 +41,17 @@ const CreatePost = ({ onPostCreated }) => {
           formData.append('media', file);
         });
 
-        const uploadRes = await axios.post('/api/posts/upload/multiple', formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+                const uploadRes = await axios.post(
+            `${API}/api/posts/upload/multiple`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+              },
+            }
+          );
+
 
         mediaUrls = uploadRes.data.mediaUrls;
         mediaItems = uploadRes.data.mediaItems;
@@ -55,19 +63,20 @@ const CreatePost = ({ onPostCreated }) => {
       }
 
       const { data } = await axios.post(
-        '/api/posts',
-        {
-          content,
-          mediaUrl,
-          mediaUrls,
-          mediaItems,
-          mediaType,
-          taggedUsers,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+          `${API}/api/posts`,
+          {
+            content,
+            mediaUrl,
+            mediaUrls,
+            mediaItems,
+            mediaType,
+            taggedUsers,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
 
       onPostCreated(data);
       setContent('');
@@ -149,10 +158,14 @@ const CreatePost = ({ onPostCreated }) => {
 
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/search/quick-search', {
-        params: { query },
-        headers: { Authorization: `Bearer ${token}` },
-      });
+          const { data } = await axios.get(
+        `${API}/api/search/quick-search`,
+        {
+          params: { query },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       // Filter out already tagged users
       const filtered = data.filter(u => !taggedUsers.includes(u._id));
       setAvailableUsers(filtered);
