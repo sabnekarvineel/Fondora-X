@@ -240,12 +240,11 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
         try {
             const token = user?.token;
             await axios.put(
-                `${API}/api/messages/conversation/${conversation._id}/seen`,
-                {},
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
+            `${API}/api/messages/${messageId}`,
+            { content: encryptedContent, isEncrypted: true },
+            { headers: { Authorization: `Bearer ${token}` } }
             );
+
         } catch (error) {
             console.error(error);
         }
@@ -324,22 +323,22 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
             const messageContent = newMessage || (messageType !== 'text' ? 'Shared Media' : '');
             const encryptedContent = await encryptMessage(messageContent, encryptionKey);
 
-            const { data } = await axios.post(
-                '/api/messages/send',
-                {
-                    conversationId: conversation._id,
-                    content: encryptedContent,
-                    messageType,
-                    encryptedMediaUrl,
-                    mediaIv,
-                    originalFileName,
-                    mediaMimeType,
-                    isEncrypted: true,
-                    isMediaEncrypted: !!encryptedMediaUrl,
-                },
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
+           const { data } = await axios.post(
+            `${API}/api/messages/send`,
+            {
+                conversationId: conversation._id,
+                content: encryptedContent,
+                messageType,
+                encryptedMediaUrl,
+                mediaIv,
+                originalFileName,
+                mediaMimeType,
+                isEncrypted: true,
+                isMediaEncrypted: !!encryptedMediaUrl,
+            },
+            {
+                headers: { Authorization: `Bearer ${token}` },
+            }
             );
 
             // Store decrypted version locally for immediate display
