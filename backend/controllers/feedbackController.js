@@ -15,8 +15,8 @@ export const submitFeedback = async (req, res) => {
     }
 
     const feedback = new Feedback({
-      userId,
-      userEmail,
+      userId: userId || req.user?._id,
+      userEmail: userEmail || req.user?.email,
       type,
       subject,
       message,
@@ -24,27 +24,38 @@ export const submitFeedback = async (req, res) => {
     });
 
     // 💾 Save feedback first
-    await feedback.save();
+    try {
+      await feedback.save();
+    } catch (saveErr) {
+      console.error('Error saving feedback:', saveErr.message);
+      return res.status(500).json({ message: 'Failed to save feedback' });
+    }
 
-    // 📧 Send to EMAIL_USER
-    await sendEmail({
-      to: process.env.EMAIL_USER,
-      subject: `New Feedback (${type.toUpperCase()})`,
-      html: `
-        <h3>New Feedback</h3>
-        <p><b>From:</b> ${userEmail}</p>
-        <p><b>Type:</b> ${type}</p>
-        <p><b>Subject:</b> ${subject}</p>
-        <p>${message}</p>
-      `,
-    });
+    // 📧 Send to EMAIL_USER (non-blocking, don't crash if email fails)
+    if (process.env.EMAIL_USER) {
+      sendEmail({
+        to: process.env.EMAIL_USER,
+        subject: `New Feedback (${type.toUpperCase()})`,
+        html: `
+          <h3>New Feedback</h3>
+          <p><b>From:</b> ${userEmail || req.user?.email || 'Unknown'}</p>
+          <p><b>Type:</b> ${type}</p>
+          <p><b>Subject:</b> ${subject}</p>
+          <p>${message}</p>
+        `,
+      }).catch((emailErr) => {
+        console.warn('Failed to send feedback email:', emailErr.message);
+        // Don't crash - email is optional
+      });
+    }
 
     res.status(201).json({
       message: 'Feedback submitted successfully',
       feedback,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error in submitFeedback:', error.message);
+    res.status(500).json({ message: 'Failed to submit feedback' });
   }
 };
 

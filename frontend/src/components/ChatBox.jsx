@@ -284,8 +284,8 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
             if (!token) return;
             
             await axios.put(
-                `${API}/api/messages/conversation/${conversation._id}/markSeen`,
-                { conversationId: conversation._id },
+                `${API}/api/messages/conversation/${conversation._id}/seen`,
+                {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
         } catch (error) {
