@@ -121,10 +121,10 @@ const FundingDetail = () => {
   };
 
   useEffect(() => {
-    if (fundingRequest && fundingRequest.startup._id === user._id) {
+    if (fundingRequest && fundingRequest.startup && fundingRequest.startup._id === user?._id) {
       fetchInterests();
     }
-  }, [fundingRequest]);
+  }, [fundingRequest, user]);
 
   const handleEdit = () => {
     setEditData(fundingRequest);
@@ -188,8 +188,8 @@ const FundingDetail = () => {
   if (loading) return <div className="loading">Loading...</div>;
   if (!fundingRequest) return <div className="error">Funding request not found</div>;
 
-  const isOwner = fundingRequest.startup._id === user._id;
-  const canExpressInterest = user.role === 'investor' && !isOwner;
+  const isOwner = fundingRequest.startup && fundingRequest.startup._id === user?._id;
+  const canExpressInterest = user?.role === 'investor' && !isOwner;
 
   return (
     <div>
@@ -594,12 +594,14 @@ const FundingDetail = () => {
                             className="investor-avatar"
                           />
                           <div>
-                            <Link
-                              to={`/profile/${interest.investor._id}`}
-                              className="investor-name"
-                            >
-                              {interest.investor?.name}
-                            </Link>
+                            {interest.investor && (
+                              <Link
+                                to={`/profile/${interest.investor._id}`}
+                                className="investor-name"
+                              >
+                                {interest.investor?.name}
+                              </Link>
+                            )}
                             <p className="investor-role">Investor</p>
                           </div>
                         </div>
