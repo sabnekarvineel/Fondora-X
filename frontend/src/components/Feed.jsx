@@ -87,13 +87,15 @@ const Feed = () => {
   };
 
   const handlePostDeleted = (postId) => {
-    setPosts((prev) => prev.filter((post) => post._id !== postId));
+    if (!postId) return;
+    setPosts((prev) => prev.filter((post) => post && post._id !== postId));
   };
 
   const handlePostUpdated = (updatedPost) => {
+    if (!updatedPost || !updatedPost._id) return;
     setPosts((prev) =>
       prev.map((post) =>
-        post._id === updatedPost._id ? updatedPost : post
+        post && post._id === updatedPost._id ? updatedPost : post
       )
     );
   };
