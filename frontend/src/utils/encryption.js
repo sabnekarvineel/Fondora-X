@@ -29,17 +29,38 @@ export const exportKey = async (key) => {
 
 // Import key from stored format
 export const importKey = async (keyString) => {
-  const keyBuffer = base64ToArrayBuffer(keyString);
-  return await window.crypto.subtle.importKey(
-    'raw',
-    keyBuffer,
-    {
-      name: ALGORITHM,
-      length: KEY_LENGTH,
-    },
-    true,
-    ['encrypt', 'decrypt']
-  );
+  try {
+    // Guard: validate input
+    if (!keyString || typeof keyString !== 'string') {
+      throw new Error('Invalid key string: must be a non-empty string');
+    }
+
+    let keyBuffer;
+    try {
+      keyBuffer = base64ToArrayBuffer(keyString);
+    } catch (parseError) {
+      throw new Error(`Invalid key format: ${parseError.message}`);
+    }
+
+    // Guard: validate key length
+    if (!keyBuffer || keyBuffer.byteLength !== KEY_LENGTH / 8) {
+      throw new Error(`Invalid key length: expected ${KEY_LENGTH / 8} bytes, got ${keyBuffer.byteLength}`);
+    }
+
+    return await window.crypto.subtle.importKey(
+      'raw',
+      keyBuffer,
+      {
+        name: ALGORITHM,
+        length: KEY_LENGTH,
+      },
+      true,
+      ['encrypt', 'decrypt']
+    );
+  } catch (error) {
+    console.error('Failed to import key:', error.message || error);
+    throw error;
+  }
 };
 
 // Encrypt a message using AES-256-GCM
@@ -81,18 +102,43 @@ export const decryptMessage = async (encryptedData, key) => {
       return '[Encrypted message]';
     }
 
-    const combined = base64ToArrayBuffer(encryptedData);
+    // Guard: validate encryptedData is a string
+    if (typeof encryptedData !== 'string') {
+      console.warn('Decryption failed: encryptedData is not a string');
+      return '[Encrypted message]';
+    }
+
+    // Guard: validate key object
+    if (typeof key !== 'object' || !key.type) {
+      console.warn('Decryption failed: invalid key object');
+      return '[Encrypted message]';
+    }
+
+    let combined;
+    try {
+      combined = base64ToArrayBuffer(encryptedData);
+    } catch (parseError) {
+      console.warn('Decryption failed: invalid base64 format', parseError.message);
+      return '[Encrypted message]';
+    }
+
     const combinedArray = new Uint8Array(combined);
     
     // Guard: validate data length
     if (combinedArray.byteLength < IV_LENGTH) {
-      console.warn('Decryption failed: invalid encrypted data format');
+      console.warn('Decryption failed: invalid encrypted data format (too short)');
       return '[Encrypted message]';
     }
     
     // Extract IV and encrypted data
     const iv = combinedArray.slice(0, IV_LENGTH);
     const encrypted = combinedArray.slice(IV_LENGTH);
+
+    // Guard: ensure we have encrypted data after IV
+    if (encrypted.byteLength === 0) {
+      console.warn('Decryption failed: no encrypted data after IV');
+      return '[Encrypted message]';
+    }
     
     const decrypted = await window.crypto.subtle.decrypt(
       {
@@ -225,23 +271,49 @@ export const exportAllKeys = async (password) => {
 
 // Import keys from backup
 export const importAllKeys = async (backup, password) => {
-  const salt = new Uint8Array(base64ToArrayBuffer(backup.salt));
-  const iv = new Uint8Array(base64ToArrayBuffer(backup.iv));
-  const encrypted = base64ToArrayBuffer(backup.data);
-  
-  const decryptionKey = await deriveKeyFromPassword(password, salt);
-  
-  const decrypted = await window.crypto.subtle.decrypt(
-    { name: ALGORITHM, iv },
-    decryptionKey,
-    encrypted
-  );
-  
-  const decoder = new TextDecoder();
-  const keys = JSON.parse(decoder.decode(decrypted));
-  
-  for (const [conversationId, keyData] of Object.entries(keys)) {
-    localStorage.setItem(`${KEY_STORAGE_PREFIX}${conversationId}`, keyData);
+  try {
+    // Guard: validate inputs
+    if (!backup || !password || typeof password !== 'string') {
+      throw new Error('Invalid backup or password');
+    }
+
+    if (!backup.salt || !backup.iv || !backup.data) {
+      throw new Error('Invalid backup format: missing required fields');
+    }
+
+    let salt, iv, encrypted;
+    try {
+      salt = new Uint8Array(base64ToArrayBuffer(backup.salt));
+      iv = new Uint8Array(base64ToArrayBuffer(backup.iv));
+      encrypted = base64ToArrayBuffer(backup.data);
+    } catch (parseError) {
+      throw new Error(`Invalid backup encoding: ${parseError.message}`);
+    }
+    
+    const decryptionKey = await deriveKeyFromPassword(password, salt);
+    
+    const decrypted = await window.crypto.subtle.decrypt(
+      { name: ALGORITHM, iv },
+      decryptionKey,
+      encrypted
+    );
+    
+    const decoder = new TextDecoder();
+    const keys = JSON.parse(decoder.decode(decrypted));
+    
+    // Guard: validate parsed keys
+    if (!keys || typeof keys !== 'object') {
+      throw new Error('Invalid decrypted backup format');
+    }
+
+    for (const [conversationId, keyData] of Object.entries(keys)) {
+      if (conversationId && keyData) {
+        localStorage.setItem(`${KEY_STORAGE_PREFIX}${conversationId}`, keyData);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to import keys from backup:', error.message || error);
+    throw error;
   }
 };
 

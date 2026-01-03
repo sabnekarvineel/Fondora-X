@@ -51,15 +51,31 @@ export const decryptMedia = async (encryptedBase64, ivBase64, encryptionKey) => 
       throw new Error('Missing required decryption parameters');
     }
 
-    const encrypted = base64ToArrayBuffer(encryptedBase64);
-    const iv = new Uint8Array(base64ToArrayBuffer(ivBase64));
+    // Guard: validate types
+    if (typeof encryptedBase64 !== 'string' || typeof ivBase64 !== 'string') {
+      throw new Error('Invalid data format: expected strings');
+    }
+
+    if (typeof encryptionKey !== 'object' || !encryptionKey.type) {
+      throw new Error('Invalid encryption key object');
+    }
+
+    let encrypted, ivBuffer;
+    try {
+      encrypted = base64ToArrayBuffer(encryptedBase64);
+      ivBuffer = base64ToArrayBuffer(ivBase64);
+    } catch (parseError) {
+      throw new Error(`Invalid base64 format: ${parseError.message}`);
+    }
+
+    const iv = new Uint8Array(ivBuffer);
 
     // Guard: validate data
     if (!encrypted || encrypted.byteLength === 0) {
       throw new Error('Invalid encrypted media data');
     }
     if (iv.byteLength !== IV_LENGTH) {
-      throw new Error('Invalid IV length');
+      throw new Error(`Invalid IV length: expected ${IV_LENGTH}, got ${iv.byteLength}`);
     }
 
     const decrypted = await window.crypto.subtle.decrypt(
@@ -74,7 +90,7 @@ export const decryptMedia = async (encryptedBase64, ivBase64, encryptionKey) => 
     return decrypted;
   } catch (error) {
     console.error('Media decryption failed:', error.message || error);
-    throw new Error('Failed to decrypt media');
+    throw error;
   }
 };
 
@@ -196,23 +212,47 @@ export const downloadAndDecryptMedia = async (
   mimeType
 ) => {
   try {
+    // Guard: validate inputs
+    if (!encryptedUrl || !iv || !encryptionKey) {
+      throw new Error('Missing required parameters for media decryption');
+    }
+
+    if (typeof encryptedUrl !== 'string' || typeof iv !== 'string') {
+      throw new Error('Invalid parameter types');
+    }
+
+    if (typeof encryptionKey !== 'object' || !encryptionKey.type) {
+      throw new Error('Invalid encryption key');
+    }
+
     // Fetch encrypted media
     const response = await fetch(encryptedUrl);
     if (!response.ok) {
-      throw new Error('Failed to fetch encrypted media');
+      throw new Error(`Failed to fetch encrypted media: ${response.statusText}`);
     }
 
     const encryptedBuffer = await response.arrayBuffer();
+    
+    // Guard: validate fetched data
+    if (!encryptedBuffer || encryptedBuffer.byteLength === 0) {
+      throw new Error('Downloaded media is empty');
+    }
+
     const encryptedBase64 = arrayBufferToBase64(encryptedBuffer);
 
     // Decrypt media
     const decryptedBuffer = await decryptMedia(encryptedBase64, iv, encryptionKey);
 
+    // Guard: validate decrypted data
+    if (!decryptedBuffer || decryptedBuffer.byteLength === 0) {
+      throw new Error('Decrypted media is empty');
+    }
+
     // Create object URL
     return createMediaURL(decryptedBuffer, mimeType);
   } catch (error) {
-    console.error('Media download and decryption failed:', error);
-    throw new Error('Failed to decrypt media');
+    console.error('Media download and decryption failed:', error.message || error);
+    throw error;
   }
 };
 
