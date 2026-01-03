@@ -142,6 +142,10 @@ export const followUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    if (!currentUser) {
+      return res.status(404).json({ message: 'Current user not found' });
+    }
+
     if (req.params.id === req.user._id.toString()) {
       return res.status(400).json({ message: 'You cannot follow yourself' });
     }
@@ -182,6 +186,10 @@ export const unfollowUser = async (req, res) => {
 
     if (!userToUnfollow) {
       return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!currentUser) {
+      return res.status(404).json({ message: 'Current user not found' });
     }
 
     if (!currentUser.following.includes(req.params.id)) {
