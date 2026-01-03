@@ -104,19 +104,24 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     }
                     
                     try {
-                        const mediaUrl = await downloadAndDecryptMedia(
-                            message.encryptedMediaUrl,
-                            message.mediaIv,
-                            encryptionKey,
-                            message.mediaMimeType
-                        );
-                        setDecryptedMediaUrls((prev) => ({
-                            ...prev,
-                            [message._id]: mediaUrl,
-                        }));
-                    } catch (error) {
-                        console.error(`Failed to decrypt media for message ${message._id}:`, error.message || error);
-                    }
+                         const mediaUrl = await downloadAndDecryptMedia(
+                             message.encryptedMediaUrl,
+                             message.mediaIv,
+                             encryptionKey,
+                             message.mediaMimeType
+                         );
+                         setDecryptedMediaUrls((prev) => ({
+                             ...prev,
+                             [message._id]: mediaUrl,
+                         }));
+                     } catch (error) {
+                         console.error(`Failed to decrypt media for message ${message._id}:`, error.message || error);
+                         // Set a fallback indicator so UI knows not to keep loading
+                         setDecryptedMediaUrls((prev) => ({
+                             ...prev,
+                             [message._id]: null, // null indicates decryption failed
+                         }));
+                     }
                 });
             }
         }
@@ -709,25 +714,29 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                                 ) : (
                                     <>
                                         {message.messageType === 'image' && message.encryptedMediaUrl && (
-                                            <div className="message-media-container">
-                                                {decryptedMediaUrls[message._id] ? (
-                                                    <img src={decryptedMediaUrls[message._id]} alt="Encrypted" className="message-image" />
-                                                ) : (
-                                                    <div className="media-loading">Loading encrypted media...</div>
-                                                )}
-                                            </div>
-                                        )}
-                                        {message.messageType === 'video' && message.encryptedMediaUrl && (
-                                            <div className="message-media-container">
-                                                {decryptedMediaUrls[message._id] ? (
-                                                    <video controls className="message-video">
-                                                        <source src={decryptedMediaUrls[message._id]} type={message.mediaMimeType} />
-                                                    </video>
-                                                ) : (
-                                                    <div className="media-loading">Loading encrypted video...</div>
-                                                )}
-                                            </div>
-                                        )}
+                                             <div className="message-media-container">
+                                                 {decryptedMediaUrls[message._id] ? (
+                                                     <img src={decryptedMediaUrls[message._id]} alt="Encrypted" className="message-image" />
+                                                 ) : decryptedMediaUrls[message._id] === null ? (
+                                                     <div className="media-error">Unable to decrypt image. Encryption key may have changed.</div>
+                                                 ) : (
+                                                     <div className="media-loading">Loading encrypted media...</div>
+                                                 )}
+                                             </div>
+                                         )}
+                                         {message.messageType === 'video' && message.encryptedMediaUrl && (
+                                             <div className="message-media-container">
+                                                 {decryptedMediaUrls[message._id] ? (
+                                                     <video controls className="message-video">
+                                                         <source src={decryptedMediaUrls[message._id]} type={message.mediaMimeType} />
+                                                     </video>
+                                                 ) : decryptedMediaUrls[message._id] === null ? (
+                                                     <div className="media-error">Unable to decrypt video. Encryption key may have changed.</div>
+                                                 ) : (
+                                                     <div className="media-loading">Loading encrypted video...</div>
+                                                 )}
+                                             </div>
+                                         )}
                                         {message.messageType === 'image' && message.imageUrl && !message.encryptedMediaUrl && (
                                             <img src={message.imageUrl} alt="Message" className="message-image" />
                                         )}
