@@ -2,6 +2,8 @@ import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+
+const API = import.meta.env.VITE_API_URL;
 import SocketContext from '../context/SocketContext';
 import { decryptMessage, getStoredConversationKey } from '../utils/encryption';
 
@@ -59,7 +61,7 @@ const ConversationList = ({
       setSearching(true);
       try {
         const token = user?.token;
-        const { data } = await axios.get('/api/search/users', {
+        const { data } = await axios.get(`${API}/api/search/users`, {
           headers: { Authorization: `Bearer ${token}` },
           params: { query },
         });
@@ -76,7 +78,7 @@ const ConversationList = ({
   const handleUserClick = async (userId) => {
     try {
       const token = user?.token;
-      const { data } = await axios.get(`/api/messages/conversation/${userId}`, {
+      const { data } = await axios.get(`${API}/api/messages/conversation/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       onNewConversation(data);

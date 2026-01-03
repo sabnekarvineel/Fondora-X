@@ -1,4 +1,4 @@
-# InnovateX Hub - Full Stack Platform
+# Fondora-X - Full Stack Platform
 
 MERN stack application connecting students, freelancers, startups, and investors.
 

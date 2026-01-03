@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+
+const API = import.meta.env.VITE_API_URL;
 import SocketContext from '../context/SocketContext';
 import {
     encryptMessage,
@@ -221,7 +223,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
             setLoading(true);
             const token = user?.token;
             const { data } = await axios.get(
-                `/api/messages/conversation/${conversation._id}/messages`,
+                `${API}/api/messages/conversation/${conversation._id}/messages`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -238,7 +240,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
         try {
             const token = user?.token;
             await axios.put(
-                `/api/messages/conversation/${conversation._id}/seen`,
+                `${API}/api/messages/conversation/${conversation._id}/seen`,
                 {},
                 {
                     headers: { Authorization: `Bearer ${token}` },
@@ -295,7 +297,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                 formData.append('mimeType', mediaFile.type);
 
                     // Upload encrypted media
-                    const uploadRes = await axios.post('/api/messages/upload/encrypted-media', formData, {
+                    const uploadRes = await axios.post(`${API}/api/messages/upload/encrypted-media`, formData, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
@@ -434,7 +436,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
         if (!window.confirm('Delete this message?')) return;
         try {
             const token = user?.token;
-            await axios.delete(`/api/messages/${messageId}`, {
+            await axios.delete(`${API}/api/messages/${messageId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
