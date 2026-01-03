@@ -152,7 +152,17 @@ export const decryptMessage = async (encryptedData, key) => {
     const decoder = new TextDecoder();
     return decoder.decode(decrypted);
   } catch (error) {
-    console.error('Decryption failed:', error.message || error);
+    // Distinguish between different error types for better logging
+    if (error.name === 'OperationError') {
+      console.warn(
+        'Decryption OperationError: The cryptographic operation failed. ' +
+        'This can happen due to: wrong key, corrupted data, or key mismatch. ' +
+        'Message will be shown as encrypted.',
+        { errorMessage: error.message }
+      );
+    } else {
+      console.error('Decryption failed:', error.message || error);
+    }
     // Return user-friendly fallback without exposing crypto errors
     return '[Encrypted message]';
   }

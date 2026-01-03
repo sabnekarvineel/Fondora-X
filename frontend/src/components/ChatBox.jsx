@@ -39,6 +39,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
     const typingTimeoutRef = useRef(null);
     const menuRef = useRef(null);
     const headerMenuRef = useRef(null);
+    const pendingMessagesRef = useRef([]); // Queue for messages arriving before key is ready
 
     // Initialize encryption key for this conversation
     useEffect(() => {
@@ -48,6 +49,43 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     const key = await getOrCreateConversationKey(conversation._id);
                     setEncryptionKey(key);
                     setEncryptionReady(true);
+
+                    // Process any pending messages that arrived before key was ready
+                    if (pendingMessagesRef.current.length > 0) {
+                        console.log(`Processing ${pendingMessagesRef.current.length} pending messages`);
+                        const pendingMessages = pendingMessagesRef.current.splice(0);
+                        
+                        for (const msg of pendingMessages) {
+                            setMessages((prev) => {
+                                if (!Array.isArray(prev)) return [msg];
+                                // Avoid duplicates
+                                if (prev.some((m) => m._id === msg._id)) return prev;
+                                return [...prev, msg];
+                            });
+
+                            // Decrypt each pending message
+                            if (msg.isEncrypted === true && msg.content) {
+                                try {
+                                    const decrypted = await decryptMessage(msg.content, key);
+                                    setDecryptedMessages((prev) => ({
+                                        ...prev,
+                                        [msg._id]: decrypted,
+                                    }));
+                                } catch (error) {
+                                    console.error(`Failed to decrypt pending message ${msg._id}:`, error.message || error);
+                                    setDecryptedMessages((prev) => ({
+                                        ...prev,
+                                        [msg._id]: '[Encrypted message]',
+                                    }));
+                                }
+                            } else {
+                                setDecryptedMessages((prev) => ({
+                                    ...prev,
+                                    [msg._id]: msg.content || '',
+                                }));
+                            }
+                        }
+                    }
                 } catch (error) {
                     console.error('Failed to initialize encryption:', error);
                     setEncryptionReady(false);
@@ -148,12 +186,19 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     return;
                 }
                 
+                // Guard: if encryption key is not ready yet, queue the message
+                if (!encryptionReady) {
+                    pendingMessagesRef.current.push(message);
+                    console.log(`Message queued (key not ready): ${message._id}`);
+                    return;
+                }
+
                 setMessages((prev) => {
                     if (!Array.isArray(prev)) return [message];
                     return [...prev, message];
                 });
 
-                // Decrypt the new message
+                // Decrypt the new message - encryptionKey is guaranteed to exist here
                 if (message.isEncrypted === true && message.content && encryptionKey) {
                     try {
                         const decrypted = await decryptMessage(message.content, encryptionKey);

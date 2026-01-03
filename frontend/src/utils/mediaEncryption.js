@@ -89,7 +89,18 @@ export const decryptMedia = async (encryptedBase64, ivBase64, encryptionKey) => 
 
     return decrypted;
   } catch (error) {
-    console.error('Media decryption failed:', error.message || error);
+    // Distinguish between different error types for better logging
+    if (error.name === 'OperationError') {
+      console.warn(
+        'Media decryption OperationError: The cryptographic operation failed. ' +
+        'This typically means the encryption key has changed or the media is corrupted. ' +
+        'Media will not be displayed.',
+        { errorMessage: error.message }
+      );
+    } else {
+      console.error('Media decryption failed:', error.message || error);
+    }
+    // Re-throw so the caller can decide how to handle (fallback UI)
     throw error;
   }
 };
