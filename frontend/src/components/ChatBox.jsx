@@ -59,30 +59,50 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
 
     // Decrypt messages when they change or when encryption key is ready
     const decryptMessages = useCallback(async (msgs) => {
-        if (!encryptionKey || !msgs.length) return;
+        // Guard: validate inputs
+        if (!encryptionKey) return;
+        if (!Array.isArray(msgs) || msgs.length === 0) return;
 
         const decrypted = {};
         for (const msg of msgs) {
-            if (msg.isEncrypted && msg.content) {
+            // Guard: validate message structure
+            if (!msg || typeof msg !== 'object' || !msg._id) {
+                console.warn('Invalid message structure:', msg);
+                continue;
+            }
+            
+            // Only decrypt when explicitly marked as encrypted AND has content
+            if (msg.isEncrypted === true && msg.content) {
                 try {
                     decrypted[msg._id] = await decryptMessage(msg.content, encryptionKey);
                 } catch (error) {
-                    decrypted[msg._id] = '[Unable to decrypt]';
+                    console.error(`Failed to decrypt message ${msg._id}:`, error.message || error);
+                    decrypted[msg._id] = '[Encrypted message]';
                 }
             } else {
-                decrypted[msg._id] = msg.content;
+                decrypted[msg._id] = msg.content || '';
             }
         }
         setDecryptedMessages(decrypted);
     }, [encryptionKey]);
 
     useEffect(() => {
-        if (encryptionReady && messages.length > 0) {
+        if (encryptionReady && Array.isArray(messages) && messages.length > 0) {
             decryptMessages(messages);
 
             // Decrypt media messages
-            messages.forEach(async (message) => {
-                if (message.encryptedMediaUrl && message.mediaIv && !decryptedMediaUrls[message._id]) {
+            if (encryptionKey) {
+                messages.forEach(async (message) => {
+                    // Guard: validate message structure
+                    if (!message || !message._id || !message.encryptedMediaUrl || !message.mediaIv) {
+                        return;
+                    }
+                    
+                    // Only decrypt if not already decrypted
+                    if (decryptedMediaUrls[message._id]) {
+                        return;
+                    }
+                    
                     try {
                         const mediaUrl = await downloadAndDecryptMedia(
                             message.encryptedMediaUrl,
@@ -95,10 +115,10 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                             [message._id]: mediaUrl,
                         }));
                     } catch (error) {
-                        console.error('Failed to decrypt media:', error);
+                        console.error(`Failed to decrypt media for message ${message._id}:`, error.message || error);
                     }
-                }
-            });
+                });
+            }
         }
     }, [messages, encryptionReady, decryptMessages, encryptionKey, decryptedMediaUrls]);
 
@@ -112,33 +132,46 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
     useEffect(() => {
         if (socket) {
             socket.on('receiveMessage', async (message) => {
-                if (message.conversation === conversation?._id) {
-                    setMessages((prev) => [...prev, message]);
+                // Guard: validate message and conversation match
+                if (!message || message.conversation !== conversation?._id) {
+                    return;
+                }
+                
+                // Guard: validate message structure
+                if (!message._id || typeof message._id !== 'string') {
+                    console.warn('Invalid message ID from socket:', message);
+                    return;
+                }
+                
+                setMessages((prev) => {
+                    if (!Array.isArray(prev)) return [message];
+                    return [...prev, message];
+                });
 
-                    // Decrypt the new message
-                    if (message.isEncrypted && encryptionKey) {
-                        try {
-                            const decrypted = await decryptMessage(message.content, encryptionKey);
-                            setDecryptedMessages((prev) => ({
-                                ...prev,
-                                [message._id]: decrypted,
-                            }));
-                        } catch (error) {
-                            setDecryptedMessages((prev) => ({
-                                ...prev,
-                                [message._id]: '[Unable to decrypt]',
-                            }));
-                        }
-                    } else {
+                // Decrypt the new message
+                if (message.isEncrypted === true && message.content && encryptionKey) {
+                    try {
+                        const decrypted = await decryptMessage(message.content, encryptionKey);
                         setDecryptedMessages((prev) => ({
                             ...prev,
-                            [message._id]: message.content,
+                            [message._id]: decrypted,
+                        }));
+                    } catch (error) {
+                        console.error(`Failed to decrypt received message ${message._id}:`, error.message || error);
+                        setDecryptedMessages((prev) => ({
+                            ...prev,
+                            [message._id]: '[Encrypted message]',
                         }));
                     }
-
-                    markAsSeen();
-                    scrollToBottom();
+                } else {
+                    setDecryptedMessages((prev) => ({
+                        ...prev,
+                        [message._id]: message.content || '',
+                    }));
                 }
+
+                markAsSeen();
+                scrollToBottom();
             });
 
             socket.on('userTyping', ({ conversationId }) => {
@@ -154,11 +187,18 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
             });
 
             socket.on('messageMarkedAsSeen', (messageId) => {
-                setMessages((prev) =>
-                    prev.map((msg) =>
+                // Guard: validate messageId parameter
+                if (!messageId || typeof messageId !== 'string') {
+                    console.warn('Invalid messageId from socket:', messageId);
+                    return;
+                }
+                
+                setMessages((prev) => {
+                    if (!Array.isArray(prev)) return prev;
+                    return prev.map((msg) =>
                         msg._id === messageId ? { ...msg, seen: true } : msg
-                    )
-                );
+                    );
+                });
             });
         }
 
@@ -238,15 +278,18 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
 
     const markAsSeen = async () => {
         try {
+            if (!conversation?._id) return;
+            
             const token = user?.token;
+            if (!token) return;
+            
             await axios.put(
-            `${API}/api/messages/${messageId}`,
-            { content: encryptedContent, isEncrypted: true },
-            { headers: { Authorization: `Bearer ${token}` } }
+                `${API}/api/messages/conversation/${conversation._id}/markSeen`,
+                { conversationId: conversation._id },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
-
         } catch (error) {
-            console.error(error);
+            console.error('Failed to mark messages as seen:', error.message || error);
         }
     };
 
@@ -432,29 +475,64 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
     };
 
     const handleDeleteMessage = async (messageId) => {
+        // Guard: validate messageId parameter
+        if (!messageId || typeof messageId !== 'string') {
+            console.error('Invalid messageId:', messageId);
+            alert('Cannot delete message: invalid message ID');
+            return;
+        }
+        
         if (!window.confirm('Delete this message?')) return;
+        
         try {
             const token = user?.token;
+            if (!token) {
+                alert('Authentication required');
+                return;
+            }
+            
             await axios.delete(`${API}/api/messages/${messageId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
+            
+            setMessages((prev) => {
+                if (!Array.isArray(prev)) return prev;
+                return prev.filter((msg) => msg._id !== messageId);
+            });
         } catch (error) {
-            console.error('Error deleting message:', error);
+            console.error('Error deleting message:', error.message || error);
             alert('Failed to delete message');
         }
     };
 
     const handleEditMessage = async (messageId) => {
+        // Guard: validate messageId parameter
+        if (!messageId || typeof messageId !== 'string') {
+            console.error('Invalid messageId:', messageId);
+            alert('Cannot edit message: invalid message ID');
+            return;
+        }
+        
         if (!editingContent.trim()) {
             setEditingMessageId(null);
             return;
         }
+        
         try {
             const token = user?.token;
+            if (!token) {
+                alert('Authentication required');
+                return;
+            }
+            
+            if (!encryptionKey) {
+                alert('Encryption key not ready');
+                return;
+            }
+            
             const encryptedContent = await encryptMessage(editingContent, encryptionKey);
             await axios.put(
-                `/api/messages/${messageId}`,
+                `${API}/api/messages/${messageId}`,
                 { content: encryptedContent, isEncrypted: true },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -462,15 +540,16 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                 ...prev,
                 [messageId]: editingContent,
             }));
-            setMessages((prev) =>
-                prev.map((msg) =>
+            setMessages((prev) => {
+                if (!Array.isArray(prev)) return prev;
+                return prev.map((msg) =>
                     msg._id === messageId ? { ...msg, content: encryptedContent, edited: true } : msg
-                )
-            );
+                );
+            });
             setEditingMessageId(null);
             setEditingContent('');
         } catch (error) {
-            console.error('Error editing message:', error);
+            console.error('Error editing message:', error.message || error);
             alert('Failed to edit message');
         }
     };
@@ -583,13 +662,20 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     <div className="messages-loading">Loading messages...</div>
                 ) : !encryptionReady ? (
                     <div className="messages-loading">Initializing encryption...</div>
-                ) : messages.length === 0 ? (
+                ) : !Array.isArray(messages) || messages.length === 0 ? (
                     <div className="no-messages">
                         <span className="encryption-notice">Messages are end-to-end encrypted</span>
                         <p>No messages yet. Start the conversation!</p>
                     </div>
                 ) : (
-                    messages.map((message) => (
+                    messages.map((message) => {
+                        // Guard: validate message structure before rendering
+                        if (!message || !message._id || !message.sender) {
+                            console.warn('Invalid message structure in render:', message);
+                            return null;
+                        }
+                        
+                        return (
                         <div
                             key={message._id}
                             className={`message ${message.sender._id === user._id ? 'sent' : 'received'
@@ -691,9 +777,10 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                                     </>
                                 )}
                             </div>
-                        </div>
-                    ))
-                )}
+                            </div>
+                            );
+                            })
+                            )}
                 {typing && (
                     <div className="typing-indicator">
                         <span></span>

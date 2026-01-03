@@ -75,8 +75,20 @@ export const encryptMessage = async (message, key) => {
 // Decrypt a message using AES-256-GCM
 export const decryptMessage = async (encryptedData, key) => {
   try {
+    // Guard: validate inputs
+    if (!encryptedData || !key) {
+      console.warn('Decryption failed: missing encryptedData or key');
+      return '[Encrypted message]';
+    }
+
     const combined = base64ToArrayBuffer(encryptedData);
     const combinedArray = new Uint8Array(combined);
+    
+    // Guard: validate data length
+    if (combinedArray.byteLength < IV_LENGTH) {
+      console.warn('Decryption failed: invalid encrypted data format');
+      return '[Encrypted message]';
+    }
     
     // Extract IV and encrypted data
     const iv = combinedArray.slice(0, IV_LENGTH);
@@ -94,8 +106,9 @@ export const decryptMessage = async (encryptedData, key) => {
     const decoder = new TextDecoder();
     return decoder.decode(decrypted);
   } catch (error) {
-    console.error('Decryption failed:', error);
-    return '[Unable to decrypt message]';
+    console.error('Decryption failed:', error.message || error);
+    // Return user-friendly fallback without exposing crypto errors
+    return '[Encrypted message]';
   }
 };
 

@@ -46,8 +46,21 @@ export const encryptMedia = async (mediaBuffer, encryptionKey) => {
  */
 export const decryptMedia = async (encryptedBase64, ivBase64, encryptionKey) => {
   try {
+    // Guard: validate inputs
+    if (!encryptedBase64 || !ivBase64 || !encryptionKey) {
+      throw new Error('Missing required decryption parameters');
+    }
+
     const encrypted = base64ToArrayBuffer(encryptedBase64);
     const iv = new Uint8Array(base64ToArrayBuffer(ivBase64));
+
+    // Guard: validate data
+    if (!encrypted || encrypted.byteLength === 0) {
+      throw new Error('Invalid encrypted media data');
+    }
+    if (iv.byteLength !== IV_LENGTH) {
+      throw new Error('Invalid IV length');
+    }
 
     const decrypted = await window.crypto.subtle.decrypt(
       {
@@ -60,7 +73,7 @@ export const decryptMedia = async (encryptedBase64, ivBase64, encryptionKey) => 
 
     return decrypted;
   } catch (error) {
-    console.error('Media decryption failed:', error);
+    console.error('Media decryption failed:', error.message || error);
     throw new Error('Failed to decrypt media');
   }
 };

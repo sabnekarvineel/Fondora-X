@@ -29,27 +29,42 @@ const ConversationList = ({
     const decryptLastMessages = async () => {
       const decrypted = {};
       
+      // Guard: validate conversations is an array
+      if (!Array.isArray(conversations)) {
+        setDecryptedMessages(decrypted);
+        return;
+      }
+      
       for (const conversation of conversations) {
-        if (conversation.lastMessage?.content) {
-          try {
-            const key = await getStoredConversationKey(conversation._id);
-            if (key) {
-              const decryptedText = await decryptMessage(conversation.lastMessage.content, key);
-              decrypted[conversation._id] = decryptedText;
-            } else {
-              decrypted[conversation._id] = '[Encrypted message]';
-            }
-          } catch (error) {
-            console.error(`Failed to decrypt message for conversation ${conversation._id}:`, error);
-            decrypted[conversation._id] = '[Unable to decrypt]';
+        // Guard: validate conversation structure
+        if (!conversation || !conversation._id) {
+          console.warn('Invalid conversation structure:', conversation);
+          continue;
+        }
+        
+        // Guard: validate lastMessage exists and has content
+        if (!conversation.lastMessage || !conversation.lastMessage.content) {
+          continue;
+        }
+        
+        try {
+          const key = await getStoredConversationKey(conversation._id);
+          if (key) {
+            const decryptedText = await decryptMessage(conversation.lastMessage.content, key);
+            decrypted[conversation._id] = decryptedText;
+          } else {
+            decrypted[conversation._id] = '[Encrypted message]';
           }
+        } catch (error) {
+          console.error(`Failed to decrypt message for conversation ${conversation._id}:`, error.message || error);
+          decrypted[conversation._id] = '[Encrypted message]';
         }
       }
       
       setDecryptedMessages(decrypted);
     };
 
-    if (conversations.length > 0) {
+    if (Array.isArray(conversations) && conversations.length > 0) {
       decryptLastMessages();
     }
   }, [conversations]);
@@ -145,10 +160,16 @@ const ConversationList = ({
       )}
 
       <div className="conversations-list">
-        {conversations.length === 0 ? (
+        {!Array.isArray(conversations) || conversations.length === 0 ? (
           <div className="no-conversations">No conversations yet. Search for users to start chatting!</div>
         ) : (
           conversations.map((conversation) => {
+            // Guard: validate conversation structure
+            if (!conversation || !conversation._id) {
+              console.warn('Invalid conversation in render:', conversation);
+              return null;
+            }
+            
             const otherUser = getOtherParticipant(conversation);
             return (
               <div
