@@ -3,6 +3,7 @@ import axios from 'axios';
 import AuthContext from './AuthContext';
 import SocketContext from './SocketContext';
 
+const API = import.meta.env.VITE_API_URL;
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
@@ -45,7 +46,7 @@ export const NotificationProvider = ({ children }) => {
     try {
       setLoading(true);
       const token = user?.token;
-      const { data } = await axios.get('/api/notifications', {
+      const { data } = await axios.get(`${API}/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(data.notifications);
@@ -60,7 +61,7 @@ export const NotificationProvider = ({ children }) => {
   const fetchUnreadCount = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/notifications/unread-count', {
+      const { data } = await axios.get(`${API}/api/notifications/unread-count`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUnreadCount(data.count);
@@ -73,7 +74,7 @@ export const NotificationProvider = ({ children }) => {
     try {
       const token = user?.token;
       await axios.put(
-        `/api/notifications/${notificationId}/read`,
+        `${API}/api/notifications/${notificationId}/read`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -95,7 +96,7 @@ export const NotificationProvider = ({ children }) => {
     try {
       const token = user?.token;
       await axios.put(
-        '/api/notifications/mark-all-read',
+        `${API}/api/notifications/mark-all-read`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -114,7 +115,7 @@ export const NotificationProvider = ({ children }) => {
   const deleteNotification = async (notificationId) => {
     try {
       const token = user?.token;
-      await axios.delete(`/api/notifications/${notificationId}`, {
+      await axios.delete(`${API}/api/notifications/${notificationId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

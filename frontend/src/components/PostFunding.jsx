@@ -4,6 +4,8 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 
+const API = import.meta.env.VITE_API_URL;
+
 const PostFunding = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -61,7 +63,7 @@ const PostFunding = () => {
         },
       };
 
-      await axios.post('/api/funding', requestData, {
+      await axios.post(`${API}/api/funding`, requestData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

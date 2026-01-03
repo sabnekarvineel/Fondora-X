@@ -4,6 +4,8 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 
+const API = import.meta.env.VITE_API_URL;
+
 const FundingDetail = () => {
   const { id } = useParams();
   const { user, logout } = useContext(AuthContext);
@@ -33,21 +35,21 @@ const FundingDetail = () => {
   const fetchFundingDetails = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get(`/api/funding/${id}`, {
+      const { data } = await axios.get(`${API}/api/funding/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFundingRequest(data);
       setLoading(false);
-    } catch (error) {
+      } catch (error) {
       setError('Failed to load funding request details');
       setLoading(false);
-    }
-  };
+      }
+      };
 
-  const checkInterestStatus = async () => {
-    try {
+      const checkInterestStatus = async () => {
+      try {
       const token = user?.token;
-      const { data } = await axios.get('/api/investor-interest/my-interests', {
+      const { data } = await axios.get(`${API}/api/investor-interest/my-interests`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const expressed = data.some(interest => interest.fundingRequest._id === id);
@@ -60,7 +62,7 @@ const FundingDetail = () => {
   const fetchInterests = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get(`/api/investor-interest/funding/${id}`, {
+      const { data } = await axios.get(`${API}/api/investor-interest/funding/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setInterests(data);
@@ -77,7 +79,7 @@ const FundingDetail = () => {
     try {
       const token = user?.token;
       await axios.post(
-        '/api/investor-interest/express',
+        `${API}/api/investor-interest/express`,
         {
           fundingRequestId: id,
           ...interestData,
@@ -105,7 +107,7 @@ const FundingDetail = () => {
     try {
       const token = user?.token;
       await axios.put(
-        `/api/investor-interest/${interestId}/status`,
+        `${API}/api/investor-interest/${interestId}/status`,
         { status },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -155,26 +157,26 @@ const FundingDetail = () => {
         status: editData.status,
       };
 
-      const { data } = await axios.put(`/api/funding/${id}`, updateData, {
+      const { data } = await axios.put(`${API}/api/funding/${id}`, updateData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setFundingRequest(data);
       setIsEditing(false);
       setSuccess('Funding request updated successfully!');
-    } catch (err) {
+      } catch (err) {
       setError(err.response?.data?.message || 'Failed to update funding request');
-    }
-  };
+      }
+      };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this funding request? This action cannot be undone.')) {
+      const handleDelete = async () => {
+      if (!window.confirm('Are you sure you want to delete this funding request? This action cannot be undone.')) {
       return;
-    }
+      }
 
-    try {
+      try {
       const token = user?.token;
-      await axios.delete(`/api/funding/${id}`, {
+      await axios.delete(`${API}/api/funding/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       navigate('/funding');

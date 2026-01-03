@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 
+const API = import.meta.env.VITE_API_URL;
+
 const EditProfile = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ const EditProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      const { data } = await axios.get(`/api/profile/${user._id}`);
+      const { data } = await axios.get(`${API}/api/profile/${user._id}`);
       console.log("Profile data:", data);
       console.log("User role:", data.role);
       console.log("Startup profile:", data.startupProfile);
@@ -114,7 +116,7 @@ const EditProfile = () => {
         profileData.investorProfile = roleData;
       }
 
-      await axios.put('/api/profile/update', profileData, {
+      await axios.put(`${API}/api/profile/update`, profileData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -135,7 +137,7 @@ const EditProfile = () => {
 
     try {
       const token = user?.token;
-      const endpoint = type === 'photo' ? '/api/profile/upload/photo' : '/api/profile/upload/banner';
+      const endpoint = type === 'photo' ? `${API}/api/profile/upload/photo` : `${API}/api/profile/upload/banner`;
       await axios.post(endpoint, formDataImage, {
         headers: {
           Authorization: `Bearer ${token}`,

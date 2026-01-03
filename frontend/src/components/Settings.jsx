@@ -4,6 +4,8 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 
+const API = import.meta.env.VITE_API_URL;
+
 const Settings = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -35,7 +37,7 @@ const Settings = () => {
   const fetchSettings = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/settings', {
+      const { data } = await axios.get(`${API}/api/settings`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotificationsEnabled(data.notificationsEnabled);
@@ -64,7 +66,7 @@ const Settings = () => {
     try {
       const token = user?.token;
       await axios.put(
-        '/api/settings/change-password',
+        `${API}/api/settings/change-password`,
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
@@ -91,7 +93,7 @@ const Settings = () => {
     try {
       const token = user?.token;
       const { data } = await axios.put(
-        '/api/settings/toggle-notifications',
+        `${API}/api/settings/toggle-notifications`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -118,7 +120,7 @@ const Settings = () => {
     try {
       const token = user?.token;
       await axios.put(
-        '/api/settings/deactivate',
+        `${API}/api/settings/deactivate`,
         { password: deactivatePassword },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -151,7 +153,7 @@ const Settings = () => {
     try {
       const token = user?.token;
       await axios.post(
-        '/api/feedback',
+        `${API}/api/feedback`,
         {
           ...feedbackData,
           userId: user?._id,

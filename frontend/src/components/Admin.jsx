@@ -4,6 +4,8 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 
+const API = import.meta.env.VITE_API_URL;
+
 const Admin = () => {
   const { user } = useContext(AuthContext);
   const [analytics, setAnalytics] = useState(null);
@@ -39,7 +41,7 @@ const Admin = () => {
   const fetchAnalytics = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/admin/analytics', {
+      const { data } = await axios.get(`${API}/api/admin/analytics`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAnalytics(data);
@@ -53,7 +55,7 @@ const Admin = () => {
   const fetchUsers = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/admin/users', {
+      const { data } = await axios.get(`${API}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
         params: filters,
       });
@@ -66,7 +68,7 @@ const Admin = () => {
   const fetchPosts = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/admin/posts', {
+      const { data } = await axios.get(`${API}/api/admin/posts`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPosts(data.posts);
@@ -78,7 +80,7 @@ const Admin = () => {
   const fetchInvestors = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/admin/users', {
+      const { data } = await axios.get(`${API}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { role: 'investor' },
       });
@@ -91,7 +93,7 @@ const Admin = () => {
   const fetchStartups = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/admin/users', {
+      const { data } = await axios.get(`${API}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { role: 'startup' },
       });
@@ -104,7 +106,7 @@ const Admin = () => {
   const handleVerify = async (userId) => {
     try {
       const token = user?.token;
-      await axios.put(`/api/admin/users/${userId}/verify`, {}, {
+      await axios.put(`${API}/api/admin/users/${userId}/verify`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers();
@@ -121,7 +123,7 @@ const Admin = () => {
 
     try {
       const token = user?.token;
-      await axios.put(`/api/admin/users/${userId}/ban`, { reason }, {
+      await axios.put(`${API}/api/admin/users/${userId}/ban`, { reason }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers();
@@ -135,7 +137,7 @@ const Admin = () => {
   const handleUnban = async (userId) => {
     try {
       const token = user?.token;
-      await axios.put(`/api/admin/users/${userId}/unban`, {}, {
+      await axios.put(`${API}/api/admin/users/${userId}/unban`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers();
@@ -151,7 +153,7 @@ const Admin = () => {
 
     try {
       const token = user?.token;
-      await axios.delete(`/api/admin/users/${userId}`, {
+      await axios.delete(`${API}/api/admin/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers();
@@ -165,7 +167,7 @@ const Admin = () => {
 
     try {
       const token = user?.token;
-      await axios.delete(`/api/admin/posts/${postId}`, {
+      await axios.delete(`${API}/api/admin/posts/${postId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchPosts();

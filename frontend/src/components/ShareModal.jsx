@@ -2,6 +2,8 @@ import { useState, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 
+const API = import.meta.env.VITE_API_URL;
+
 const ShareModal = ({ post, isOpen, onClose }) => {
   const { user } = useContext(AuthContext);
   const [shareMethod, setShareMethod] = useState('messages');
@@ -21,7 +23,7 @@ const ShareModal = ({ post, isOpen, onClose }) => {
 
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/search/quick-search', {
+      const { data } = await axios.get(`${API}/api/search/quick-search`, {
         params: { query },
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -55,7 +57,7 @@ const ShareModal = ({ post, isOpen, onClose }) => {
       for (const userId of selectedUsers) {
         try {
           await axios.post(
-            '/api/messages/send-direct',
+            `${API}/api/messages/send-direct`,
             {
               recipientId: userId,
               content: message,

@@ -4,6 +4,8 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 
+const API = import.meta.env.VITE_API_URL;
+
 const JobDetail = () => {
   const { id } = useParams();
   const { user, logout } = useContext(AuthContext);
@@ -31,7 +33,7 @@ const JobDetail = () => {
   const fetchJobDetails = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get(`/api/jobs/${id}`, {
+      const { data } = await axios.get(`${API}/api/jobs/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setJob(data);
@@ -45,7 +47,7 @@ const JobDetail = () => {
   const checkApplicationStatus = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get('/api/applications/my-applications', {
+      const { data } = await axios.get(`${API}/api/applications/my-applications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const applied = data.some(app => app.job._id === id);
@@ -58,7 +60,7 @@ const JobDetail = () => {
   const fetchApplications = async () => {
     try {
       const token = user?.token;
-      const { data } = await axios.get(`/api/applications/job/${id}`, {
+      const { data } = await axios.get(`${API}/api/applications/job/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setApplications(data);
@@ -75,7 +77,7 @@ const JobDetail = () => {
     try {
       const token = user?.token;
       await axios.post(
-        '/api/applications/apply',
+        `${API}/api/applications/apply`,
         {
           jobId: id,
           ...applicationData,
@@ -103,7 +105,7 @@ const JobDetail = () => {
     try {
       const token = user?.token;
       await axios.put(
-        `/api/applications/${applicationId}/status`,
+        `${API}/api/applications/${applicationId}/status`,
         { status },
         {
           headers: { Authorization: `Bearer ${token}` },

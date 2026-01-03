@@ -4,6 +4,8 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 
+const API = import.meta.env.VITE_API_URL;
+
 const PostJob = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -76,7 +78,7 @@ const PostJob = () => {
         deadline: formData.deadline || undefined,
       };
 
-      await axios.post('/api/jobs', jobData, {
+      await axios.post(`${API}/api/jobs`, jobData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

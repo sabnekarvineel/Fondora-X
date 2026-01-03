@@ -4,6 +4,8 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import ShareModal from './ShareModal';
 
+const API = import.meta.env.VITE_API_URL;
+
 const PostCard = ({ post, onDelete, onUpdate }) => {
   const { user } = useContext(AuthContext);
   const [isLiked, setIsLiked] = useState(post.likes?.includes(user?._id));
@@ -21,7 +23,7 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
       const endpoint = isLiked ? 'unlike' : 'like';
       
       const { data } = await axios.post(
-        `/api/posts/${post._id}/${endpoint}`,
+        `${API}/api/posts/${post._id}/${endpoint}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -43,7 +45,7 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
     try {
       const token = user?.token;
       const { data } = await axios.post(
-        `/api/posts/${post._id}/comment`,
+        `${API}/api/posts/${post._id}/comment`,
         { text: commentText },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -62,7 +64,7 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
 
     try {
       const token = user?.token;
-      await axios.delete(`/api/posts/${post._id}`, {
+      await axios.delete(`${API}/api/posts/${post._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       onDelete(post._id);
@@ -75,7 +77,7 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
     try {
       const token = user?.token;
       const { data } = await axios.put(
-        `/api/posts/${post._id}`,
+        `${API}/api/posts/${post._id}`,
         { content: editContent },
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-
+const API = import.meta.env.VITE_API_URL;
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -23,7 +23,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      await axios.post('/api/auth/forgot-password', { email });
+      await axios.post(`${API}/api/auth/forgot-password`, { email });
       setSuccess('Password reset link has been sent to your email address.');
       setEmail('');
     } catch (err) {

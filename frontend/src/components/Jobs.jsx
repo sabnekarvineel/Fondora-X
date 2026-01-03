@@ -4,6 +4,8 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 
+const API = import.meta.env.VITE_API_URL;
+
 const Jobs = () => {
   const { user } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
@@ -24,7 +26,7 @@ const Jobs = () => {
     try {
       setLoading(true);
       const token = user?.token;
-      const { data } = await axios.get('/api/jobs', {
+      const { data } = await axios.get(`${API}/api/jobs`, {
         headers: { Authorization: `Bearer ${token}` },
         params: filters,
       });

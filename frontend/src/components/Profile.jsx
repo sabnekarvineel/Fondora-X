@@ -5,6 +5,8 @@ import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 import PostCard from './PostCard';
 
+const API = import.meta.env.VITE_API_URL;
+
 const Profile = () => {
     const { id } = useParams();
     const { user: currentUser } = useContext(AuthContext);
@@ -41,7 +43,7 @@ const Profile = () => {
 
     const fetchProfile = async () => {
         try {
-            const { data } = await axios.get(`/api/profile/${id}`);
+            const { data } = await axios.get(`${API}/api/profile/${id}`);
             console.log('Profile data:', data); // Debug log
             setProfile(data);
             setPosts(data.posts || []);
@@ -76,7 +78,7 @@ const Profile = () => {
 
     const fetchFundingRequests = async () => {
         try {
-            const { data } = await axios.get(`/api/funding/user/${id}`);
+            const { data } = await axios.get(`${API}/api/funding/user/${id}`);
             setFundingRequests(data || []);
         } catch (error) {
             console.error('Funding requests fetch error:', error);
@@ -96,7 +98,7 @@ const Profile = () => {
             const token = currentUser?.token;
             const endpoint = isFollowing ? 'unfollow' : 'follow';
             await axios.post(
-                `/api/profile/${endpoint}/${id}`,
+                `${API}/api/profile/${endpoint}/${id}`,
                 {},
                 {
                     headers: { Authorization: `Bearer ${token}` },
@@ -145,7 +147,7 @@ const Profile = () => {
 
         try {
             const token = currentUser?.token;
-            const endpoint = type === 'photo' ? '/api/profile/upload/photo' : '/api/profile/upload/banner';
+            const endpoint = type === 'photo' ? `${API}/api/profile/upload/photo` : `${API}/api/profile/upload/banner`;
             const response = await axios.post(endpoint, formDataImage, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -184,7 +186,7 @@ const Profile = () => {
                 profileData.investorProfile = roleData;
             }
             
-            await axios.put('/api/profile/update', profileData, {
+            await axios.put(`${API}/api/profile/update`, profileData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

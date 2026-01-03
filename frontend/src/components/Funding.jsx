@@ -4,6 +4,8 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 
+const API = import.meta.env.VITE_API_URL;
+
 const Funding = () => {
   const { user } = useContext(AuthContext);
   const [fundingRequests, setFundingRequests] = useState([]);
@@ -24,7 +26,7 @@ const Funding = () => {
     try {
       setLoading(true);
       const token = user?.token;
-      const { data } = await axios.get('/api/funding', {
+      const { data } = await axios.get(`${API}/api/funding`, {
         headers: { Authorization: `Bearer ${token}` },
         params: filters,
       });
