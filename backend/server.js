@@ -35,17 +35,38 @@ connectDB();
 
 const app = express();
 const httpServer = createServer(app);
+
+// Define allowed origins for CORS and Socket.IO
+const allowedOrigins = [
+  'https://fondora-x.vercel.app',
+  'https://fondora-9d01qrw6m-sabnekarvineels-projects.vercel.app',
+  'http://localhost:3000', // Development
+];
+
+// Add CLIENT_URL from env if provided (for custom deployments)
+if (process.env.CLIENT_URL && !allowedOrigins.includes(process.env.CLIENT_URL)) {
+  allowedOrigins.push(process.env.CLIENT_URL);
+}
+
+// Socket.IO configuration with multi-origin CORS support
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
+    allowEIO3: true, // Enable compatibility with older Socket.IO clients
   },
 });
 
 setupSocketIO(io);
 
-app.use(cors());
+// Express CORS middleware with same allowed origins
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
