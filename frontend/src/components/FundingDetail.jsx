@@ -47,17 +47,17 @@ const FundingDetail = () => {
       };
 
       const checkInterestStatus = async () => {
-      try {
-      const token = user?.token;
-      const { data } = await axios.get(`${API}/api/investor-interest/my-interests`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const expressed = data.some(interest => interest.fundingRequest._id === id);
-      setHasExpressedInterest(expressed);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+          try {
+          const token = user?.token;
+          const { data } = await axios.get(`${API}/api/investor-interest/my-interests`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const expressed = data.some(interest => interest && interest.fundingRequest && interest.fundingRequest._id === id);
+          setHasExpressedInterest(expressed);
+        } catch (error) {
+          console.error(error);
+        }
+      };
 
   const fetchInterests = async () => {
     try {

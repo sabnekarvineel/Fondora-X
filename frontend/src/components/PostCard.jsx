@@ -7,9 +7,16 @@ import ShareModal from './ShareModal';
 const API = import.meta.env.VITE_API_URL;
 
 const PostCard = ({ post, onDelete, onUpdate }) => {
-  const { user } = useContext(AuthContext);
-  const [isLiked, setIsLiked] = useState(post.likes?.includes(user?._id));
-  const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
+   const { user } = useContext(AuthContext);
+   
+   // Guard: validate post structure
+   if (!post || !post._id) {
+     console.warn('PostCard: post object is null or missing _id');
+     return null;
+   }
+   
+   const [isLiked, setIsLiked] = useState(post.likes?.includes(user?._id));
+   const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
   const [comments, setComments] = useState(post.comments || []);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');

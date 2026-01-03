@@ -50,7 +50,7 @@ const JobDetail = () => {
       const { data } = await axios.get(`${API}/api/applications/my-applications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const applied = data.some(app => app.job._id === id);
+      const applied = data.some(app => app && app.job && app.job._id === id);
       setHasApplied(applied);
     } catch (error) {
       console.error(error);

@@ -47,8 +47,8 @@ const Profile = () => {
             console.log('Profile data:', data); // Debug log
             setProfile(data);
             setPosts(data.posts || []);
-            if (currentUser) {
-                setIsFollowing(data.followers.some((f) => f._id === currentUser._id));
+            if (currentUser && currentUser._id) {
+                setIsFollowing(data.followers.some((f) => f && f._id === currentUser._id));
             }
             setFormData({
                 name: data.name || '',
@@ -90,7 +90,8 @@ const Profile = () => {
     };
 
     const handlePostUpdated = (updatedPost) => {
-        setPosts(posts.map((post) => (post._id === updatedPost._id ? updatedPost : post)));
+        if (!updatedPost || !updatedPost._id) return;
+        setPosts(posts.map((post) => (post && post._id === updatedPost._id ? updatedPost : post)));
     };
 
     const handleFollow = async () => {
@@ -111,7 +112,7 @@ const Profile = () => {
         }
     };
 
-    const isOwnProfile = currentUser && currentUser._id === id;
+    const isOwnProfile = currentUser && currentUser._id && currentUser._id === id;
 
     const onChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

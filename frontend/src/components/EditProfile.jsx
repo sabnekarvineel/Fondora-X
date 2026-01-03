@@ -29,10 +29,16 @@ const EditProfile = () => {
   const [skillInput, setSkillInput] = useState('');
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    if (user && user._id) {
+      fetchProfile();
+    }
+  }, [user?._id]);
 
   const fetchProfile = async () => {
+    if (!user || !user._id) {
+      console.warn('User not authenticated or user._id is missing');
+      return;
+    }
     try {
       const { data } = await axios.get(`${API}/api/profile/${user._id}`);
       console.log("Profile data:", data);
