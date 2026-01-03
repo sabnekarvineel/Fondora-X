@@ -26,14 +26,28 @@ const Funding = () => {
     try {
       setLoading(true);
       const token = user?.token;
+      
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      
       const { data } = await axios.get(`${API}/api/funding`, {
         headers: { Authorization: `Bearer ${token}` },
         params: filters,
       });
-      setFundingRequests(data.fundingRequests);
+      
+      // Defensive: Ensure data structure is valid
+      const fundingArray = data && Array.isArray(data.fundingRequests) ? data.fundingRequests : [];
+      
+      // Validate each funding request has required _id field
+      const validRequests = fundingArray.filter(request => request && request._id);
+      
+      setFundingRequests(validRequests);
       setLoading(false);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching funding requests:', error);
+      setFundingRequests([]);
       setLoading(false);
     }
   };
@@ -106,7 +120,11 @@ const Funding = () => {
         ) : fundingRequests.length === 0 ? (
           <div className="no-funding">No funding requests found.</div>
         ) : (
-          fundingRequests.map((request) => (
+          fundingRequests.map((request) => {
+            // Guard: Ensure request has _id before rendering
+            if (!request || !request._id) return null;
+            
+            return (
             <Link key={request._id} to={`/funding/${request._id}`} className="funding-card">
               <div className="funding-card-header">
                 <div>
@@ -161,13 +179,14 @@ const Funding = () => {
                 </span>
                 <span className="funding-views">{request.views} views</span>
               </div>
-            </Link>
-          ))
-        )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Funding;
+              </Link>
+              );
+              })
+              )}
+              </div>
+              </div>
+              </div>
+              );
+              };
+              
+              export default Funding;

@@ -48,16 +48,26 @@ const FundingDetail = () => {
 
       const checkInterestStatus = async () => {
           try {
-          const token = user?.token;
-          const { data } = await axios.get(`${API}/api/investor-interest/my-interests`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const expressed = data.some(interest => interest && interest.fundingRequest && interest.fundingRequest._id === id);
-          setHasExpressedInterest(expressed);
-        } catch (error) {
-          console.error(error);
-        }
-      };
+              const token = user?.token;
+              if (!token || !id) return; // Guard: no token or funding id
+              
+              const { data } = await axios.get(`${API}/api/investor-interest/my-interests`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              
+              // Defensive: check every step of the chain
+              const expressed = data && Array.isArray(data) && data.some(interest => {
+                return interest && 
+                       typeof interest === 'object' && 
+                       interest.fundingRequest && 
+                       typeof interest.fundingRequest === 'object' && 
+                       interest.fundingRequest._id === id;
+              });
+              setHasExpressedInterest(expressed || false);
+            } catch (error) {
+              console.error('Error checking interest status:', error);
+            }
+          };
 
   const fetchInterests = async () => {
     try {
@@ -76,12 +86,38 @@ const FundingDetail = () => {
     setError('');
     setSuccess('');
 
+    // Guard: Validate all required data exists before submitting
+    if (!fundingRequest || !fundingRequest._id) {
+      setError('Funding data is not loaded. Please refresh and try again.');
+      return;
+    }
+
+    if (!user || !user._id || !user.token) {
+      setError('Please log in to express interest');
+      return;
+    }
+
+    if (fundingRequest.status !== 'open') {
+      setError('This funding request is no longer open');
+      return;
+    }
+
+    // Validate required form fields
+    if (!interestData.message?.trim()) {
+      setError('Message is required');
+      return;
+    }
+
     try {
-      const token = user?.token;
+      const token = user.token;
+      
+      // Use funding ID from useParams safely
+      const fundingRequestId = typeof id === 'string' ? id : fundingRequest._id;
+      
       await axios.post(
         `${API}/api/investor-interest/express`,
         {
-          fundingRequestId: id,
+          fundingRequestId: fundingRequestId,
           ...interestData,
         },
         {
@@ -99,7 +135,9 @@ const FundingDetail = () => {
         terms: '',
       });
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to express interest');
+      const errorMessage = err.response?.data?.message || 'Failed to express interest';
+      setError(errorMessage);
+      console.error('Express interest error:', err);
     }
   };
 
@@ -121,7 +159,8 @@ const FundingDetail = () => {
   };
 
   useEffect(() => {
-    if (fundingRequest && fundingRequest.startup && fundingRequest.startup._id === user?._id) {
+    // Guard: Check all objects exist before accessing nested properties
+    if (fundingRequest && fundingRequest.startup && user && user._id && fundingRequest.startup._id === user._id) {
       fetchInterests();
     }
   }, [fundingRequest, user]);
@@ -188,8 +227,9 @@ const FundingDetail = () => {
   if (loading) return <div className="loading">Loading...</div>;
   if (!fundingRequest) return <div className="error">Funding request not found</div>;
 
-  const isOwner = fundingRequest.startup && fundingRequest.startup._id === user?._id;
-  const canExpressInterest = user?.role === 'investor' && !isOwner;
+  // Guard: Ensure nested objects exist before accessing properties
+  const isOwner = fundingRequest && fundingRequest.startup && user && fundingRequest.startup._id === user._id;
+  const canExpressInterest = user && user.role === 'investor' && !isOwner;
 
   return (
     <div>
@@ -481,12 +521,13 @@ const FundingDetail = () => {
                   <div className="already-interested">
                     <p>✓ You have already expressed interest in this funding request</p>
                   </div>
-                ) : fundingRequest.status === 'open' ? (
+                ) : fundingRequest && fundingRequest.status === 'open' ? (
                   <>
                     {!showInterestForm ? (
                       <button
                         className="btn btn-primary btn-large"
                         onClick={() => setShowInterestForm(true)}
+                        disabled={!fundingRequest || !fundingRequest._id || !user || !user._id} // Disable until data loads
                       >
                         Express Interest
                       </button>

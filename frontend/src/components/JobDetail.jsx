@@ -47,13 +47,23 @@ const JobDetail = () => {
   const checkApplicationStatus = async () => {
     try {
       const token = user?.token;
+      if (!token || !id) return; // Guard: no token or job id
+      
       const { data } = await axios.get(`${API}/api/applications/my-applications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const applied = data.some(app => app && app.job && app.job._id === id);
-      setHasApplied(applied);
+      
+      // Defensive: check every step of the chain
+      const applied = data && Array.isArray(data) && data.some(app => {
+        return app && 
+               typeof app === 'object' && 
+               app.job && 
+               typeof app.job === 'object' && 
+               app.job._id === id;
+      });
+      setHasApplied(applied || false);
     } catch (error) {
-      console.error(error);
+      console.error('Error checking application status:', error);
     }
   };
 
@@ -74,12 +84,38 @@ const JobDetail = () => {
     setError('');
     setSuccess('');
 
+    // Guard: Validate all required data exists before submitting
+    if (!job || !job._id) {
+      setError('Job data is not loaded. Please refresh and try again.');
+      return;
+    }
+
+    if (!user || !user._id || !user.token) {
+      setError('Please log in to apply for this job');
+      return;
+    }
+
+    if (job.status !== 'open') {
+      setError('This job is no longer accepting applications');
+      return;
+    }
+
+    // Validate required form fields
+    if (!applicationData.coverLetter?.trim()) {
+      setError('Cover letter is required');
+      return;
+    }
+
     try {
-      const token = user?.token;
+      const token = user.token;
+      
+      // Use job._id (string from useParams) directly, not as object
+      const jobId = typeof id === 'string' ? id : job._id;
+      
       await axios.post(
         `${API}/api/applications/apply`,
         {
-          jobId: id,
+          jobId: jobId,
           ...applicationData,
         },
         {
@@ -97,7 +133,9 @@ const JobDetail = () => {
         proposedRate: '',
       });
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to submit application');
+      const errorMessage = err.response?.data?.message || 'Failed to submit application';
+      setError(errorMessage);
+      console.error('Apply error:', err);
     }
   };
 
@@ -119,16 +157,18 @@ const JobDetail = () => {
   };
 
   useEffect(() => {
-    if (job && job.postedBy._id === user._id) {
+    // Guard: Check all objects exist before accessing nested properties
+    if (job && job.postedBy && user && user._id && job.postedBy._id === user._id) {
       fetchApplications();
     }
-  }, [job]);
+  }, [job, user]);
 
   if (loading) return <div className="loading">Loading...</div>;
   if (!job) return <div className="error">Job not found</div>;
 
-  const isOwner = job.postedBy._id === user._id;
-  const canApply = (user.role === 'student' || user.role === 'freelancer') && !isOwner;
+  // Guard: Ensure nested objects exist before accessing properties
+  const isOwner = job && job.postedBy && user && job.postedBy._id === user._id;
+  const canApply = user && (user.role === 'student' || user.role === 'freelancer') && !isOwner;
 
   return (
     <div>
@@ -229,12 +269,13 @@ const JobDetail = () => {
                   <div className="already-applied">
                     <p>✓ You have already applied for this job</p>
                   </div>
-                ) : job.status === 'open' ? (
+                ) : job && job.status === 'open' ? (
                   <>
                     {!showApplicationForm ? (
                       <button
                         className="btn btn-primary btn-large"
                         onClick={() => setShowApplicationForm(true)}
+                        disabled={!job || !job._id || !user || !user._id} // Disable until data loads
                       >
                         Apply for this Job
                       </button>

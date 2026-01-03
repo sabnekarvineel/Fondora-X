@@ -26,14 +26,28 @@ const Jobs = () => {
     try {
       setLoading(true);
       const token = user?.token;
+      
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      
       const { data } = await axios.get(`${API}/api/jobs`, {
         headers: { Authorization: `Bearer ${token}` },
         params: filters,
       });
-      setJobs(data.jobs);
+      
+      // Defensive: Ensure data structure is valid
+      const jobsArray = data && Array.isArray(data.jobs) ? data.jobs : [];
+      
+      // Validate each job has required _id field
+      const validJobs = jobsArray.filter(job => job && job._id);
+      
+      setJobs(validJobs);
       setLoading(false);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching jobs:', error);
+      setJobs([]);
       setLoading(false);
     }
   };
@@ -107,7 +121,11 @@ const Jobs = () => {
         ) : jobs.length === 0 ? (
           <div className="no-jobs">No jobs found. Try adjusting your filters.</div>
         ) : (
-          jobs.map((job) => (
+          jobs.map((job) => {
+            // Guard: Ensure job has _id before rendering
+            if (!job || !job._id) return null;
+            
+            return (
             <Link key={job._id} to={`/jobs/${job._id}`} className="job-card">
               <div className="job-header">
                 <div className="job-title-section">
@@ -160,13 +178,14 @@ const Jobs = () => {
                   {job.applications?.length || 0} applications
                 </span>
               </div>
-            </Link>
-          ))
-        )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Jobs;
+              </Link>
+              );
+              })
+              )}
+              </div>
+              </div>
+              </div>
+              );
+              };
+              
+              export default Jobs;
