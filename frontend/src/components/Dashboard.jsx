@@ -111,11 +111,135 @@ const StudentDashboard = ({ data }) => {
         <Stat title="Followers" value={stats.followers} />
       </div>
 
-      <div className="dashboard-actions">
-        <Link to="/jobs" className="action-btn action-btn-primary">
-          🔍 Apply for Jobs
-        </Link>
+      <div className="dashboard-section">
+        <h3>📋 Suggested Internships</h3>
+        <div className="dashboard-grid">
+          {data.suggestedJobs?.slice(0, 3).map((job) => (
+            <Link key={job._id} to={`/jobs/${job._id}`} className="dashboard-card">
+              <h4>{job.title}</h4>
+              <p>{job.postedBy?.startupProfile?.startupName || job.postedBy?.name}</p>
+              <span className="card-tag">{job.type}</span>
+            </Link>
+          ))}
+        </div>
+        <Link to="/jobs" className="view-all-link">View all opportunities →</Link>
       </div>
+
+      <div className="dashboard-section">
+        <h3>💼 Recent Applications</h3>
+        {data.applications?.length > 0 ? (
+          <div className="applications-list">
+            {data.applications.map((app) => (
+              <div key={app._id} className="application-item">
+                <span>{app.job?.title}</span>
+                <span className={`status-badge ${app.status}`}>{app.status}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No applications yet</p>
+        )}
+      </div>
+
+      <style jsx>{`
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 20px;
+          margin-top: 15px;
+        }
+
+        .dashboard-card {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          text-decoration: none;
+          color: inherit;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .dashboard-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card h4 {
+          margin: 0 0 10px 0;
+          font-size: 16px;
+          color: #333;
+        }
+
+        .dashboard-card p {
+          margin: 0 0 12px 0;
+          color: #666;
+          font-size: 14px;
+        }
+
+        .card-tag {
+          display: inline-block;
+          background: #e3f2fd;
+          color: #1976d2;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+        }
+
+        .applications-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 15px;
+        }
+
+        .application-item {
+          padding: 15px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .status-badge {
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: capitalize;
+          background: #e3f2fd;
+          color: #1976d2;
+        }
+
+        .status-badge.accepted {
+          background: #e8f5e9;
+          color: #2e7d32;
+        }
+
+        .status-badge.pending {
+          background: #fff3e0;
+          color: #e65100;
+        }
+
+        .status-badge.rejected {
+          background: #ffebee;
+          color: #c62828;
+        }
+
+        .view-all-link {
+          display: inline-block;
+          margin-top: 15px;
+          color: #1976d2;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.2s;
+        }
+
+        .view-all-link:hover {
+          color: #0d47a1;
+        }
+      `}</style>
     </div>
   );
 };
@@ -134,11 +258,110 @@ const FreelancerDashboard = ({ data }) => {
         <Stat title="Rating" value={`${stats.averageRating || 0} ⭐`} />
       </div>
 
-      <div className="dashboard-actions">
-        <Link to="/jobs" className="action-btn action-btn-primary">
-          🔍 Search Projects
-        </Link>
+      <div className="dashboard-section">
+        <h3>🔍 Search Projects</h3>
+        <div className="dashboard-grid">
+          {data.suggestedProjects?.slice(0, 3).map((job) => (
+            <Link key={job._id} to={`/jobs/${job._id}`} className="dashboard-card">
+              <h4>{job.title}</h4>
+              <p>{job.postedBy?.name}</p>
+              <span className="card-tag">{job.budget?.min && `${job.budget.min}-${job.budget.max}`}</span>
+            </Link>
+          ))}
+        </div>
+        <Link to="/jobs" className="view-all-link">View all projects →</Link>
       </div>
+
+      <div className="dashboard-section">
+        <h3>📝 My Services</h3>
+        {data.myJobs?.length > 0 ? (
+          <div className="jobs-list">
+            {data.myJobs.map((job) => (
+              <div key={job._id} className="job-item">
+                <span>{job.title}</span>
+                <span>{job.applications?.length || 0} applications</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No services posted yet. <Link to="/jobs/post">Post a service</Link></p>
+        )}
+      </div>
+
+      <style jsx>{`
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 20px;
+          margin-top: 15px;
+        }
+
+        .dashboard-card {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          text-decoration: none;
+          color: inherit;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .dashboard-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card h4 {
+          margin: 0 0 10px 0;
+          font-size: 16px;
+          color: #333;
+        }
+
+        .dashboard-card p {
+          margin: 0 0 12px 0;
+          color: #666;
+          font-size: 14px;
+        }
+
+        .card-tag {
+          display: inline-block;
+          background: #e3f2fd;
+          color: #1976d2;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+        }
+
+        .jobs-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 15px;
+        }
+
+        .job-item {
+          padding: 15px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .view-all-link {
+          display: inline-block;
+          margin-top: 15px;
+          color: #1976d2;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.2s;
+        }
+
+        .view-all-link:hover {
+          color: #0d47a1;
+        }
+      `}</style>
     </div>
   );
 };
@@ -157,14 +380,129 @@ const StartupDashboard = ({ data }) => {
         <Stat title="Investor Interests" value={stats.investorInterests} />
       </div>
 
-      <div className="dashboard-actions">
-        <Link to="/jobs/post" className="action-btn action-btn-primary">
-          📝 Post a Job
-        </Link>
-        <Link to="/funding/post" className="action-btn action-btn-secondary">
-          💰 Post Fund Request
-        </Link>
+      <div className="dashboard-section">
+        <h3>📝 Job Postings</h3>
+        {data.myJobs?.length > 0 ? (
+          <div className="jobs-list">
+            {data.myJobs.map((job) => (
+              <Link key={job._id} to={`/jobs/${job._id}`} className="job-item">
+                <div>
+                  <strong>{job.title}</strong>
+                  <span className="job-meta">{job.type} • {job.status}</span>
+                </div>
+                <span className="applications-count">{job.applications?.length || 0} applicants</span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p>No jobs posted yet. <Link to="/jobs/post">Post a job</Link></p>
+        )}
       </div>
+
+      <div className="dashboard-section">
+        <h3>💰 Funding Requests</h3>
+        {data.myFundingRequests?.length > 0 ? (
+          <div className="funding-list">
+            {data.myFundingRequests.map((request) => (
+              <Link key={request._id} to={`/funding/${request._id}`} className="funding-item">
+                <div>
+                  <strong>{request.title}</strong>
+                  <span className="funding-meta">{request.fundingAmount.toLocaleString()}</span>
+                </div>
+                <span className="interests-count">{request.interests?.length || 0} interests</span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p>No funding requests yet. <Link to="/funding/post">Request funding</Link></p>
+        )}
+      </div>
+
+      <style jsx>{`
+        .jobs-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 15px;
+        }
+
+        .job-item {
+          padding: 15px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          text-decoration: none;
+          color: inherit;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .job-item:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-item strong {
+          display: block;
+          margin-bottom: 5px;
+          color: #333;
+        }
+
+        .job-meta {
+          color: #666;
+          font-size: 13px;
+        }
+
+        .applications-count {
+          color: #1976d2;
+          font-weight: 600;
+          font-size: 14px;
+        }
+
+        .funding-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 15px;
+        }
+
+        .funding-item {
+          padding: 15px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          text-decoration: none;
+          color: inherit;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .funding-item:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .funding-item strong {
+          display: block;
+          margin-bottom: 5px;
+          color: #333;
+        }
+
+        .funding-meta {
+          color: #666;
+          font-size: 13px;
+        }
+
+        .interests-count {
+          color: #2e7d32;
+          font-weight: 600;
+          font-size: 14px;
+        }
+      `}</style>
     </div>
   );
 };
@@ -183,14 +521,151 @@ const InvestorDashboard = ({ data }) => {
         <Stat title="Portfolio Size" value={stats.portfolioSize} />
       </div>
 
-      <div className="dashboard-actions">
-        <Link to="/funding" className="action-btn action-btn-primary">
-          🔍 Explore Startups
-        </Link>
-        <Link to="/investor-interests" className="action-btn action-btn-secondary">
-          💡 My Interested Startups
-        </Link>
+      <div className="dashboard-section">
+        <h3>🚀 Explore Startups</h3>
+        <div className="dashboard-grid">
+          {data.recommendedStartups?.slice(0, 3).map((request) => (
+            <Link key={request._id} to={`/funding/${request._id}`} className="dashboard-card">
+              <h4>{request.title}</h4>
+              <p>{request.startup?.startupProfile?.startupName}</p>
+              <span className="card-tag">{request.fundingAmount.toLocaleString()}</span>
+            </Link>
+          ))}
+        </div>
+        <Link to="/funding" className="view-all-link">View all opportunities →</Link>
       </div>
+
+      <div className="dashboard-section">
+        <h3>💡 My Interests</h3>
+        {data.myInterests?.length > 0 ? (
+          <div className="interests-list">
+            {data.myInterests.map((interest) => (
+              <div key={interest._id} className="interest-item">
+                <div>
+                  <strong>{interest.fundingRequest?.title}</strong>
+                  <span className="interest-meta">
+                    {interest.fundingRequest?.startup?.startupProfile?.startupName}
+                  </span>
+                </div>
+                <span className={`status-badge ${interest.status}`}>{interest.status}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No interests yet. <Link to="/funding">Explore startups</Link></p>
+        )}
+      </div>
+
+      <style jsx>{`
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 20px;
+          margin-top: 15px;
+        }
+
+        .dashboard-card {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          text-decoration: none;
+          color: inherit;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .dashboard-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card h4 {
+          margin: 0 0 10px 0;
+          font-size: 16px;
+          color: #333;
+        }
+
+        .dashboard-card p {
+          margin: 0 0 12px 0;
+          color: #666;
+          font-size: 14px;
+        }
+
+        .card-tag {
+          display: inline-block;
+          background: #e3f2fd;
+          color: #1976d2;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+        }
+
+        .interests-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 15px;
+        }
+
+        .interest-item {
+          padding: 15px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .interest-item strong {
+          display: block;
+          margin-bottom: 5px;
+          color: #333;
+        }
+
+        .interest-meta {
+          color: #666;
+          font-size: 13px;
+        }
+
+        .status-badge {
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: capitalize;
+          background: #e3f2fd;
+          color: #1976d2;
+        }
+
+        .status-badge.accepted {
+          background: #e8f5e9;
+          color: #2e7d32;
+        }
+
+        .status-badge.pending {
+          background: #fff3e0;
+          color: #e65100;
+        }
+
+        .status-badge.rejected {
+          background: #ffebee;
+          color: #c62828;
+        }
+
+        .view-all-link {
+          display: inline-block;
+          margin-top: 15px;
+          color: #1976d2;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.2s;
+        }
+
+        .view-all-link:hover {
+          color: #0d47a1;
+        }
+      `}</style>
     </div>
   );
 };
@@ -234,7 +709,237 @@ const AdminDashboard = () => {
   return (
     <div className="role-dashboard">
       <h2>🛡️ Admin Dashboard</h2>
-      <p>Total Users: {analytics?.totalUsers || 0}</p>
+
+      <div className="dashboard-stats">
+        <Stat title="Total Users" value={analytics?.totalUsers || 0} />
+        <Stat title="Total Posts" value={analytics?.totalPosts || 0} />
+        <Stat title="Total Jobs" value={analytics?.totalJobs || 0} />
+        <Stat title="Funding Requests" value={analytics?.totalFundingRequests || 0} />
+        <Stat title="Verified Users" value={analytics?.verifiedUsers || 0} />
+        <Stat title="Banned Users" value={analytics?.bannedUsers || 0} />
+      </div>
+
+      <div className="dashboard-section">
+        <h3>📊 Platform Overview</h3>
+        <div className="admin-overview">
+          <div className="overview-item">
+            <span className="label">Total Applications:</span>
+            <span className="value">{analytics?.totalApplications || 0}</span>
+          </div>
+          <div className="overview-item">
+            <span className="label">Investor Interests:</span>
+            <span className="value">{analytics?.totalInvestorInterests || 0}</span>
+          </div>
+          <div className="overview-item">
+            <span className="label">Verification Pending:</span>
+            <span className="value">{(analytics?.totalUsers || 0) - (analytics?.verifiedUsers || 0)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="dashboard-section">
+        <h3>👥 Users by Role</h3>
+        <div className="role-distribution">
+          {analytics?.usersByRole?.map((role) => (
+            <div key={role._id} className="role-stat-card">
+              <div className="role-icon">
+                {role._id === 'student' && '👨‍🎓'}
+                {role._id === 'freelancer' && '💼'}
+                {role._id === 'startup' && '🚀'}
+                {role._id === 'investor' && '💎'}
+                {role._id === 'admin' && '🛡️'}
+              </div>
+              <div className="role-info">
+                <h4>{role.count}</h4>
+                <p>{role._id}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="dashboard-section">
+        <h3>🆕 Recent Users</h3>
+        {analytics?.recentUsers?.length > 0 ? (
+          <div className="recent-users-list">
+            {analytics.recentUsers.slice(0, 5).map((user) => (
+              <div key={user._id} className="recent-user-item">
+                <div>
+                  <strong>{user.name}</strong>
+                  <span className="user-email">{user.email}</span>
+                </div>
+                <div>
+                  <span className="user-role">{user.role}</span>
+                  <span className="user-date">{new Date(user.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No recent users</p>
+        )}
+      </div>
+
+      <div className="dashboard-section">
+        <h3>⚡ Quick Actions</h3>
+        <div className="quick-actions">
+          <Link to="/admin" className="action-card">
+            <span className="action-icon">🛡️</span>
+            <span className="action-title">Admin Panel</span>
+            <span className="action-desc">Manage platform</span>
+          </Link>
+          <Link to="/settings" className="action-card">
+            <span className="action-icon">⚙️</span>
+            <span className="action-title">Settings</span>
+            <span className="action-desc">Account settings</span>
+          </Link>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .admin-overview {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 15px;
+          margin-top: 15px;
+        }
+
+        .overview-item {
+          padding: 15px;
+          background: #f8f9fa;
+          border-radius: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .overview-item .label {
+          font-size: 14px;
+          color: #666;
+        }
+
+        .overview-item .value {
+          font-size: 24px;
+          font-weight: bold;
+          color: #333;
+        }
+
+        .role-distribution {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 15px;
+          margin-top: 15px;
+        }
+
+        .role-stat-card {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+
+        .role-icon {
+          font-size: 36px;
+        }
+
+        .role-info h4 {
+          margin: 0;
+          font-size: 28px;
+          color: #333;
+        }
+
+        .role-info p {
+          margin: 5px 0 0 0;
+          color: #666;
+          text-transform: capitalize;
+        }
+
+        .recent-users-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-top: 15px;
+        }
+
+        .recent-user-item {
+          padding: 15px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .recent-user-item strong {
+          display: block;
+          margin-bottom: 5px;
+        }
+
+        .user-email {
+          color: #666;
+          font-size: 14px;
+        }
+
+        .user-role {
+          background: #e3f2fd;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+          margin-right: 10px;
+          text-transform: capitalize;
+        }
+
+        .user-date {
+          color: #999;
+          font-size: 13px;
+        }
+
+        .quick-actions {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+          margin-top: 15px;
+        }
+
+        .action-card {
+          background: white;
+          padding: 25px;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          text-decoration: none;
+          color: inherit;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 10px;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .action-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-icon {
+          font-size: 48px;
+        }
+
+        .action-title {
+          font-size: 16px;
+          font-weight: bold;
+          color: #333;
+        }
+
+        .action-desc {
+          font-size: 13px;
+          color: #666;
+        }
+      `}</style>
     </div>
   );
 };
