@@ -398,6 +398,86 @@ body {
     }
 }
 
+@media (max-width: 992px) {
+    .admin-tabs {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .admin-tab {
+        font-size: 12px;
+        padding: 8px 10px;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .admin-filters {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+
+    .users-table {
+        font-size: 13px;
+    }
+
+    .users-table th,
+    .users-table td {
+        padding: 8px !important;
+    }
+
+    .user-cell {
+        flex-wrap: wrap;
+    }
+
+    .action-buttons {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .btn-action {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+    }
+
+    .verification-card {
+        padding: 15px !important;
+    }
+
+    .verification-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .verification-header img {
+        width: 50px !important;
+        height: 50px !important;
+    }
+
+    .verification-actions {
+        flex-direction: column;
+    }
+
+    .btn-action {
+        width: 100%;
+    }
+
+    .moderation-actions {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .post-author-info {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+
 @media (max-width: 576px) {
     .navbar-brand h1 {
         font-size: 18px;
@@ -405,6 +485,561 @@ body {
 
     .back-btn {
         padding: 5px 8px;
+        font-size: 12px;
+    }
+
+    /* Admin Module Mobile Fix */
+    .admin-container {
+        padding: 10px !important;
+    }
+
+    .admin-container h1 {
+        font-size: 20px;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .admin-tabs {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .admin-tab {
+        font-size: 12px;
+        padding: 10px;
+        width: 100%;
+        word-wrap: break-word;
+        white-space: normal;
+    }
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .analytics-card {
+        padding: 15px !important;
+    }
+
+    .analytics-card h3 {
+        font-size: 20px;
+        word-wrap: break-word;
+    }
+
+    .analytics-card p {
+        font-size: 12px;
+        word-wrap: break-word;
+    }
+
+    .admin-filters {
+        grid-template-columns: 1fr !important;
+        gap: 8px;
+    }
+
+    .admin-filters input,
+    .admin-filters select {
+        padding: 8px !important;
+        font-size: 12px;
+    }
+
+    /* Table Mobile View */
+    .users-table {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .users-table table {
+        min-width: 400px;
+    }
+
+    .users-table th,
+    .users-table td {
+        padding: 8px !important;
+        font-size: 11px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+    }
+
+    .users-table th {
+        background: #f5f5f5;
+        font-weight: 600;
+    }
+
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .user-cell img {
+        width: 30px !important;
+        height: 30px !important;
+        flex-shrink: 0;
+    }
+
+    .user-email {
+        font-size: 10px !important;
+        word-break: break-word;
+    }
+
+    .user-role {
+        font-size: 11px;
+        word-wrap: break-word;
+    }
+
+    .user-date {
+        font-size: 10px;
+        word-wrap: break-word;
+    }
+
+    .badge {
+        font-size: 10px !important;
+        padding: 2px 6px !important;
+        margin-right: 3px !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 3px;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        padding: 4px 6px !important;
+        font-size: 10px !important;
+        flex: 1;
+        min-width: 60px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Verification Cards Mobile */
+    .verification-card {
+        padding: 12px !important;
+        margin-bottom: 12px;
+    }
+
+    .verification-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+
+    .verification-header img {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .verification-info h4 {
+        font-size: 14px !important;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .verification-info p {
+        font-size: 12px !important;
+        word-wrap: break-word;
+    }
+
+    .verification-details p {
+        font-size: 12px !important;
+        word-wrap: break-word;
+    }
+
+    .verification-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-action.verify,
+    .btn-action.ban,
+    .btn-action.unban,
+    .btn-action.delete {
+        width: 100%;
+        padding: 8px !important;
+        font-size: 12px !important;
+    }
+
+    /* Post Moderation Mobile */
+    .moderation-post-card {
+        padding: 12px !important;
+        margin-bottom: 12px;
+    }
+
+    .post-author-info {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+    }
+
+    .post-author-info img {
+        width: 35px !important;
+        height: 35px !important;
+        flex-shrink: 0;
+    }
+
+    .post-role {
+        font-size: 10px;
+        word-wrap: break-word;
+    }
+
+    .moderation-media {
+        max-width: 100% !important;
+        height: auto;
+    }
+
+    .moderation-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #ddd;
+    }
+
+    .moderation-actions button {
+        width: 100%;
+        padding: 8px !important;
+        font-size: 12px !important;
+    }
+
+    /* All text overflow handling */
+    .user-info,
+    .investor-info,
+    .startup-info {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .user-info h4,
+    .investor-info h4,
+    .startup-info h4 {
+        white-space: normal;
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .user-info p,
+    .investor-info p,
+    .startup-info p {
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Global Mobile Text Wrapping */
+    * {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        word-break: break-word;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+    }
+
+    p, span, li, td, th {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    /* Funding Module Mobile Fix */
+    .funding-detail-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .funding-detail-title-section h1 {
+        font-size: 1.5rem !important;
+        word-wrap: break-word;
+    }
+
+    .startup-card {
+        flex-direction: column;
+        min-width: auto;
+        width: 100%;
+    }
+
+    .startup-card h4,
+    .startup-card p {
+        word-wrap: break-word;
+    }
+
+    .funding-details-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .detail-item-large {
+        word-wrap: break-word;
+    }
+
+    .detail-item-large strong {
+        font-size: 11px;
+        word-wrap: break-word;
+    }
+
+    .detail-item-large .amount {
+        font-size: 1.2rem;
+        word-wrap: break-word;
+    }
+
+    /* Interest Form Mobile */
+    .interest-form {
+        padding: 15px !important;
+        max-width: 100%;
+    }
+
+    .interest-form h3 {
+        font-size: 1.2rem;
+        word-wrap: break-word;
+    }
+
+    .interest-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .investor-info {
+        width: 100%;
+    }
+
+    /* Jobs Module Mobile Fix */
+    .job-card {
+        padding: 12px !important;
+    }
+
+    .job-card h3 {
+        font-size: 14px;
+        word-wrap: break-word;
+    }
+
+    .job-card p {
+        font-size: 12px;
+        word-wrap: break-word;
+    }
+
+    .job-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .company-info {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .job-details-list {
+        grid-template-columns: 1fr !important;
+        gap: 8px;
+    }
+
+    .job-detail-item {
+        font-size: 12px;
+        padding: 8px !important;
+        word-wrap: break-word;
+    }
+
+    /* Feed/Post Module Mobile Fix */
+    .post-card {
+        padding: 12px !important;
+    }
+
+    .post-card h3 {
+        font-size: 14px;
+        word-wrap: break-word;
+    }
+
+    .post-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .post-stats {
+        gap: 10px;
+        font-size: 12px;
+    }
+
+    .post-interactions {
+        gap: 10px;
+    }
+
+    /* Profile Module Mobile Fix */
+    .profile-header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+        padding: 15px !important;
+        margin: 10px;
+    }
+
+    .profile-info h1 {
+        font-size: 1.5rem !important;
+        word-wrap: break-word;
+    }
+
+    .profile-info p {
+        font-size: 12px;
+        word-wrap: break-word;
+    }
+
+    .profile-right-section {
+        align-items: stretch;
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .follow-stats {
+        gap: 30px;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    /* Messages/Chat Module Mobile Fix */
+    .message-item {
+        padding: 10px !important;
+    }
+
+    .message-sender {
+        font-size: 11px;
+        word-wrap: break-word;
+    }
+
+    .message-content {
+        font-size: 12px;
+        word-wrap: break-word;
+        max-width: 100%;
+    }
+
+    .message-date {
+        font-size: 10px;
+    }
+
+    .chat-message {
+        padding: 8px !important;
+        max-width: 100%;
+        word-wrap: break-word;
+    }
+
+    /* Search Results Mobile Fix */
+    .search-result-item {
+        padding: 12px !important;
+    }
+
+    .search-result-item h3 {
+        font-size: 14px;
+        word-wrap: break-word;
+    }
+
+    .search-result-item p {
+        font-size: 12px;
+        word-wrap: break-word;
+    }
+
+    /* Settings Module Mobile Fix */
+    .settings-section {
+        padding: 15px !important;
+    }
+
+    .settings-section h3 {
+        font-size: 14px;
+        word-wrap: break-word;
+    }
+
+    .settings-form {
+        width: 100%;
+    }
+
+    .settings-form label {
+        font-size: 12px;
+        word-wrap: break-word;
+    }
+
+    .settings-form input,
+    .settings-form select,
+    .settings-form textarea {
+        font-size: 12px;
+    }
+
+    /* Ensure all containers have proper mobile padding */
+    .container {
+        padding: 10px !important;
+    }
+
+    .auth-container {
+        margin: 20px auto !important;
+        padding: 15px !important;
+    }
+
+    /* Prevent text overflow in tables */
+    table {
+        font-size: 11px;
+    }
+
+    table th,
+    table td {
+        padding: 6px !important;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Button text wrapping */
+    .btn {
+        word-wrap: break-word;
+        white-space: normal;
+        padding: 8px !important;
+        font-size: 12px;
+    }
+
+    button {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+    }
+
+    /* Form elements */
+    input, select, textarea {
+        font-size: 14px;
+        padding: 8px !important;
+    }
+
+    label {
+        font-size: 12px;
+        word-wrap: break-word;
+    }
+
+    /* Navbar links */
+    .nav-link {
+        font-size: 12px !important;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    /* Card headers */
+    .card-header,
+    .section-header {
+        word-wrap: break-word;
+        font-size: 13px;
+    }
+
+    /* List items */
+    li {
+        word-wrap: break-word;
         font-size: 12px;
     }
 }
