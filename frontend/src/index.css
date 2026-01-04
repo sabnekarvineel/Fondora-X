@@ -3878,6 +3878,150 @@ textarea {
     border-top: 1px solid #eee;
 }
 
+/* Interest Cards Desktop */
+.interests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.interest-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+    transition: all 0.3s;
+}
+
+.interest-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.interest-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    gap: 15px;
+}
+
+.investor-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.investor-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.investor-info>div {
+    flex: 1;
+    min-width: 0;
+}
+
+.investor-name {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    text-decoration: none;
+    margin-bottom: 4px;
+    font-size: 1rem;
+}
+
+.investor-name:hover {
+    color: #4CAF50;
+    text-decoration: underline;
+}
+
+.investor-role {
+    margin: 0;
+    font-size: 13px;
+    color: #999;
+}
+
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.interest-content {
+    margin-bottom: 20px;
+}
+
+.interest-content p {
+    margin: 12px 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.interest-content strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.interest-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.interest-actions .btn {
+    padding: 8px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-warning {
+    background-color: #FFC107;
+    color: #333;
+}
+
+.btn-warning:hover {
+    background-color: #FFB300;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+.btn-danger {
+    background-color: #f44336;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #da190b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+}
+
 .btn-large {
     width: 100%;
     padding: 15px;
@@ -4567,6 +4711,159 @@ textarea {
 
     .interest-form {
         padding: 20px;
+        margin: 0 -10px;
+        border-radius: 0;
+    }
+
+    .interest-form h3 {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+
+    .interest-form .form-group textarea {
+        min-height: 100px;
+    }
+
+    .interest-form .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .interest-form .form-actions .btn {
+        width: 100%;
+    }
+
+    /* Interest Cards Mobile */
+    .interest-card {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #eee;
+    }
+
+    .interest-header {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .investor-info {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .investor-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .investor-info>div {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .investor-name {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+        word-break: break-word;
+        margin-bottom: 4px;
+    }
+
+    .investor-name:hover {
+        color: #4CAF50;
+    }
+
+    .investor-role {
+        margin: 0;
+        font-size: 12px;
+        color: #999;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: capitalize;
+        align-self: flex-start;
+        white-space: nowrap;
+    }
+
+    .interest-content {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .interest-content p {
+        margin: 8px 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #555;
+        word-wrap: break-word;
+    }
+
+    .interest-content strong {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .interest-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .interest-actions .btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .btn-success,
+    .btn-warning,
+    .btn-danger {
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-success {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #45a049;
+    }
+
+    .btn-warning {
+        background-color: #FFC107;
+        color: #333;
+    }
+
+    .btn-warning:hover {
+        background-color: #FFB300;
+    }
+
+    .btn-danger {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #da190b;
     }
 
     .stats-row {
