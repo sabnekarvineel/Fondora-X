@@ -5,6 +5,8 @@ import AuthContext from '../context/AuthContext';
 import Feed from './Feed';
 import Navbar from './Navbar';
 
+const API = import.meta.env.VITE_API_URL;
+
 const Dashboard = () => {
     const { user } = useContext(AuthContext);
     const [dashboardData, setDashboardData] = useState({
@@ -32,6 +34,12 @@ const Dashboard = () => {
         myFundingRequests: [],
         recommendedStartups: [],
         myInterests: [],
+        recentPosts: [],
+        skills: [],
+        hourlyRate: 0,
+        investmentFocus: [],
+        investmentRange: {},
+        startupProfile: {},
     });
     const [loading, setLoading] = useState(true);
 
@@ -44,36 +52,58 @@ const Dashboard = () => {
             // Skip fetching for admin, just stop loading
             setLoading(false);
         }
-        
-        // Set up interval to refresh data every 3 seconds for active data
-        const interval = setInterval(() => {
+    }, [user]);
+    
+    // Add listener for storage changes (when posting from other components)
+    useEffect(() => {
+        const handleStorageChange = () => {
             if (user && user.role !== 'admin') {
                 fetchDashboardData();
             }
-        }, 3000);
+        };
         
-        return () => clearInterval(interval);
+        // Listen for focus event to refresh when user returns to dashboard
+        window.addEventListener('focus', handleStorageChange);
+        
+        return () => {
+            window.removeEventListener('focus', handleStorageChange);
+        };
     }, [user]);
 
     const fetchDashboardData = async () => {
         try {
             const token = user?.token;
-            const { data } = await axios.get('/api/dashboard/overview', {
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+            
+            const { data } = await axios.get(`${API}/api/dashboard/overview`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            setDashboardData(prev => ({
-                ...prev,
-                ...data,
-                stats: {
-                    ...prev.stats,
-                    ...data.stats,
-                },
-            }));
+            console.log('Dashboard data received:', data);
 
+            // Set all received data directly
+            setDashboardData(prevData => ({
+                stats: { ...prevData.stats, ...(data.stats || {}) },
+                suggestedJobs: data.suggestedJobs || [],
+                suggestedProjects: data.suggestedProjects || [],
+                applications: data.applications || [],
+                myJobs: data.myJobs || [],
+                myFundingRequests: data.myFundingRequests || [],
+                recommendedStartups: data.recommendedStartups || [],
+                myInterests: data.myInterests || [],
+                recentPosts: data.recentPosts || [],
+                skills: data.skills || [],
+                hourlyRate: data.hourlyRate || 0,
+                investmentFocus: data.investmentFocus || [],
+                investmentRange: data.investmentRange || {},
+                startupProfile: data.startupProfile || {},
+            }));
             setLoading(false);
         } catch (error) {
-            console.error(error);
+            console.error('Dashboard fetch error:', error.response?.data || error.message);
             setLoading(false);
         }
     };
