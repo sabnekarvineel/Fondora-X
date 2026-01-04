@@ -49,12 +49,20 @@ const ConversationList = ({
         
         try {
           const key = await getStoredConversationKey(conversation._id);
-          if (key) {
-            const decryptedText = await decryptMessage(conversation.lastMessage.content, key);
-            decrypted[conversation._id] = decryptedText;
-          } else {
-            decrypted[conversation._id] = '[Encrypted message]';
+          
+          // Guard: if no key exists, show user-friendly message
+          // This happens on first load or if key was never stored in this browser
+          if (!key) {
+            console.warn(
+              `No stored encryption key for conversation ${conversation._id}. ` +
+              `Message will be shown as encrypted until conversation is opened.`
+            );
+            decrypted[conversation._id] = '[Encrypted - Click to open]';
+            continue;
           }
+          
+          const decryptedText = await decryptMessage(conversation.lastMessage.content, key);
+          decrypted[conversation._id] = decryptedText;
         } catch (error) {
           console.error(`Failed to decrypt message for conversation ${conversation._id}:`, error.message || error);
           decrypted[conversation._id] = '[Encrypted message]';

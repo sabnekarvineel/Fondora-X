@@ -166,11 +166,12 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
     }, [messages, encryptionReady, decryptMessages, encryptionKey, decryptedMediaUrls]);
 
     useEffect(() => {
-        if (conversation) {
+        // Only fetch messages after encryption key is ready to avoid decryption race condition
+        if (conversation && encryptionReady) {
             fetchMessages();
             markAsSeen();
         }
-    }, [conversation]);
+    }, [conversation, encryptionReady]);
 
     useEffect(() => {
         if (socket) {

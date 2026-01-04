@@ -66,6 +66,11 @@ export const importKey = async (keyString) => {
 // Encrypt a message using AES-256-GCM
 export const encryptMessage = async (message, key) => {
   try {
+    // Guard: validate key exists and is valid
+    if (!key || typeof key !== 'object') {
+      throw new Error('Encryption key is required and must be a CryptoKey object');
+    }
+
     const encoder = new TextEncoder();
     const data = encoder.encode(message);
     
@@ -89,17 +94,17 @@ export const encryptMessage = async (message, key) => {
     return arrayBufferToBase64(combined.buffer);
   } catch (error) {
     console.error('Encryption failed:', error);
-    throw new Error('Failed to encrypt message');
+    throw new Error('Failed to encrypt message: ' + (error.message || error));
   }
 };
 
 // Decrypt a message using AES-256-GCM
 export const decryptMessage = async (encryptedData, key) => {
   try {
-    // Guard: validate inputs
+    // Guard: validate inputs - throw error to signal caller that key is missing
     if (!encryptedData || !key) {
-      console.warn('Decryption failed: missing encryptedData or key');
-      return '[Encrypted message]';
+      const reason = !encryptedData ? 'missing encrypted data' : 'missing decryption key';
+      throw new Error(`Decryption failed: ${reason}`);
     }
 
     // Guard: validate encryptedData is a string
