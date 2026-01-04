@@ -7,7 +7,27 @@ import Navbar from './Navbar';
 
 const Dashboard = () => {
     const { user } = useContext(AuthContext);
-    const [dashboardData, setDashboardData] = useState(null);
+    const [dashboardData, setDashboardData] = useState({
+        stats: {
+            totalInterests: 0,
+            pendingInterests: 0,
+            activeJobs: 0,
+            totalApplications: 0,
+            fundingRequests: 0,
+            investorInterests: 0,
+            activeProjects: 0,
+            servicesPosted: 0,
+            averageRating: 0,
+            acceptedApplications: 0,
+            pendingApplications: 0,
+            followers: 0,
+        },
+        suggestedJobs: [],
+        suggestedProjects: [],
+        applications: [],
+        myJobs: [],
+        myFundingRequests: [],
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -37,7 +57,6 @@ const Dashboard = () => {
 
     const renderRoleDashboard = () => {
         if (loading) return <div className="loading">Loading dashboard...</div>;
-        if (!dashboardData) return null;
 
         switch (user?.role) {
             case 'student':
@@ -224,8 +243,8 @@ const StartupDashboard = ({ data }) => (
                     {data.myFundingRequests.map((request) => (
                         <Link key={request._id} to={`/funding/${request._id}`} className="funding-item">
                             <div>
-                                 <strong>{request.title}</strong>
-                                 <span className="funding-meta">{request.fundingAmount.toLocaleString()}</span>
+                                <strong>{request.title}</strong>
+                                <span className="funding-meta">{request.fundingAmount.toLocaleString()}</span>
                             </div>
                             <span className="interests-count">{request.interests?.length || 0} interests</span>
                         </Link>
@@ -266,9 +285,9 @@ const InvestorDashboard = ({ data }) => (
             <div className="dashboard-grid">
                 {data.recommendedStartups?.slice(0, 3).map((request) => (
                     <Link key={request._id} to={`/funding/${request._id}`} className="dashboard-card">
-                    <h4>{request.title}</h4>
-                    <p>{request.startup?.startupProfile?.startupName}</p>
-                    <span className="card-tag">{request.fundingAmount.toLocaleString()}</span>
+                        <h4>{request.title}</h4>
+                        <p>{request.startup?.startupProfile?.startupName}</p>
+                        <span className="card-tag">{request.fundingAmount.toLocaleString()}</span>
                     </Link>
                 ))}
             </div>
