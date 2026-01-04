@@ -21,12 +21,17 @@ const Dashboard = () => {
             acceptedApplications: 0,
             pendingApplications: 0,
             followers: 0,
+            activeDeals: 0,
+            completedDeals: 0,
+            portfolioSize: 0,
         },
         suggestedJobs: [],
         suggestedProjects: [],
         applications: [],
         myJobs: [],
         myFundingRequests: [],
+        recommendedStartups: [],
+        myInterests: [],
     });
     const [loading, setLoading] = useState(true);
 
@@ -101,19 +106,19 @@ const StudentDashboard = ({ data }) => (
 
         <div className="dashboard-stats">
             <div className="stat-card">
-                <h3>{data.stats.totalApplications}</h3>
+                <h3>{data?.stats?.totalApplications || 0}</h3>
                 <p>Total Applications</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.pendingApplications}</h3>
+                <h3>{data?.stats?.pendingApplications || 0}</h3>
                 <p>Pending</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.acceptedApplications}</h3>
+                <h3>{data?.stats?.acceptedApplications || 0}</h3>
                 <p>Accepted</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.followers}</h3>
+                <h3>{data?.stats?.followers || 0}</h3>
                 <p>Followers</p>
             </div>
         </div>
@@ -121,25 +126,29 @@ const StudentDashboard = ({ data }) => (
         <div className="dashboard-section">
             <h3> Suggested Internships</h3>
             <div className="dashboard-grid">
-                {data.suggestedJobs?.slice(0, 3).map((job) => (
-                    <Link key={job._id} to={`/jobs/${job._id}`} className="dashboard-card">
-                        <h4>{job.title}</h4>
-                        <p>{job.postedBy?.startupProfile?.startupName || job.postedBy?.name}</p>
-                        <span className="card-tag">{job.type}</span>
-                    </Link>
-                ))}
+                {data?.suggestedJobs && data.suggestedJobs.length > 0 ? (
+                    data.suggestedJobs.slice(0, 3).map((job) => (
+                        <Link key={job?._id} to={`/jobs/${job._id}`} className="dashboard-card">
+                            <h4>{job?.title || 'Untitled'}</h4>
+                            <p>{job?.postedBy?.startupProfile?.startupName || job?.postedBy?.name || 'Unknown'}</p>
+                            <span className="card-tag">{job?.type || 'job'}</span>
+                        </Link>
+                    ))
+                ) : (
+                    <p>No opportunities available</p>
+                )}
             </div>
             <Link to="/jobs" className="view-all-link">View all opportunities →</Link>
         </div>
 
         <div className="dashboard-section">
             <h3> Recent Applications</h3>
-            {data.applications?.length > 0 ? (
+            {data?.applications && data.applications.length > 0 ? (
                 <div className="applications-list">
                     {data.applications.map((app) => (
-                        <div key={app._id} className="application-item">
-                            <span>{app.job?.title}</span>
-                            <span className={`status-badge ${app.status}`}>{app.status}</span>
+                        <div key={app?._id} className="application-item">
+                            <span>{app?.job?.title || 'Untitled Job'}</span>
+                            <span className={`status-badge ${app?.status}`}>{app?.status || 'pending'}</span>
                         </div>
                     ))}
                 </div>
@@ -156,19 +165,19 @@ const FreelancerDashboard = ({ data }) => (
 
         <div className="dashboard-stats">
             <div className="stat-card">
-                <h3>{data.stats.activeProjects}</h3>
+                <h3>{data?.stats?.activeProjects || 0}</h3>
                 <p>Active Projects</p>
             </div>
             <div className="stat-card">
-                <h3>{data.hourlyRate}/hr</h3>
+                <h3>{data?.hourlyRate || 0}/hr</h3>
                 <p>Hourly Rate</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.servicesPosted}</h3>
+                <h3>{data?.stats?.servicesPosted || 0}</h3>
                 <p>Services Posted</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.averageRating.toFixed(1)}⭐</h3>
+                <h3>{(data?.stats?.averageRating || 0).toFixed(1)}⭐</h3>
                 <p>Average Rating</p>
             </div>
         </div>
@@ -176,25 +185,29 @@ const FreelancerDashboard = ({ data }) => (
         <div className="dashboard-section">
             <h3>Search Projects</h3>
             <div className="dashboard-grid">
-                {data.suggestedProjects?.slice(0, 3).map((job) => (
-                    <Link key={job._id} to={`/jobs/${job._id}`} className="dashboard-card">
-                        <h4>{job.title}</h4>
-                        <p>{job.postedBy?.name}</p>
-                        <span className="card-tag">{job.budget?.min && `${job.budget.min}-${job.budget.max}`}</span>
-                    </Link>
-                ))}
+                {data?.suggestedProjects && data.suggestedProjects.length > 0 ? (
+                    data.suggestedProjects.slice(0, 3).map((job) => (
+                        <Link key={job?._id} to={`/jobs/${job._id}`} className="dashboard-card">
+                            <h4>{job?.title || 'Untitled'}</h4>
+                            <p>{job?.postedBy?.name || 'Unknown'}</p>
+                            <span className="card-tag">{job?.budget?.min ? `${job.budget.min}-${job.budget.max}` : 'No budget'}</span>
+                        </Link>
+                    ))
+                ) : (
+                    <p>No projects available</p>
+                )}
             </div>
             <Link to="/jobs" className="view-all-link">View all projects →</Link>
         </div>
 
         <div className="dashboard-section">
             <h3> My Services</h3>
-            {data.myJobs?.length > 0 ? (
+            {data?.myJobs && data.myJobs.length > 0 ? (
                 <div className="jobs-list">
                     {data.myJobs.map((job) => (
-                        <div key={job._id} className="job-item">
-                            <span>{job.title}</span>
-                            <span>{job.applications?.length || 0} applications</span>
+                        <div key={job?._id} className="job-item">
+                            <span>{job?.title || 'Untitled Service'}</span>
+                            <span>{job?.applications?.length || 0} applications</span>
                         </div>
                     ))}
                 </div>
@@ -211,34 +224,34 @@ const StartupDashboard = ({ data }) => (
 
         <div className="dashboard-stats">
             <div className="stat-card">
-                <h3>{data.stats.activeJobs}</h3>
+                <h3>{data?.stats?.activeJobs || 0}</h3>
                 <p>Active Jobs</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.totalApplications}</h3>
+                <h3>{data?.stats?.totalApplications || 0}</h3>
                 <p>Applications Received</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.fundingRequests}</h3>
+                <h3>{data?.stats?.fundingRequests || 0}</h3>
                 <p>Funding Requests</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.investorInterests}</h3>
+                <h3>{data?.stats?.investorInterests || 0}</h3>
                 <p>Investor Interests</p>
             </div>
         </div>
 
         <div className="dashboard-section">
             <h3> Job Postings</h3>
-            {data.myJobs?.length > 0 ? (
+            {data?.myJobs && data.myJobs.length > 0 ? (
                 <div className="jobs-list">
                     {data.myJobs.map((job) => (
-                        <Link key={job._id} to={`/jobs/${job._id}`} className="job-item">
+                        <Link key={job?._id} to={`/jobs/${job._id}`} className="job-item">
                             <div>
-                                <strong>{job.title}</strong>
-                                <span className="job-meta">{job.type} • {job.status}</span>
+                                <strong>{job?.title || 'Untitled'}</strong>
+                                <span className="job-meta">{job?.type || 'job'} • {job?.status || 'open'}</span>
                             </div>
-                            <span className="applications-count">{job.applications?.length || 0} applicants</span>
+                            <span className="applications-count">{job?.applications?.length || 0} applicants</span>
                         </Link>
                     ))}
                 </div>
@@ -249,15 +262,15 @@ const StartupDashboard = ({ data }) => (
 
         <div className="dashboard-section">
             <h3> Funding Requests</h3>
-            {data.myFundingRequests?.length > 0 ? (
+            {data?.myFundingRequests && data.myFundingRequests.length > 0 ? (
                 <div className="funding-list">
                     {data.myFundingRequests.map((request) => (
-                        <Link key={request._id} to={`/funding/${request._id}`} className="funding-item">
+                        <Link key={request?._id} to={`/funding/${request._id}`} className="funding-item">
                             <div>
-                                <strong>{request.title}</strong>
-                                <span className="funding-meta">{request.fundingAmount.toLocaleString()}</span>
+                                <strong>{request?.title || 'Untitled'}</strong>
+                                <span className="funding-meta">{request?.fundingAmount?.toLocaleString() || '0'}</span>
                             </div>
-                            <span className="interests-count">{request.interests?.length || 0} interests</span>
+                            <span className="interests-count">{request?.interests?.length || 0} interests</span>
                         </Link>
                     ))}
                 </div>
@@ -274,19 +287,19 @@ const InvestorDashboard = ({ data }) => (
 
         <div className="dashboard-stats">
             <div className="stat-card">
-                <h3>{data.stats.totalInterests}</h3>
+                <h3>{data?.stats?.totalInterests || 0}</h3>
                 <p>Total Interests</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.activeDeals}</h3>
+                <h3>{data?.stats?.activeDeals || 0}</h3>
                 <p>Active Deals</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.completedDeals}</h3>
+                <h3>{data?.stats?.completedDeals || 0}</h3>
                 <p>Completed</p>
             </div>
             <div className="stat-card">
-                <h3>{data.stats.portfolioSize}</h3>
+                <h3>{data?.stats?.portfolioSize || 0}</h3>
                 <p>Portfolio Size</p>
             </div>
         </div>
@@ -294,30 +307,34 @@ const InvestorDashboard = ({ data }) => (
         <div className="dashboard-section">
             <h3> Explore Startups</h3>
             <div className="dashboard-grid">
-                {data.recommendedStartups?.slice(0, 3).map((request) => (
-                    <Link key={request._id} to={`/funding/${request._id}`} className="dashboard-card">
-                        <h4>{request.title}</h4>
-                        <p>{request.startup?.startupProfile?.startupName}</p>
-                        <span className="card-tag">{request.fundingAmount.toLocaleString()}</span>
-                    </Link>
-                ))}
+                {data?.recommendedStartups && data.recommendedStartups.length > 0 ? (
+                    data.recommendedStartups.slice(0, 3).map((request) => (
+                        <Link key={request?._id} to={`/funding/${request._id}`} className="dashboard-card">
+                            <h4>{request?.title}</h4>
+                            <p>{request?.startup?.startupProfile?.startupName || request?.startup?.name}</p>
+                            <span className="card-tag">{request?.fundingAmount?.toLocaleString() || '0'}</span>
+                        </Link>
+                    ))
+                ) : (
+                    <p>No startup opportunities available</p>
+                )}
             </div>
             <Link to="/funding" className="view-all-link">View all opportunities →</Link>
         </div>
 
         <div className="dashboard-section">
             <h3> My Interests</h3>
-            {data.myInterests?.length > 0 ? (
+            {data?.myInterests && data.myInterests.length > 0 ? (
                 <div className="interests-list">
                     {data.myInterests.map((interest) => (
-                        <div key={interest._id} className="interest-item">
+                        <div key={interest?._id} className="interest-item">
                             <div>
-                                <strong>{interest.fundingRequest?.title}</strong>
+                                <strong>{interest?.fundingRequest?.title || 'Untitled'}</strong>
                                 <span className="interest-meta">
-                                    {interest.fundingRequest?.startup?.startupProfile?.startupName}
+                                    {interest?.fundingRequest?.startup?.startupProfile?.startupName || 'Unknown Startup'}
                                 </span>
                             </div>
-                            <span className={`status-badge ${interest.status}`}>{interest.status}</span>
+                            <span className={`status-badge ${interest?.status}`}>{interest?.status || 'pending'}</span>
                         </div>
                     ))}
                 </div>

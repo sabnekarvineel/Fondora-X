@@ -4574,6 +4574,112 @@ textarea {
         gap: 20px;
     }
 
+    /* Dashboard Items Mobile Fix */
+    .funding-item,
+    .job-item,
+    .interest-item,
+    .application-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .funding-item>div,
+    .job-item>div {
+        width: 100%;
+    }
+
+    .funding-item>span,
+    .job-item>span,
+    .interest-item>span,
+    .application-item>span {
+        width: 100%;
+        text-align: left;
+    }
+
+    .interests-count,
+    .applications-count {
+        display: block;
+        width: 100%;
+        text-align: left;
+        margin-top: 8px;
+    }
+
+    /* Dashboard Section Mobile */
+    .dashboard-section {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-section h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    /* Funding Card Mobile Header */
+    .funding-card-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .funding-card-header h3 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+    }
+
+    .funding-startup {
+        width: 100%;
+        flex-direction: row;
+    }
+
+    /* Funding Meta Mobile */
+    .funding-meta {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .funding-stage,
+    .funding-industry {
+        font-size: 12px;
+        padding: 3px 10px;
+    }
+
+    /* Funding Details Mobile */
+    .funding-details {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    /* Funding Footer Mobile */
+    .funding-footer {
+        flex-direction: column;
+        gap: 10px;
+        font-size: 13px;
+    }
+
+    .funding-interests,
+    .funding-views {
+        display: block;
+        width: 100%;
+    }
+
+    /* Stat Card Mobile */
+    .stat-card {
+        padding: 15px;
+        min-width: 0;
+    }
+
+    .stat-card h3 {
+        font-size: 28px;
+    }
+
+    .stat-card p {
+        font-size: 13px;
+    }
+
     /* Search */
     .search-container {
         padding: 10px;
@@ -5574,11 +5680,11 @@ textarea {
     }
 
     .send-btn {
-       padding: 6px 10px;
+        padding: 6px 10px;
     }
-    }
+}
 
-    /* Share Modal Styles */
+/* Share Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
