@@ -44,6 +44,15 @@ const Dashboard = () => {
             // Skip fetching for admin, just stop loading
             setLoading(false);
         }
+        
+        // Set up interval to refresh data every 3 seconds for active data
+        const interval = setInterval(() => {
+            if (user && user.role !== 'admin') {
+                fetchDashboardData();
+            }
+        }, 3000);
+        
+        return () => clearInterval(interval);
     }, [user]);
 
     const fetchDashboardData = async () => {

@@ -82,7 +82,10 @@ const PostJob = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      navigate('/jobs');
+      // Refresh dashboard and navigate
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 500);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to post job');
       setLoading(false);

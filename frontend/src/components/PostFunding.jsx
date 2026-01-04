@@ -74,7 +74,10 @@ const PostFunding = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      navigate('/funding');
+      // Refresh dashboard and navigate
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 500);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to post funding request');
       setLoading(false);
