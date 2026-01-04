@@ -47,7 +47,16 @@ const Dashboard = () => {
             const { data } = await axios.get('/api/dashboard/overview', {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setDashboardData(data);
+
+            setDashboardData(prev => ({
+                ...prev,
+                ...data,
+                stats: {
+                    ...prev.stats,
+                    ...data.stats,
+                },
+            }));
+
             setLoading(false);
         } catch (error) {
             console.error(error);
