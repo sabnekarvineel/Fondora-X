@@ -633,7 +633,7 @@ const Profile = () => {
                                                         <span className="detail-badge">📊 {request.industry}</span>
                                                     )}
                                                     {request.valuation && (
-                                                        <span className="detail-badge">💵 Valuation: ${request.valuation.toLocaleString()}</span>
+                                                        <span className="detail-badge">💵 Valuation: {request.valuation.toLocaleString()}</span>
                                                     )}
                                                     {request.equityOffered && (
                                                         <span className="detail-badge">📈 Equity: {request.equityOffered}%</span>

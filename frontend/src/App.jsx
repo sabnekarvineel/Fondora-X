@@ -10,6 +10,7 @@ import Messages from './components/Messages';
 import Jobs from './components/Jobs';
 import JobDetail from './components/JobDetail';
 import PostJob from './components/PostJob';
+import EditJob from './components/EditJob';
 import Funding from './components/Funding';
 import FundingDetail from './components/FundingDetail';
 import PostFunding from './components/PostFunding';
@@ -128,6 +129,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute>
             <PostJob />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/jobs/:jobId/edit"
+        element={
+          <PrivateRoute>
+            <EditJob />
           </PrivateRoute>
         }
       />
