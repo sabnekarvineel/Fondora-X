@@ -65,9 +65,11 @@ const Dashboard = () => {
     };
 
     const renderRoleDashboard = () => {
+        // Wait for user to load before rendering
+        if (!user) return <div className="loading">Loading...</div>;
         if (loading) return <div className="loading">Loading dashboard...</div>;
 
-        switch (user?.role) {
+        switch (user.role) {
             case 'student':
                 return <StudentDashboard data={dashboardData} />;
             case 'freelancer':
