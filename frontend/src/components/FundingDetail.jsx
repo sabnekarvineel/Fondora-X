@@ -71,13 +71,32 @@ const FundingDetail = () => {
 
   const fetchInterests = async () => {
     try {
+      // Guard: validate we have funding ID before fetching
+      if (!id) {
+        console.warn('Cannot fetch interests: missing funding ID');
+        setInterests([]);
+        return;
+      }
+
       const token = user?.token;
+      
+      // Guard: validate token exists before making API call
+      if (!token) {
+        console.warn('Cannot fetch interests: user not authenticated');
+        setInterests([]);
+        return;
+      }
+
       const { data } = await axios.get(`${API}/api/investor-interest/funding/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setInterests(data);
+      
+      // Guard: validate response is array and filter for valid interests
+      const validInterests = Array.isArray(data) ? data.filter(interest => interest && interest._id) : [];
+      setInterests(validInterests);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching interests:', error);
+      setInterests([]);
     }
   };
 
@@ -159,8 +178,13 @@ const FundingDetail = () => {
   };
 
   useEffect(() => {
-    // Guard: Check all objects exist before accessing nested properties
-    if (fundingRequest && fundingRequest.startup && user && user._id && fundingRequest.startup._id === user._id) {
+    // Guard: Check all objects exist before accessing nested properties - use optional chaining consistently
+    if (
+      fundingRequest?._id &&
+      fundingRequest.startup?._id &&
+      user?._id &&
+      fundingRequest.startup._id === user._id
+    ) {
       fetchInterests();
     }
   }, [fundingRequest, user]);
@@ -227,9 +251,9 @@ const FundingDetail = () => {
   if (loading) return <div className="loading">Loading...</div>;
   if (!fundingRequest) return <div className="error">Funding request not found</div>;
 
-  // Guard: Ensure nested objects exist before accessing properties
-  const isOwner = fundingRequest && fundingRequest.startup && user && fundingRequest.startup._id === user._id;
-  const canExpressInterest = user && user.role === 'investor' && !isOwner;
+  // Guard: Ensure nested objects exist before accessing properties - use optional chaining consistently
+  const isOwner = fundingRequest?._id && fundingRequest.startup?._id && user?._id && fundingRequest.startup._id === user._id;
+  const canExpressInterest = user?.role === 'investor' && !isOwner;
 
   return (
     <div>
@@ -625,7 +649,14 @@ const FundingDetail = () => {
               <section className="funding-section">
                 <h3>Investor Interests ({interests.length})</h3>
                 <div className="interests-list">
-                  {interests.map((interest) => (
+                  {Array.isArray(interests) && interests.map((interest) => {
+                    // Guard: validate interest has required _id before rendering
+                    if (!interest || !interest._id) {
+                      console.warn('Invalid interest object:', interest);
+                      return null;
+                    }
+                    
+                    return (
                     <div key={interest._id} className="interest-card">
                       <div className="interest-header">
                         <div className="investor-info">
@@ -635,7 +666,7 @@ const FundingDetail = () => {
                             className="investor-avatar"
                           />
                           <div>
-                            {interest.investor && (
+                            {interest.investor?._id && (
                               <Link
                                 to={`/profile/${interest.investor._id}`}
                                 className="investor-name"
@@ -690,11 +721,12 @@ const FundingDetail = () => {
                           </button>
                         </div>
                       )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+                      </div>
+                      );
+                      })}
+                      </div>
+                      </section>
+                      )}
           </div>
             </>
           )}

@@ -40,8 +40,26 @@ const Funding = () => {
       // Defensive: Ensure data structure is valid
       const fundingArray = data && Array.isArray(data.fundingRequests) ? data.fundingRequests : [];
       
+      // Guard: Validate data structure before processing
+      if (!Array.isArray(fundingArray)) {
+        console.warn('Expected fundingRequests to be an array, got:', typeof fundingArray);
+        setFundingRequests([]);
+        setLoading(false);
+        return;
+      }
+
       // Validate each funding request has required _id field
-      const validRequests = fundingArray.filter(request => request && request._id);
+      const validRequests = fundingArray.filter(request => {
+        if (!request || !request._id) {
+          console.warn('Skipping invalid funding request:', request);
+          return false;
+        }
+        return true;
+      });
+      
+      if (validRequests.length < fundingArray.length) {
+        console.log(`Loaded ${validRequests.length}/${fundingArray.length} valid funding requests`);
+      }
       
       setFundingRequests(validRequests);
       setLoading(false);

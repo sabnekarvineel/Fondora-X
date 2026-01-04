@@ -39,8 +39,15 @@ const PostFunding = () => {
     setError('');
     setLoading(true);
 
+    // Guard: validate user is authenticated before making API call
+    if (!user || !user._id || !user.token) {
+      setError('You must be logged in to post a funding request');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const token = user?.token;
+      const token = user.token;
       const requestData = {
         title: formData.title,
         description: formData.description,
