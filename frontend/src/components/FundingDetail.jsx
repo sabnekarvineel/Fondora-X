@@ -258,8 +258,7 @@ const FundingDetail = () => {
   return (
     <div>
       <Navbar />
-      <div className="container">
-        <div className="funding-detail-container">
+      <div className="container funding-detail-container">
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
 
@@ -729,11 +728,10 @@ const FundingDetail = () => {
                       )}
           </div>
             </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default FundingDetail;
+            )}
+            </div>
+            </div>
+            );
+            };
+            
+            export default FundingDetail;

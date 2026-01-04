@@ -110,6 +110,12 @@ const StudentDashboard = ({ data }) => {
         <Stat title="Accepted" value={stats.acceptedApplications} />
         <Stat title="Followers" value={stats.followers} />
       </div>
+
+      <div className="dashboard-actions">
+        <Link to="/jobs" className="action-btn action-btn-primary">
+          🔍 Apply for Jobs
+        </Link>
+      </div>
     </div>
   );
 };
@@ -126,6 +132,12 @@ const FreelancerDashboard = ({ data }) => {
         <Stat title="Hourly Rate" value={`${data?.hourlyRate || 0}/hr`} />
         <Stat title="Services Posted" value={stats.servicesPosted} />
         <Stat title="Rating" value={`${stats.averageRating || 0} ⭐`} />
+      </div>
+
+      <div className="dashboard-actions">
+        <Link to="/jobs" className="action-btn action-btn-primary">
+          🔍 Search Projects
+        </Link>
       </div>
     </div>
   );
@@ -144,6 +156,15 @@ const StartupDashboard = ({ data }) => {
         <Stat title="Funding Requests" value={stats.fundingRequests} />
         <Stat title="Investor Interests" value={stats.investorInterests} />
       </div>
+
+      <div className="dashboard-actions">
+        <Link to="/jobs/post" className="action-btn action-btn-primary">
+          📝 Post a Job
+        </Link>
+        <Link to="/funding/post" className="action-btn action-btn-secondary">
+          💰 Post Fund Request
+        </Link>
+      </div>
     </div>
   );
 };
@@ -160,6 +181,15 @@ const InvestorDashboard = ({ data }) => {
         <Stat title="Active Deals" value={stats.activeDeals} />
         <Stat title="Completed Deals" value={stats.completedDeals} />
         <Stat title="Portfolio Size" value={stats.portfolioSize} />
+      </div>
+
+      <div className="dashboard-actions">
+        <Link to="/funding" className="action-btn action-btn-primary">
+          🔍 Explore Startups
+        </Link>
+        <Link to="/investor-interests" className="action-btn action-btn-secondary">
+          💡 My Interested Startups
+        </Link>
       </div>
     </div>
   );

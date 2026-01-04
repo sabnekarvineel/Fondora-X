@@ -173,8 +173,7 @@ const JobDetail = () => {
   return (
     <div>
       <Navbar />
-      <div className="container">
-        <div className="job-detail-container">
+      <div className="container job-detail-container">
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
 
@@ -444,10 +443,9 @@ const JobDetail = () => {
               </section>
             )}
           </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default JobDetail;
+          </div>
+          </div>
+          );
+          };
+          
+          export default JobDetail;
