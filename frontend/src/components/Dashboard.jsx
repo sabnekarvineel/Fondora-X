@@ -141,105 +141,7 @@ const StudentDashboard = ({ data }) => {
         )}
       </div>
 
-      <style jsx>{`
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 20px;
-          margin-top: 15px;
-        }
-
-        .dashboard-card {
-          background: white;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          text-decoration: none;
-          color: inherit;
-          transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .dashboard-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .dashboard-card h4 {
-          margin: 0 0 10px 0;
-          font-size: 16px;
-          color: #333;
-        }
-
-        .dashboard-card p {
-          margin: 0 0 12px 0;
-          color: #666;
-          font-size: 14px;
-        }
-
-        .card-tag {
-          display: inline-block;
-          background: #e3f2fd;
-          color: #1976d2;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-size: 12px;
-        }
-
-        .applications-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-top: 15px;
-        }
-
-        .application-item {
-          padding: 15px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .status-badge {
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 600;
-          text-transform: capitalize;
-          background: #e3f2fd;
-          color: #1976d2;
-        }
-
-        .status-badge.accepted {
-          background: #e8f5e9;
-          color: #2e7d32;
-        }
-
-        .status-badge.pending {
-          background: #fff3e0;
-          color: #e65100;
-        }
-
-        .status-badge.rejected {
-          background: #ffebee;
-          color: #c62828;
-        }
-
-        .view-all-link {
-          display: inline-block;
-          margin-top: 15px;
-          color: #1976d2;
-          text-decoration: none;
-          font-weight: 500;
-          transition: color 0.2s;
-        }
-
-        .view-all-link:hover {
-          color: #0d47a1;
-        }
-      `}</style>
+      <style jsx>{DashboardStyles}</style>
     </div>
   );
 };
@@ -288,80 +190,7 @@ const FreelancerDashboard = ({ data }) => {
         )}
       </div>
 
-      <style jsx>{`
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 20px;
-          margin-top: 15px;
-        }
-
-        .dashboard-card {
-          background: white;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          text-decoration: none;
-          color: inherit;
-          transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .dashboard-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .dashboard-card h4 {
-          margin: 0 0 10px 0;
-          font-size: 16px;
-          color: #333;
-        }
-
-        .dashboard-card p {
-          margin: 0 0 12px 0;
-          color: #666;
-          font-size: 14px;
-        }
-
-        .card-tag {
-          display: inline-block;
-          background: #e3f2fd;
-          color: #1976d2;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-size: 12px;
-        }
-
-        .jobs-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-top: 15px;
-        }
-
-        .job-item {
-          padding: 15px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .view-all-link {
-          display: inline-block;
-          margin-top: 15px;
-          color: #1976d2;
-          text-decoration: none;
-          font-weight: 500;
-          transition: color 0.2s;
-        }
-
-        .view-all-link:hover {
-          color: #0d47a1;
-        }
-      `}</style>
+      <style jsx>{DashboardStyles}</style>
     </div>
   );
 };
@@ -418,91 +247,7 @@ const StartupDashboard = ({ data }) => {
         )}
       </div>
 
-      <style jsx>{`
-        .jobs-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-top: 15px;
-        }
-
-        .job-item {
-          padding: 15px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          text-decoration: none;
-          color: inherit;
-          transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .job-item:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .job-item strong {
-          display: block;
-          margin-bottom: 5px;
-          color: #333;
-        }
-
-        .job-meta {
-          color: #666;
-          font-size: 13px;
-        }
-
-        .applications-count {
-          color: #1976d2;
-          font-weight: 600;
-          font-size: 14px;
-        }
-
-        .funding-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-top: 15px;
-        }
-
-        .funding-item {
-          padding: 15px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          text-decoration: none;
-          color: inherit;
-          transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .funding-item:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .funding-item strong {
-          display: block;
-          margin-bottom: 5px;
-          color: #333;
-        }
-
-        .funding-meta {
-          color: #666;
-          font-size: 13px;
-        }
-
-        .interests-count {
-          color: #2e7d32;
-          font-weight: 600;
-          font-size: 14px;
-        }
-      `}</style>
+      <style jsx>{DashboardStyles}</style>
     </div>
   );
 };
@@ -556,116 +301,7 @@ const InvestorDashboard = ({ data }) => {
         )}
       </div>
 
-      <style jsx>{`
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 20px;
-          margin-top: 15px;
-        }
-
-        .dashboard-card {
-          background: white;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          text-decoration: none;
-          color: inherit;
-          transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .dashboard-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .dashboard-card h4 {
-          margin: 0 0 10px 0;
-          font-size: 16px;
-          color: #333;
-        }
-
-        .dashboard-card p {
-          margin: 0 0 12px 0;
-          color: #666;
-          font-size: 14px;
-        }
-
-        .card-tag {
-          display: inline-block;
-          background: #e3f2fd;
-          color: #1976d2;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-size: 12px;
-        }
-
-        .interests-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-top: 15px;
-        }
-
-        .interest-item {
-          padding: 15px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .interest-item strong {
-          display: block;
-          margin-bottom: 5px;
-          color: #333;
-        }
-
-        .interest-meta {
-          color: #666;
-          font-size: 13px;
-        }
-
-        .status-badge {
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 600;
-          text-transform: capitalize;
-          background: #e3f2fd;
-          color: #1976d2;
-        }
-
-        .status-badge.accepted {
-          background: #e8f5e9;
-          color: #2e7d32;
-        }
-
-        .status-badge.pending {
-          background: #fff3e0;
-          color: #e65100;
-        }
-
-        .status-badge.rejected {
-          background: #ffebee;
-          color: #c62828;
-        }
-
-        .view-all-link {
-          display: inline-block;
-          margin-top: 15px;
-          color: #1976d2;
-          text-decoration: none;
-          font-weight: 500;
-          transition: color 0.2s;
-        }
-
-        .view-all-link:hover {
-          color: #0d47a1;
-        }
-      `}</style>
+      <style jsx>{DashboardStyles}</style>
     </div>
   );
 };
@@ -796,153 +432,369 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        .admin-overview {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 15px;
-          margin-top: 15px;
-        }
-
-        .overview-item {
-          padding: 15px;
-          background: #f8f9fa;
-          border-radius: 8px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .overview-item .label {
-          font-size: 14px;
-          color: #666;
-        }
-
-        .overview-item .value {
-          font-size: 24px;
-          font-weight: bold;
-          color: #333;
-        }
-
-        .role-distribution {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 15px;
-          margin-top: 15px;
-        }
-
-        .role-stat-card {
-          background: white;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          display: flex;
-          align-items: center;
-          gap: 15px;
-        }
-
-        .role-icon {
-          font-size: 36px;
-        }
-
-        .role-info h4 {
-          margin: 0;
-          font-size: 28px;
-          color: #333;
-        }
-
-        .role-info p {
-          margin: 5px 0 0 0;
-          color: #666;
-          text-transform: capitalize;
-        }
-
-        .recent-users-list {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          margin-top: 15px;
-        }
-
-        .recent-user-item {
-          padding: 15px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .recent-user-item strong {
-          display: block;
-          margin-bottom: 5px;
-        }
-
-        .user-email {
-          color: #666;
-          font-size: 14px;
-        }
-
-        .user-role {
-          background: #e3f2fd;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-size: 12px;
-          margin-right: 10px;
-          text-transform: capitalize;
-        }
-
-        .user-date {
-          color: #999;
-          font-size: 13px;
-        }
-
-        .quick-actions {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
-          margin-top: 15px;
-        }
-
-        .action-card {
-          background: white;
-          padding: 25px;
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          text-decoration: none;
-          color: inherit;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          gap: 10px;
-          transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .action-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .action-icon {
-          font-size: 48px;
-        }
-
-        .action-title {
-          font-size: 16px;
-          font-weight: bold;
-          color: #333;
-        }
-
-        .action-desc {
-          font-size: 13px;
-          color: #666;
-        }
-      `}</style>
+      <style jsx>{DashboardStyles}</style>
     </div>
   );
 };
+
+/* =========================
+   SHARED STYLES
+========================= */
+
+const DashboardStyles = `
+  .admin-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+  }
+
+  .overview-item {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .overview-item .label {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .overview-item .value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .role-distribution {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+  }
+
+  .role-stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .role-icon {
+    font-size: 36px;
+  }
+
+  .role-info h4 {
+    margin: 0;
+    font-size: 28px;
+    color: #333;
+  }
+
+  .role-info p {
+    margin: 5px 0 0 0;
+    color: #666;
+    text-transform: capitalize;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+  }
+
+  .dashboard-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .dashboard-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #333;
+  }
+
+  .dashboard-card p {
+    margin: 0 0 12px 0;
+    color: #666;
+    font-size: 14px;
+  }
+
+  .card-tag {
+    display: inline-block;
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+
+  .applications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+  }
+
+  .application-item {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    background: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .status-badge.accepted {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  .status-badge.pending {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  .status-badge.rejected {
+    background: #ffebee;
+    color: #c62828;
+  }
+
+  .view-all-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: #1976d2;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .view-all-link:hover {
+    color: #0d47a1;
+  }
+
+  .jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+  }
+
+  .job-item {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .job-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .job-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .job-meta {
+    color: #666;
+    font-size: 13px;
+  }
+
+  .applications-count {
+    color: #1976d2;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .funding-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+  }
+
+  .funding-item {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .funding-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .funding-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .funding-meta {
+    color: #666;
+    font-size: 13px;
+  }
+
+  .interests-count {
+    color: #2e7d32;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .interests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+  }
+
+  .interest-item {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .interest-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .interest-meta {
+    color: #666;
+    font-size: 13px;
+  }
+
+  .recent-users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .recent-user-item {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .recent-user-item strong {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .user-email {
+    color: #666;
+    font-size: 14px;
+  }
+
+  .user-role {
+    background: #e3f2fd;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-right: 10px;
+    text-transform: capitalize;
+  }
+
+  .user-date {
+    color: #999;
+    font-size: 13px;
+  }
+
+  .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+  }
+
+  .action-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .action-icon {
+    font-size: 48px;
+  }
+
+  .action-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .action-desc {
+    font-size: 13px;
+    color: #666;
+  }
+`;
 
 /* =========================
    SMALL HELPERS
