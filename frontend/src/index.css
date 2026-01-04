@@ -4720,6 +4720,17 @@ textarea {
         margin-bottom: 15px;
     }
 
+    .job-section {
+        padding: 15px;
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+
+    .job-section h3 {
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+
     .interest-form {
         padding: 20px;
         margin: 0 -10px;

@@ -31,7 +31,7 @@ export const submitFeedback = async (req, res) => {
       return res.status(500).json({ message: 'Failed to save feedback' });
     }
 
-    // 📧 Send to EMAIL_USER (non-blocking, don't crash if email fails)
+    // 📧 Send to EMAIL_USER (admin notification - non-blocking, don't crash if email fails)
     if (process.env.EMAIL_USER) {
       sendEmail({
         to: process.env.EMAIL_USER,
@@ -44,7 +44,27 @@ export const submitFeedback = async (req, res) => {
           <p>${message}</p>
         `,
       }).catch((emailErr) => {
-        console.warn('Failed to send feedback email:', emailErr.message);
+        console.warn('Failed to send admin feedback email:', emailErr.message);
+        // Don't crash - email is optional
+      });
+    }
+
+    // 📧 Send confirmation email to user
+    if (userEmail || req.user?.email) {
+      const recipientEmail = userEmail || req.user?.email;
+      sendEmail({
+        to: recipientEmail,
+        subject: 'We received your feedback - InnovateX Hub',
+        html: `
+          <h3>Thank you for your feedback!</h3>
+          <p>We have received your ${type} feedback regarding:</p>
+          <p><b>${subject}</b></p>
+          <p>Our team will review it and get back to you soon.</p>
+          <br/>
+          <p>Best regards,<br/>InnovateX Hub Team</p>
+        `,
+      }).catch((emailErr) => {
+        console.warn('Failed to send confirmation email to user:', emailErr.message);
         // Don't crash - email is optional
       });
     }
