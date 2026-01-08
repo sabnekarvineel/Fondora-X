@@ -1348,8 +1348,30 @@ body {
     color: #333;
 }
 
+.modal-search {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-search .search-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.modal-search .search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 .modal-body {
     padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .followers-list {
