@@ -93,19 +93,30 @@ const CreatePost = ({ onPostCreated }) => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
+    setError('');
+    
     if (files.length > 0) {
-      setMediaFiles(files);
-      
-      // For async preview generation (images and videos)
+      // Validate video duration
+      const validFiles = [];
       const previewPromises = files.map((file) => {
         return new Promise((resolve) => {
           const isVideo = file.type.startsWith('video');
           
           if (isVideo) {
-            // For videos, create a thumbnail from the first frame
+            // For videos, validate duration and create thumbnail
             const video = document.createElement('video');
             video.preload = 'metadata';
             video.onloadedmetadata = () => {
+              const duration = video.duration; // in seconds
+              const maxDuration = 5 * 60; // 5 minutes in seconds
+              
+              if (duration > maxDuration) {
+                setError(`Video "${file.name}" exceeds 5 minute limit (${Math.ceil(duration / 60)} minutes). Please select a shorter video.`);
+                resolve(null);
+                return;
+              }
+              
+              validFiles.push(file);
               video.currentTime = 0;
             };
             video.onseeked = () => {
@@ -120,9 +131,14 @@ const CreatePost = ({ onPostCreated }) => {
                 fileName: file.name,
               });
             };
+            video.onerror = () => {
+              setError(`Failed to load video "${file.name}"`);
+              resolve(null);
+            };
             video.src = URL.createObjectURL(file);
           } else {
             // For images, load directly
+            validFiles.push(file);
             const reader = new FileReader();
             reader.onloadend = () => {
               resolve({
@@ -137,7 +153,9 @@ const CreatePost = ({ onPostCreated }) => {
       });
       
       Promise.all(previewPromises).then((previews) => {
-        setMediaPreview(previews);
+        const validPreviews = previews.filter(p => p !== null);
+        setMediaFiles(validFiles);
+        setMediaPreview(validPreviews);
       });
     }
   };
