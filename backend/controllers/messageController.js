@@ -1,5 +1,6 @@
 import Conversation from '../models/Conversation.js';
 import Message from '../models/Message.js';
+import User from '../models/User.js';
 
 export const getConversations = async (req, res) => {
   try {
@@ -51,6 +52,29 @@ export const getConversations = async (req, res) => {
 export const getOrCreateConversation = async (req, res) => {
   try {
     const { userId } = req.params;
+
+    // Validate user ID
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    // Check if users are connected (follow/follower relationship)
+    const currentUser = await User.findById(req.user._id);
+    
+    if (!currentUser) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    // Check if userId is in followers or following list
+    const followersIds = currentUser.followers?.map(f => f._id?.toString() || f.toString()) || [];
+    const followingIds = currentUser.following?.map(f => f._id?.toString() || f.toString()) || [];
+    const isConnected = followersIds.includes(userId) || followingIds.includes(userId);
+
+    if (!isConnected) {
+      return res.status(403).json({ 
+        message: 'You can only message users you follow or who follow you' 
+      });
+    }
 
     let conversation = await Conversation.findOne({
       participants: { $all: [req.user._id, userId] },

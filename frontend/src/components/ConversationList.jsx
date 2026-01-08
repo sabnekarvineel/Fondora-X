@@ -88,7 +88,17 @@ const ConversationList = ({
           headers: { Authorization: `Bearer ${token}` },
           params: { query },
         });
-        setSearchResults(data.users || []);
+        
+        // Filter results to only show followers or following users
+        const followersIds = user?.followers?.map(f => f._id || f) || [];
+        const followingIds = user?.following?.map(f => f._id || f) || [];
+        const allFollowConnected = [...followersIds, ...followingIds];
+        
+        const filteredResults = (data.users || []).filter(
+          searchUser => allFollowConnected.includes(searchUser._id)
+        );
+        
+        setSearchResults(filteredResults);
       } catch (error) {
         console.error(error);
       }
@@ -162,7 +172,9 @@ const ConversationList = ({
               </div>
             ))
           ) : (
-            <div className="no-results">No users found</div>
+            <div className="no-results">
+              No matching users. You can only message users you follow or who follow you.
+            </div>
           )}
         </div>
       )}
