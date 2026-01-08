@@ -65,13 +65,14 @@ export const getOrCreateConversation = async (req, res) => {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    // Check if userId is in followers list (users who follow them)
+    // Check if userId is in followers or following list
     const followersIds = currentUser.followers?.map(f => f._id?.toString() || f.toString()) || [];
-    const isFollower = followersIds.includes(userId);
+    const followingIds = currentUser.following?.map(f => f._id?.toString() || f.toString()) || [];
+    const isConnected = followersIds.includes(userId) || followingIds.includes(userId);
 
-    if (!isFollower) {
+    if (!isConnected) {
       return res.status(403).json({ 
-        message: 'You can only message users who follow you' 
+        message: 'You can only message users you follow or who follow you' 
       });
     }
 

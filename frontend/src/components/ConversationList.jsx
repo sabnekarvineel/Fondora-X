@@ -77,30 +77,40 @@ const ConversationList = ({
     }
   }, [conversations]);
 
-  const handleSearch = async (query) => {
+  const handleSearch = (query) => {
     setSearchQuery(query);
     
     if (query.trim().length > 0) {
-      setSearching(true);
-      try {
-        const token = user?.token;
-        const { data } = await axios.get(`${API}/api/search/users`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { query },
-        });
-        
-        // Filter results to only show followers (users who follow them)
-        const followersIds = user?.followers?.map(f => f._id || f) || [];
-        
-        const filteredResults = (data.users || []).filter(
-          searchUser => followersIds.includes(searchUser._id)
-        );
-        
-        setSearchResults(filteredResults);
-      } catch (error) {
-        console.error(error);
-      }
-      setSearching(false);
+      // Filter from local followers and following lists
+      const followersIds = user?.followers?.map(f => f._id || f) || [];
+      const followingIds = user?.following?.map(f => f._id || f) || [];
+      
+      // Get all connected users locally
+      const allConnectedUsers = [];
+      
+      // Add followers
+      user?.followers?.forEach(follower => {
+        const id = follower._id || follower;
+        if (!allConnectedUsers.find(u => (u._id || u) === id)) {
+          allConnectedUsers.push(follower);
+        }
+      });
+      
+      // Add following
+      user?.following?.forEach(followed => {
+        const id = followed._id || followed;
+        if (!allConnectedUsers.find(u => (u._id || u) === id)) {
+          allConnectedUsers.push(followed);
+        }
+      });
+      
+      // Filter by search query (name search)
+      const queryLower = query.trim().toLowerCase();
+      const filteredResults = allConnectedUsers.filter(searchUser => 
+        searchUser.name.toLowerCase().includes(queryLower)
+      );
+      
+      setSearchResults(filteredResults);
     } else {
       setSearchResults([]);
     }
@@ -171,7 +181,7 @@ const ConversationList = ({
             ))
           ) : (
             <div className="no-results">
-              No matching followers. You can only message users who follow you.
+              No matching users. Search for users you follow or who follow you.
             </div>
           )}
         </div>
