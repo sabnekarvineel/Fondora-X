@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
@@ -9,6 +9,7 @@ const API = import.meta.env.VITE_API_URL;
 
 const Profile = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const { user: currentUser } = useContext(AuthContext);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -716,7 +717,15 @@ const Profile = () => {
                                 {profile.followers && profile.followers.length > 0 ? (
                                     <div className="followers-list">
                                         {profile.followers.map((follower) => (
-                                            <div key={follower._id} className="follower-item">
+                                            <div 
+                                                key={follower._id} 
+                                                className="follower-item"
+                                                onClick={() => {
+                                                    setShowFollowersModal(false);
+                                                    navigate(`/profile/${follower._id}`);
+                                                }}
+                                                style={{ cursor: 'pointer' }}
+                                            >
                                                 <img
                                                     src={follower.profilePhoto || '/default-avatar.png'}
                                                     alt={follower.name}
@@ -754,7 +763,15 @@ const Profile = () => {
                                 {profile.following && profile.following.length > 0 ? (
                                     <div className="followers-list">
                                         {profile.following.map((followed) => (
-                                            <div key={followed._id} className="follower-item">
+                                            <div 
+                                                key={followed._id} 
+                                                className="follower-item"
+                                                onClick={() => {
+                                                    setShowFollowingModal(false);
+                                                    navigate(`/profile/${followed._id}`);
+                                                }}
+                                                style={{ cursor: 'pointer' }}
+                                            >
                                                 <img
                                                     src={followed.profilePhoto || '/default-avatar.png'}
                                                     alt={followed.name}
