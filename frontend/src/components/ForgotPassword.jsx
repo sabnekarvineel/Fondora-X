@@ -54,7 +54,7 @@ const ForgotPassword = () => {
         <div className="form-group">
           <label>Email Address</label>
           <input
-            type="email"
+            type="email" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
