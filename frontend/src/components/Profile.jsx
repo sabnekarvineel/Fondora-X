@@ -21,8 +21,6 @@ const Profile = () => {
     const [posts, setPosts] = useState([]);
     const [showFollowersModal, setShowFollowersModal] = useState(false);
     const [showFollowingModal, setShowFollowingModal] = useState(false);
-    const [followersSearch, setFollowersSearch] = useState('');
-    const [followingSearch, setFollowingSearch] = useState('');
     const [fundingRequests, setFundingRequests] = useState([]);
 
     const [formData, setFormData] = useState({
@@ -203,14 +201,6 @@ const Profile = () => {
             setEditLoading(false);
         }
     };
-
-    const filteredFollowers = profile?.followers?.filter(follower =>
-        follower.name.toLowerCase().includes(followersSearch.toLowerCase())
-    ) || [];
-
-    const filteredFollowing = profile?.following?.filter(following =>
-        following.name.toLowerCase().includes(followingSearch.toLowerCase())
-    ) || [];
 
     if (loading) return (
         <div>
@@ -723,44 +713,31 @@ const Profile = () => {
                                     ✕
                                 </button>
                             </div>
-                            <div className="modal-search">
-                                <input
-                                    type="text"
-                                    placeholder="Search followers..."
-                                    value={followersSearch}
-                                    onChange={(e) => setFollowersSearch(e.target.value)}
-                                    className="search-input"
-                                />
-                            </div>
                             <div className="modal-body">
                                 {profile.followers && profile.followers.length > 0 ? (
-                                    filteredFollowers.length > 0 ? (
-                                        <div className="followers-list">
-                                            {filteredFollowers.map((follower) => (
-                                                <div 
-                                                    key={follower._id} 
-                                                    className="follower-item"
-                                                    onClick={() => {
-                                                        setShowFollowersModal(false);
-                                                        navigate(`/profile/${follower._id}`);
-                                                    }}
-                                                    style={{ cursor: 'pointer' }}
-                                                >
-                                                    <img
-                                                        src={follower.profilePhoto || '/default-avatar.png'}
-                                                        alt={follower.name}
-                                                        className="follower-avatar"
-                                                    />
-                                                    <div className="follower-info">
-                                                        <h4>{follower.name}</h4>
-                                                        <p>{follower.role}</p>
-                                                    </div>
+                                    <div className="followers-list">
+                                        {profile.followers.map((follower) => (
+                                            <div 
+                                                key={follower._id} 
+                                                className="follower-item"
+                                                onClick={() => {
+                                                    setShowFollowersModal(false);
+                                                    navigate(`/profile/${follower._id}`);
+                                                }}
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <img
+                                                    src={follower.profilePhoto || '/default-avatar.png'}
+                                                    alt={follower.name}
+                                                    className="follower-avatar"
+                                                />
+                                                <div className="follower-info">
+                                                    <h4>{follower.name}</h4>
+                                                    <p>{follower.role}</p>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="empty-state">No followers found</p>
-                                    )
+                                            </div>
+                                        ))}
+                                    </div>
                                 ) : (
                                     <p className="empty-state">No followers yet</p>
                                 )}
@@ -782,44 +759,31 @@ const Profile = () => {
                                     ✕
                                 </button>
                             </div>
-                            <div className="modal-search">
-                                <input
-                                    type="text"
-                                    placeholder="Search following..."
-                                    value={followingSearch}
-                                    onChange={(e) => setFollowingSearch(e.target.value)}
-                                    className="search-input"
-                                />
-                            </div>
                             <div className="modal-body">
                                 {profile.following && profile.following.length > 0 ? (
-                                    filteredFollowing.length > 0 ? (
-                                        <div className="followers-list">
-                                            {filteredFollowing.map((followed) => (
-                                                <div 
-                                                    key={followed._id} 
-                                                    className="follower-item"
-                                                    onClick={() => {
-                                                        setShowFollowingModal(false);
-                                                        navigate(`/profile/${followed._id}`);
-                                                    }}
-                                                    style={{ cursor: 'pointer' }}
-                                                >
-                                                    <img
-                                                        src={followed.profilePhoto || '/default-avatar.png'}
-                                                        alt={followed.name}
-                                                        className="follower-avatar"
-                                                    />
-                                                    <div className="follower-info">
-                                                        <h4>{followed.name}</h4>
-                                                        <p>{followed.role}</p>
-                                                    </div>
+                                    <div className="followers-list">
+                                        {profile.following.map((followed) => (
+                                            <div 
+                                                key={followed._id} 
+                                                className="follower-item"
+                                                onClick={() => {
+                                                    setShowFollowingModal(false);
+                                                    navigate(`/profile/${followed._id}`);
+                                                }}
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <img
+                                                    src={followed.profilePhoto || '/default-avatar.png'}
+                                                    alt={followed.name}
+                                                    className="follower-avatar"
+                                                />
+                                                <div className="follower-info">
+                                                    <h4>{followed.name}</h4>
+                                                    <p>{followed.role}</p>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="empty-state">No users found</p>
-                                    )
+                                            </div>
+                                        ))}
+                                    </div>
                                 ) : (
                                     <p className="empty-state">Not following anyone yet</p>
                                 )}
