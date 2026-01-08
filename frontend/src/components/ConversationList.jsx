@@ -21,6 +21,7 @@ const ConversationList = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState('');
   const [decryptedMessages, setDecryptedMessages] = useState({});
   const navigate = useNavigate();
 
@@ -77,40 +78,27 @@ const ConversationList = ({
     }
   }, [conversations]);
 
-  const handleSearch = (query) => {
+  const handleSearch = async (query) => {
     setSearchQuery(query);
+    setSearchError('');
     
     if (query.trim().length > 0) {
-      // Filter from local followers and following lists
-      const followersIds = user?.followers?.map(f => f._id || f) || [];
-      const followingIds = user?.following?.map(f => f._id || f) || [];
-      
-      // Get all connected users locally
-      const allConnectedUsers = [];
-      
-      // Add followers
-      user?.followers?.forEach(follower => {
-        const id = follower._id || follower;
-        if (!allConnectedUsers.find(u => (u._id || u) === id)) {
-          allConnectedUsers.push(follower);
-        }
-      });
-      
-      // Add following
-      user?.following?.forEach(followed => {
-        const id = followed._id || followed;
-        if (!allConnectedUsers.find(u => (u._id || u) === id)) {
-          allConnectedUsers.push(followed);
-        }
-      });
-      
-      // Filter by search query (name search)
-      const queryLower = query.trim().toLowerCase();
-      const filteredResults = allConnectedUsers.filter(searchUser => 
-        searchUser.name.toLowerCase().includes(queryLower)
-      );
-      
-      setSearchResults(filteredResults);
+      setSearching(true);
+      try {
+        const token = user?.token;
+        const { data } = await axios.get(`${API}/api/search/quick-search`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { query },
+        });
+        
+        setSearchResults(data || []);
+      } catch (error) {
+        console.error('Search error:', error);
+        setSearchError('Failed to search users');
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
     } else {
       setSearchResults([]);
     }
@@ -125,7 +113,10 @@ const ConversationList = ({
       onNewConversation(data);
       setSearchQuery('');
       setSearchResults([]);
+      setSearchError('');
     } catch (error) {
+      const errorMsg = error.response?.data?.message || 'Failed to open conversation';
+      setSearchError(errorMsg);
       console.error(error);
     }
   };
@@ -159,6 +150,9 @@ const ConversationList = ({
 
       {searchQuery && (
         <div className="search-results-list">
+          {searchError && (
+            <div className="search-error">{searchError}</div>
+          )}
           {searching ? (
             <div className="searching">Searching...</div>
           ) : searchResults.length > 0 ? (
@@ -181,7 +175,7 @@ const ConversationList = ({
             ))
           ) : (
             <div className="no-results">
-              No matching users. Search for users you follow or who follow you.
+              No users found matching "{searchQuery}".
             </div>
           )}
         </div>

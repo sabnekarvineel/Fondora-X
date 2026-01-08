@@ -2739,6 +2739,15 @@ textarea {
     border-bottom: 1px solid #eee;
 }
 
+.search-error {
+    padding: 12px 15px;
+    background-color: #fee;
+    color: #c33;
+    border-bottom: 1px solid #fcc;
+    font-size: 14px;
+    text-align: center;
+}
+
 .search-result-item {
     display: flex;
     gap: 10px;
