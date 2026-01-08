@@ -89,13 +89,11 @@ const ConversationList = ({
           params: { query },
         });
         
-        // Filter results to only show followers or following users
+        // Filter results to only show followers (users who follow them)
         const followersIds = user?.followers?.map(f => f._id || f) || [];
-        const followingIds = user?.following?.map(f => f._id || f) || [];
-        const allFollowConnected = [...followersIds, ...followingIds];
         
         const filteredResults = (data.users || []).filter(
-          searchUser => allFollowConnected.includes(searchUser._id)
+          searchUser => followersIds.includes(searchUser._id)
         );
         
         setSearchResults(filteredResults);
@@ -173,7 +171,7 @@ const ConversationList = ({
             ))
           ) : (
             <div className="no-results">
-              No matching users. You can only message users you follow or who follow you.
+              No matching followers. You can only message users who follow you.
             </div>
           )}
         </div>
