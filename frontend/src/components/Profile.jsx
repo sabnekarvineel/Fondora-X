@@ -4,6 +4,7 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 import PostCard from './PostCard';
+import ChatBox from './ChatBox';
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -22,6 +23,8 @@ const Profile = () => {
     const [showFollowersModal, setShowFollowersModal] = useState(false);
     const [showFollowingModal, setShowFollowingModal] = useState(false);
     const [fundingRequests, setFundingRequests] = useState([]);
+    const [messageConversation, setMessageConversation] = useState(null);
+    const [showMessageBox, setShowMessageBox] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -58,7 +61,7 @@ const Profile = () => {
                 skills: data.skills || [],
                 socialLinks: data.socialLinks || { website: '', github: '', linkedin: '' },
             });
-            
+
             // ✅ Load role-specific data
             if (data.role === 'startup') {
                 setRoleData(data.startupProfile || {});
@@ -69,7 +72,7 @@ const Profile = () => {
             } else if (data.role === 'investor') {
                 setRoleData(data.investorProfile || {});
             }
-            
+
             setLoading(false);
         } catch (error) {
             console.error('Profile fetch error:', error);
@@ -110,6 +113,23 @@ const Profile = () => {
             fetchProfile();
         } catch (error) {
             console.error(error);
+        }
+    };
+
+    const handleStartMessage = async () => {
+        try {
+            const token = currentUser?.token;
+            const { data } = await axios.get(
+                `${API}/api/messages/conversation/${id}`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+            setMessageConversation(data);
+            setShowMessageBox(true);
+        } catch (error) {
+            console.error('Error starting conversation:', error);
+            alert(error.response?.data?.message || 'Error starting conversation');
         }
     };
 
@@ -176,7 +196,7 @@ const Profile = () => {
             const profileData = {
                 ...formData,
             };
-            
+
             // ✅ Add role-specific data
             if (profile.role === 'startup') {
                 profileData.startupProfile = roleData;
@@ -187,7 +207,7 @@ const Profile = () => {
             } else if (profile.role === 'investor') {
                 profileData.investorProfile = roleData;
             }
-            
+
             await axios.put(`${API}/api/profile/update`, profileData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -250,9 +270,14 @@ const Profile = () => {
 
                             <div className="profile-actions">
                                 {currentUser && currentUser._id !== profile._id && (
-                                    <button className="btn btn-follow" onClick={handleFollow}>
-                                        {isFollowing ? 'Unfollow' : 'Follow'}
-                                    </button>
+                                    <>
+                                        <button className="btn btn-follow" onClick={handleFollow}>
+                                            {isFollowing ? 'Unfollow' : 'Follow'}
+                                        </button>
+                                        <button className="btn btn-message" onClick={handleStartMessage}>
+                                            💬 Message
+                                        </button>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -621,7 +646,7 @@ const Profile = () => {
                                                     </span>
                                                 </div>
                                                 <p className="funding-amount">
-                                                     {request.fundingAmount.toLocaleString()} {request.currency}
+                                                    {request.fundingAmount.toLocaleString()} {request.currency}
                                                 </p>
                                                 <p className="funding-stage">
                                                     Stage: <strong>{request.stage}</strong>
@@ -717,8 +742,8 @@ const Profile = () => {
                                 {profile.followers && profile.followers.length > 0 ? (
                                     <div className="followers-list">
                                         {profile.followers.map((follower) => (
-                                            <div 
-                                                key={follower._id} 
+                                            <div
+                                                key={follower._id}
                                                 className="follower-item"
                                                 onClick={() => {
                                                     setShowFollowersModal(false);
@@ -763,8 +788,8 @@ const Profile = () => {
                                 {profile.following && profile.following.length > 0 ? (
                                     <div className="followers-list">
                                         {profile.following.map((followed) => (
-                                            <div 
-                                                key={followed._id} 
+                                            <div
+                                                key={followed._id}
                                                 className="follower-item"
                                                 onClick={() => {
                                                     setShowFollowingModal(false);
@@ -788,6 +813,19 @@ const Profile = () => {
                                     <p className="empty-state">Not following anyone yet</p>
                                 )}
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Message Modal */}
+                {showMessageBox && messageConversation && (
+                    <div className="message-modal-overlay" onClick={() => setShowMessageBox(false)}>
+                        <div className="message-modal-content" onClick={(e) => e.stopPropagation()}>
+                            <ChatBox
+                                conversation={messageConversation}
+                                onConversationUpdate={() => setShowMessageBox(false)}
+                                onCloseChat={() => setShowMessageBox(false)}
+                            />
                         </div>
                     </div>
                 )}
