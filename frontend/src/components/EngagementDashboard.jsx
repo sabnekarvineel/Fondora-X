@@ -43,28 +43,6 @@ const EngagementDashboard = () => {
     } catch (err) {
       console.error(err);
       setError('Failed to load engagement data');
-      // Mock data for development
-      setEngagementData({
-        posts: {
-          total: 12,
-          likes: 342,
-          comments: 87,
-          shares: 23,
-          avgLikesPerPost: 28.5,
-          avgCommentsPerPost: 7.25,
-        },
-        profile: {
-          views: 1250,
-          followers: 324,
-          followersGain: 45,
-          viewsIncrease: 18,
-        },
-        topPosts: [
-          { id: 1, title: 'Post 1', likes: 124, comments: 32 },
-          { id: 2, title: 'Post 2', likes: 89, comments: 21 },
-          { id: 3, title: 'Post 3', likes: 67, comments: 19 },
-        ],
-      });
     } finally {
       setLoading(false);
     }
@@ -93,10 +71,11 @@ const EngagementDashboard = () => {
     <div className="engagement-dashboard">
       <style>{`
         .engagement-dashboard {
-          background: #f8f9fa;
+          background: white;
           border-radius: 8px;
-          padding: 20px;
-          margin-top: 20px;
+          padding: 30px;
+          margin-bottom: 30px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .engagement-header {
@@ -234,41 +213,44 @@ const EngagementDashboard = () => {
         }
 
         .stat-box {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
+          background: #f8f9fa;
+          color: #333;
           padding: 15px;
           border-radius: 6px;
           text-align: center;
+          border: 1px solid #e0e0e0;
         }
 
         .stat-box.likes {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+          background: #f8f9fa;
         }
 
         .stat-box.comments {
-          background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+          background: #f8f9fa;
         }
 
         .stat-box.shares {
-          background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+          background: #f8f9fa;
         }
 
         .stat-box.views {
-          background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+          background: #f8f9fa;
         }
 
         .stat-box h5 {
           margin: 0 0 5px 0;
           font-size: 12px;
           text-transform: uppercase;
-          opacity: 0.9;
+          opacity: 0.7;
           font-weight: 600;
+          color: #666;
         }
 
         .stat-box p {
           margin: 0;
           font-size: 24px;
           font-weight: 700;
+          color: #333;
         }
 
         .top-posts {
@@ -489,20 +471,20 @@ const EngagementDashboard = () => {
       `}</style>
 
       <div className="engagement-header">
-        <h3>📊 Engagement Dashboard</h3>
+        <h3>Engagement Dashboard</h3>
         <div className="chart-toggle">
-          <button
-            className={`toggle-btn ${chartType === 'posts' ? 'active' : ''}`}
-            onClick={() => setChartType('posts')}
-          >
-            📝 Posts
-          </button>
-          <button
-            className={`toggle-btn ${chartType === 'profile' ? 'active' : ''}`}
-            onClick={() => setChartType('profile')}
-          >
-            👤 Profile
-          </button>
+        <button
+        className={`toggle-btn ${chartType === 'posts' ? 'active' : ''}`}
+        onClick={() => setChartType('posts')}
+        >
+        Posts
+        </button>
+        <button
+        className={`toggle-btn ${chartType === 'profile' ? 'active' : ''}`}
+        onClick={() => setChartType('profile')}
+        >
+        Profile
+        </button>
         </div>
       </div>
 
@@ -522,20 +504,17 @@ const EngagementDashboard = () => {
             <StatCard
               label="Total Likes"
               value={engagementData.posts.likes}
-              icon="❤️"
-              change={Math.floor(Math.random() * 20 + 5)}
+              icon="❤"
             />
             <StatCard
               label="Total Comments"
               value={engagementData.posts.comments}
               icon="💬"
-              change={Math.floor(Math.random() * 15 + 3)}
             />
             <StatCard
               label="Total Shares"
               value={engagementData.posts.shares}
-              icon="🔄"
-              change={Math.floor(Math.random() * 10 + 2)}
+              icon="↻"
             />
           </div>
 
@@ -583,14 +562,12 @@ const EngagementDashboard = () => {
             <StatCard
               label="Profile Views"
               value={engagementData.profile.views}
-              icon="👁️"
-              change={engagementData.profile.viewsIncrease}
+              icon="●"
             />
             <StatCard
               label="Followers"
               value={engagementData.profile.followers}
-              icon="👥"
-              change={engagementData.profile.followersGain}
+              icon="◯"
             />
           </div>
 
@@ -602,14 +579,6 @@ const EngagementDashboard = () => {
                 <p>{engagementData.profile.views}</p>
               </div>
               <div className="stat-box">
-                <h5>Followers Growth</h5>
-                <p>+{engagementData.profile.followersGain}</p>
-              </div>
-              <div className="stat-box likes">
-                <h5>View Increase</h5>
-                <p>+{engagementData.profile.viewsIncrease}%</p>
-              </div>
-              <div className="stat-box comments">
                 <h5>Current Followers</h5>
                 <p>{engagementData.profile.followers}</p>
               </div>

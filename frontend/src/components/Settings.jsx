@@ -189,9 +189,7 @@ const Settings = () => {
            {error && <div className="error-message">{error}</div>}
            {success && <div className="success-message">{success}</div>}
 
-           <EngagementDashboard />
-
-          <div className="settings-section">
+           <div className="settings-section">
             <h3> Edit Profile</h3>
             <p>Update your profile information, skills, and role-specific details.</p>
             <Link to={`/profile/${user?._id}`} className="btn">
@@ -429,11 +427,14 @@ const Settings = () => {
 
 
             </div>
-          </div>
-          </div>
-          </div>
+            </div>
 
-      <style jsx>{`
+            <EngagementDashboard />
+
+            </div>
+            </div>
+
+            <style jsx>{`
         .settings-container {
           max-width: 800px;
           margin: 40px auto;
