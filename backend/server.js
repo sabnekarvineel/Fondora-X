@@ -20,6 +20,7 @@ import dashboardRoutes from './routes/dashboardRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
+import engagementRoutes from './routes/engagementRoutes.js';
 import { setupSocketIO } from './socket/socketHandler.js';
 
 
@@ -109,6 +110,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/engagement', engagementRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Fondora-X API is running' });

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
+import EngagementDashboard from './EngagementDashboard';
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -182,11 +183,13 @@ const Settings = () => {
       <Navbar />
 
       <div className="container">
-        <div className="settings-container">
-          <h2>⚙️ Settings & Privacy</h2>
+         <div className="settings-container">
+           <h2>⚙️ Settings & Privacy</h2>
 
-          {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">{success}</div>}
+           {error && <div className="error-message">{error}</div>}
+           {success && <div className="success-message">{success}</div>}
+
+           <EngagementDashboard />
 
           <div className="settings-section">
             <h3> Edit Profile</h3>
