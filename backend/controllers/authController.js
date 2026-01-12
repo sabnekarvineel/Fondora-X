@@ -206,7 +206,12 @@ export const forgotPassword = async (req, res) => {
 
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    // Use production URL for password reset link
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://fondora-x.vercel.app'
+      : process.env.CLIENT_URL || 'http://localhost:3000';
+    
+    const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
 
     if (!user.email) {
       return res.status(400).json({ message: "User email not found" });
