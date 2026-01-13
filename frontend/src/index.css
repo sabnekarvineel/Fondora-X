@@ -3074,12 +3074,12 @@ textarea {
 .message-menu-btn {
     background: transparent;
     border: none;
-    color: #666;
+    color: #ffffff;
     cursor: pointer;
     font-size: 16px;
     padding: 4px 8px;
     border-radius: 4px;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.2s;
 }
 
@@ -3194,7 +3194,7 @@ textarea {
 .chat-header-menu-btn {
     background: transparent;
     border: none;
-    color: #aaa;
+    color: #ffffff;
     cursor: pointer;
     font-size: 18px;
     padding: 4px 8px;

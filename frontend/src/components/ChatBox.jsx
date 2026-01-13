@@ -4,6 +4,7 @@ import AuthContext from '../context/AuthContext';
 
 const API = import.meta.env.VITE_API_URL;
 import SocketContext from '../context/SocketContext';
+import NotificationContext from '../context/NotificationContext';
 import {
     encryptMessage,
     decryptMessage,
@@ -22,6 +23,7 @@ import {
 const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseChat }) => {
     const { user } = useContext(AuthContext);
     const { socket, onlineUsers } = useContext(SocketContext);
+    const { fetchNotifications } = useContext(NotificationContext);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [messages, setMessages] = useState([]);
     const [decryptedMessages, setDecryptedMessages] = useState({});
@@ -214,26 +216,33 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                 });
 
                 // Decrypt the new message - encryptionKey is guaranteed to exist here
+                let decryptedContent = '';
                 if (message.isEncrypted === true && message.content && encryptionKey) {
                     try {
-                        const decrypted = await decryptMessage(message.content, encryptionKey);
+                        decryptedContent = await decryptMessage(message.content, encryptionKey);
                         setDecryptedMessages((prev) => ({
                             ...prev,
-                            [message._id]: decrypted,
+                            [message._id]: decryptedContent,
                         }));
                     } catch (error) {
                         console.error(`Failed to decrypt received message ${message._id}:`, error.message || error);
+                        decryptedContent = '[Encrypted message]';
                         setDecryptedMessages((prev) => ({
                             ...prev,
                             [message._id]: '[Encrypted message]',
                         }));
                     }
                 } else {
+                    decryptedContent = message.content || '';
                     setDecryptedMessages((prev) => ({
                         ...prev,
-                        [message._id]: message.content || '',
+                        [message._id]: decryptedContent,
                     }));
                 }
+
+                // Show notification for new message
+                const senderName = message.sender?.name || 'Someone';
+                showMessageNotification(decryptedContent, senderName);
 
                 markAsSeen();
                 scrollToBottom();
@@ -589,6 +598,28 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
 
     const getDisplayContent = (message) => {
         return decryptedMessages[message._id] || message.content;
+    };
+
+    const showMessageNotification = (messageContent, senderName) => {
+        try {
+            // Browser notification
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(`📨 New message from ${senderName}`, {
+                    body: messageContent.substring(0, 100),
+                    icon: '/logo.png',
+                    tag: `message-${Date.now()}`,
+                });
+            }
+
+            // Also update in-app notifications if not in focus
+            if (document.hidden) {
+                fetchNotifications && fetchNotifications();
+            }
+
+            console.log(`🔔 Message notification: ${senderName}`);
+        } catch (error) {
+            console.error('Failed to show notification:', error);
+        }
     };
 
     const handleDeleteMessage = async (messageId) => {
