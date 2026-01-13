@@ -18,6 +18,7 @@ import Feed from './components/Feed';
 import Admin from './components/Admin';
 import Settings from './components/Settings';
 import AuthContext from './context/AuthContext';
+import KeyRestoreModal from './components/KeyRestoreModal.jsx';
 import { useContext } from 'react';
 
 const PrivateRoute = ({ children }) => {
@@ -193,7 +194,31 @@ const AppRoutes = () => {
 };
 
 function App() {
-  return <AppRoutes />;
+  const { pendingKeyRestore, setPendingKeyRestore, user } = useContext(AuthContext);
+
+  const handleKeyRestoreSuccess = () => {
+    setPendingKeyRestore(null);
+    console.log('Encryption keys restored successfully');
+  };
+
+  const handleKeyRestoreSkip = () => {
+    setPendingKeyRestore(null);
+    console.log('User skipped encryption key restore');
+  };
+
+  return (
+    <>
+      <AppRoutes />
+      {pendingKeyRestore && user && (
+        <KeyRestoreModal
+          serverKeys={pendingKeyRestore}
+          onSuccess={handleKeyRestoreSuccess}
+          onSkip={handleKeyRestoreSkip}
+          onClose={() => setPendingKeyRestore(null)}
+        />
+      )}
+    </>
+  );
 }
 
 export default App;

@@ -1,5 +1,7 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import { syncKeysOnLogin, restoreKeysOnNewDevice } from "../services/keySyncService.js";
+import { hasLocalEncryptionKeys } from "../services/keySyncService.js";
 
 // Backend API URL
 const API = import.meta.env.VITE_API_URL;
@@ -9,6 +11,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pendingKeyRestore, setPendingKeyRestore] = useState(null);
 
   // ✅ Logout
   const logout = useCallback(() => {
@@ -82,22 +85,52 @@ export const AuthProvider = ({ children }) => {
   };
 
   /* =========================
-     LOGIN
-  ========================= */
-  const login = async (email, password) => {
-    const { data } = await axios.post(`${API}/api/auth/login`, {
-      email,
-      password,
-    });
+      LOGIN
+   ========================= */
+   const login = async (email, password) => {
+     const { data } = await axios.post(`${API}/api/auth/login`, {
+       email,
+       password,
+     });
 
-    if (data.isBanned) {
-      throw new Error(data.reason || "Account banned");
-    }
+     if (data.isBanned) {
+       throw new Error(data.reason || "Account banned");
+     }
 
-    localStorage.setItem("user", JSON.stringify(data));
-    setUser(data);
-    return data;
-  };
+     localStorage.setItem("user", JSON.stringify(data));
+     setUser(data);
+
+     // Handle encryption key sync on background
+     setTimeout(async () => {
+       try {
+         // Check if device has local encryption keys
+         const hasLocal = hasLocalEncryptionKeys();
+         
+         if (!hasLocal) {
+           // Device doesn't have keys - try to restore from server
+           console.log('No local encryption keys found, attempting to restore from server...');
+           const restoreResult = await restoreKeysOnNewDevice(data.token);
+           
+           if (restoreResult.hasKeys) {
+             // Server has keys, show modal to user
+             setPendingKeyRestore(restoreResult.serverKeys);
+             console.log('Synced keys found on server, waiting for user to restore...');
+           } else {
+             console.log('No synced keys on server');
+           }
+         } else {
+           // Device has local keys - sync them to server
+           console.log('Local encryption keys found, syncing to server...');
+           await syncKeysOnLogin(password, data.token);
+         }
+       } catch (error) {
+         // Key sync is not critical - log but don't fail login
+         console.error('Background key sync failed:', error);
+       }
+     }, 500);
+
+     return data;
+   };
 
   // Attach token to requests
   useEffect(() => {
@@ -123,6 +156,8 @@ export const AuthProvider = ({ children }) => {
         register,
         login,
         logout,
+        pendingKeyRestore,
+        setPendingKeyRestore,
       }}
     >
       {children}
