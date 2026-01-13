@@ -115,7 +115,10 @@ export const decryptMessage = async (encryptedData, key) => {
 
     // Guard: validate key object
     if (typeof key !== 'object' || !key.type) {
-      console.warn('Decryption failed: invalid key object');
+      console.warn('Decryption failed: invalid key object', {
+        keyType: typeof key,
+        hasType: key?.type,
+      });
       return '[Encrypted message]';
     }
 
@@ -131,7 +134,10 @@ export const decryptMessage = async (encryptedData, key) => {
     
     // Guard: validate data length
     if (combinedArray.byteLength < IV_LENGTH) {
-      console.warn('Decryption failed: invalid encrypted data format (too short)');
+      console.warn('Decryption failed: invalid encrypted data format (too short)', {
+        receivedLength: combinedArray.byteLength,
+        minimumRequired: IV_LENGTH,
+      });
       return '[Encrypted message]';
     }
     
@@ -162,8 +168,12 @@ export const decryptMessage = async (encryptedData, key) => {
       console.warn(
         'Decryption OperationError: The cryptographic operation failed. ' +
         'This can happen due to: wrong key, corrupted data, or key mismatch. ' +
-        'Message will be shown as encrypted.',
-        { errorMessage: error.message }
+        'Common causes: (1) Key was regenerated on another device, (2) Message was encrypted with different key, ' +
+        '(3) Corrupted transmission. Message will be shown as encrypted.',
+        { 
+          errorMessage: error.message,
+          timestamp: new Date().toISOString(),
+        }
       );
     } else {
       console.error('Decryption failed:', error.message || error);

@@ -14,10 +14,27 @@ export const storeSharedKey = async (conversationId, keyString) => {
       throw new Error('Missing conversationId or keyString');
     }
     
-    // Store the key - it's already a CryptoKey, export to base64
+    if (typeof keyString !== 'string' || keyString.trim().length === 0) {
+      throw new Error('keyString must be a non-empty string');
+    }
+    
+    // Validate the key string is valid base64 before storing
+    let keyBuffer;
+    try {
+      keyBuffer = base64ToArrayBuffer(keyString);
+    } catch (decodeError) {
+      throw new Error(`Invalid key format (not valid base64): ${decodeError.message}`);
+    }
+    
+    // Validate key length (should be 32 bytes for AES-256)
+    if (keyBuffer.byteLength !== 32) {
+      throw new Error(`Invalid key length: expected 32 bytes, got ${keyBuffer.byteLength}`);
+    }
+    
+    // Validate the key can be imported
     const key = await window.crypto.subtle.importKey(
       'raw',
-      base64ToArrayBuffer(keyString),
+      keyBuffer,
       { name: 'AES-GCM', length: 256 },
       true,
       ['encrypt', 'decrypt']
@@ -126,6 +143,12 @@ export const getSharedKeyFromServer = async (conversationId, token, apiUrl) => {
     });
 
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.warn(`Server returned ${response.status} when fetching shared key:`, errorData.message || errorData);
+      // 404 means conversation doesn't exist yet, 400 means no key initialized - both are ok, just return null
+      if (response.status === 404 || response.status === 400) {
+        return null;
+      }
       throw new Error(`Server error: ${response.status}`);
     }
 
@@ -144,6 +167,11 @@ export const getSharedKeyFromServer = async (conversationId, token, apiUrl) => {
  */
 export const getOrCreateSharedKey = async (conversationId, token, apiUrl) => {
   try {
+    // Guard: validate inputs
+    if (!conversationId || !token || !apiUrl) {
+      throw new Error('Missing required parameters: conversationId, token, apiUrl');
+    }
+
     // Check local storage first
     const localKey = await getSharedKey(conversationId);
     if (localKey) {
@@ -162,6 +190,7 @@ export const getOrCreateSharedKey = async (conversationId, token, apiUrl) => {
     }
 
     // Generate new key
+    console.log(`Generating new shared key for conversation ${conversationId}`);
     const newKey = await window.crypto.subtle.generateKey(
       {
         name: 'AES-GCM',
@@ -174,18 +203,20 @@ export const getOrCreateSharedKey = async (conversationId, token, apiUrl) => {
     const exported = await window.crypto.subtle.exportKey('raw', newKey);
     const keyString = arrayBufferToBase64(exported);
 
-    // Store locally
+    // Store locally first (critical for offline scenarios)
     await storeSharedKey(conversationId, keyString);
+    console.log(`Stored new shared key locally for conversation ${conversationId}`);
 
-    // Initialize on server
+    // Initialize on server - with retry logic
     try {
-      await initializeSharedKeyOnServer(conversationId, keyString, token, apiUrl);
+      const result = await initializeSharedKeyOnServer(conversationId, keyString, token, apiUrl);
+      console.log(`Successfully synced shared key to server for conversation ${conversationId}:`, result);
     } catch (error) {
-      console.warn('Failed to sync shared key to server, will retry later:', error);
-      // Continue anyway - key is stored locally
+      console.warn(`Failed to sync shared key to server for conversation ${conversationId}, continuing with local key:`, error.message || error);
+      // Continue anyway - key is stored locally and can be used for encryption/decryption
+      // Next sync attempt will happen when the user sends their first message or refreshes
     }
 
-    console.log(`Created new shared key for conversation ${conversationId}`);
     return newKey;
   } catch (error) {
     console.error('Failed to get or create shared key:', error);

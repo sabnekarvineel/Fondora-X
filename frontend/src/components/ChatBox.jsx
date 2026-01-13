@@ -74,7 +74,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                             // Decrypt each pending message
                             if (msg.isEncrypted === true && msg.content) {
                                 try {
-                                    const decrypted = await decryptMessage(msg.content, key);
+                                    const decrypted = await decryptMessage(msg.content, sharedKey);
                                     setDecryptedMessages((prev) => ({
                                         ...prev,
                                         [msg._id]: decrypted,

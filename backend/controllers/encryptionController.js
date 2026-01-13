@@ -104,16 +104,24 @@ export const initializeConversationKey = async (req, res) => {
     const userId = req.user._id;
     const { conversationId, sharedKey } = req.body;
 
-    if (!conversationId) {
+    // Validate conversationId
+    if (!conversationId || typeof conversationId !== 'string') {
       return res.status(400).json({
         success: false,
-        message: 'Missing required field: conversationId',
+        message: 'Missing or invalid required field: conversationId',
       });
     }
 
     // Verify conversation exists and user is a participant
     const conversation = await Conversation.findById(conversationId);
-    if (!conversation || !conversation.participants.includes(userId)) {
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        message: 'Conversation not found',
+      });
+    }
+
+    if (!conversation.participants.includes(userId)) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized for this conversation',
@@ -135,10 +143,18 @@ export const initializeConversationKey = async (req, res) => {
     }
 
     // If conversation doesn't have a key, create one
-    if (!sharedKey) {
+    if (!sharedKey || typeof sharedKey !== 'string') {
       return res.status(400).json({
         success: false,
-        message: 'Shared key required to initialize conversation encryption',
+        message: 'Shared key required to initialize conversation encryption. Provide valid sharedKey in request body.',
+      });
+    }
+
+    // Validate sharedKey is not empty
+    if (sharedKey.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Shared key cannot be empty',
       });
     }
 
