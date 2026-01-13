@@ -15,10 +15,20 @@ const PostFunding = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    email: '',
+    phone: '',
+    website: '',
+    linkedin: '',
     fundingAmount: '',
     currency: 'USD',
     stage: 'seed',
     industry: '',
+    country: '',
+    city: '',
+    registrationNumber: '',
+    registrationType: 'other',
+    yearsOfOperation: '',
+    employees: '',
     pitchDeck: '',
     businessPlan: '',
     valuation: '',
@@ -51,10 +61,20 @@ const PostFunding = () => {
       const requestData = {
         title: formData.title,
         description: formData.description,
+        email: formData.email,
+        phone: formData.phone,
+        website: formData.website,
+        linkedin: formData.linkedin,
         fundingAmount: parseInt(formData.fundingAmount),
         currency: formData.currency,
         stage: formData.stage,
         industry: formData.industry,
+        country: formData.country,
+        city: formData.city,
+        registrationNumber: formData.registrationNumber,
+        registrationType: formData.registrationType,
+        yearsOfOperation: formData.yearsOfOperation ? parseInt(formData.yearsOfOperation) : 0,
+        employees: formData.employees ? parseInt(formData.employees) : 0,
         pitchDeck: formData.pitchDeck,
         businessPlan: formData.businessPlan,
         valuation: formData.valuation ? parseInt(formData.valuation) : undefined,
@@ -116,6 +136,139 @@ const PostFunding = () => {
               placeholder="Describe your startup, the problem you're solving, and why you need funding..."
             />
           </div>
+
+          <h3>Contact Information</h3>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Email *</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="contact@startup.com"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Phone *</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                placeholder="+1-555-0123"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Website</label>
+              <input
+                type="url"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                placeholder="https://startup.com"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>LinkedIn</label>
+              <input
+                type="url"
+                name="linkedin"
+                value={formData.linkedin}
+                onChange={handleChange}
+                placeholder="https://linkedin.com/company/startup"
+              />
+            </div>
+          </div>
+
+          <h3>Company Information</h3>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Country *</label>
+              <input
+                type="text"
+                name="country"
+                value={formData.country}
+                onChange={handleChange}
+                required
+                placeholder="e.g., United States"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>City *</label>
+              <input
+                type="text"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                required
+                placeholder="e.g., San Francisco"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Registration Number</label>
+              <input
+                type="text"
+                name="registrationNumber"
+                value={formData.registrationNumber}
+                onChange={handleChange}
+                placeholder="e.g., ABC123456"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Registration Type</label>
+              <select name="registrationType" value={formData.registrationType} onChange={handleChange}>
+                <option value="sole-proprietorship">Sole Proprietorship</option>
+                <option value="partnership">Partnership</option>
+                <option value="private-ltd">Private Ltd</option>
+                <option value="public-ltd">Public Ltd</option>
+                <option value="llc">LLC</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Years of Operation</label>
+              <input
+                type="number"
+                name="yearsOfOperation"
+                value={formData.yearsOfOperation}
+                onChange={handleChange}
+                placeholder="2"
+                min="0"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Number of Employees</label>
+              <input
+                type="number"
+                name="employees"
+                value={formData.employees}
+                onChange={handleChange}
+                placeholder="50"
+                min="0"
+              />
+            </div>
+          </div>
+
+          <h3>Funding Details</h3>
 
           <div className="form-row">
             <div className="form-group">
