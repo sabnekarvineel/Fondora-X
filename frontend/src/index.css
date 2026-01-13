@@ -4949,6 +4949,13 @@ textarea {
     gap: 20px;
 }
 
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
 .detail-item {
     display: flex;
     flex-direction: column;
@@ -4958,6 +4965,12 @@ textarea {
     border-radius: 8px;
     border: 2px solid #4CAF50;
     box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+    transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+    transform: translateY(-2px);
 }
 
 .detail-item strong {
@@ -4971,6 +4984,18 @@ textarea {
     font-size: 1.1rem;
     font-weight: 600;
     color: #2c3e50;
+}
+
+.detail-item a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.detail-item a:hover {
+    color: #45a049;
+    text-decoration: underline;
 }
 
 .application-form {
