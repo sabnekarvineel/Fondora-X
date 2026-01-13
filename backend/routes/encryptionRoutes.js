@@ -5,6 +5,8 @@ import {
   addConversationKey,
   getConversationKeys,
   clearEncryptionKeys,
+  initializeConversationKey,
+  getConversationKeysBatch,
 } from '../controllers/encryptionController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -26,7 +28,19 @@ router.post('/sync-keys', syncEncryptionKeys);
 router.get('/sync-keys', getEncryptionKeys);
 
 /**
- * Add a new conversation key
+ * Initialize or get shared conversation key (cross-device)
+ * POST /api/encryption/conversation-key/init
+ */
+router.post('/conversation-key/init', initializeConversationKey);
+
+/**
+ * Get shared keys for multiple conversations (batch)
+ * POST /api/encryption/conversation-keys/batch
+ */
+router.post('/conversation-keys/batch', getConversationKeysBatch);
+
+/**
+ * Add a new conversation key (deprecated)
  * POST /api/encryption/conversation-key
  */
 router.post('/conversation-key', addConversationKey);

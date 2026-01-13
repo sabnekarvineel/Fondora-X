@@ -95,7 +95,134 @@ export const getEncryptionKeys = async (req, res) => {
 };
 
 /**
- * Add a new conversation key to sync
+ * Initialize or get shared conversation encryption key
+ * POST /api/encryption/conversation-key/init
+ * Body: { conversationId, sharedKey (optional) }
+ */
+export const initializeConversationKey = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { conversationId, sharedKey } = req.body;
+
+    if (!conversationId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required field: conversationId',
+      });
+    }
+
+    // Verify conversation exists and user is a participant
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation || !conversation.participants.includes(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized for this conversation',
+      });
+    }
+
+    // If conversation already has a key, return it
+    if (conversation.encryptionKeyInitialized && conversation.sharedEncryptionKey) {
+      console.log(`Returning existing shared key for conversation ${conversationId}`);
+      return res.status(200).json({
+        success: true,
+        message: 'Existing conversation key retrieved',
+        data: {
+          conversationId,
+          sharedKey: conversation.sharedEncryptionKey,
+          isNew: false,
+        },
+      });
+    }
+
+    // If conversation doesn't have a key, create one
+    if (!sharedKey) {
+      return res.status(400).json({
+        success: false,
+        message: 'Shared key required to initialize conversation encryption',
+      });
+    }
+
+    // Store the shared key on the conversation
+    const updatedConversation = await Conversation.findByIdAndUpdate(
+      conversationId,
+      {
+        sharedEncryptionKey: sharedKey,
+        encryptionKeyInitialized: true,
+        encryptionKeyCreatedAt: new Date(),
+      },
+      { new: true }
+    );
+
+    console.log(`Shared encryption key initialized for conversation ${conversationId}`);
+
+    res.status(201).json({
+      success: true,
+      message: 'Conversation key initialized successfully',
+      data: {
+        conversationId,
+        sharedKey: updatedConversation.sharedEncryptionKey,
+        isNew: true,
+      },
+    });
+  } catch (error) {
+    console.error('Error initializing conversation key:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to initialize conversation key',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get shared key for multiple conversations
+ * POST /api/encryption/conversation-keys/batch
+ * Body: { conversationIds: [id1, id2, ...] }
+ */
+export const getConversationKeysBatch = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { conversationIds } = req.body;
+
+    if (!conversationIds || !Array.isArray(conversationIds)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing or invalid field: conversationIds (must be array)',
+      });
+    }
+
+    // Get all conversations and verify user is participant
+    const conversations = await Conversation.find({
+      _id: { $in: conversationIds },
+      participants: userId,
+    });
+
+    const keys = conversations
+      .filter(conv => conv.encryptionKeyInitialized && conv.sharedEncryptionKey)
+      .map(conv => ({
+        conversationId: conv._id,
+        sharedKey: conv.sharedEncryptionKey,
+      }));
+
+    console.log(`Retrieved ${keys.length} shared keys for user ${userId}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Conversation keys retrieved',
+      data: keys,
+    });
+  } catch (error) {
+    console.error('Error retrieving conversation keys:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve conversation keys',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Add a new conversation key to sync (deprecated - use initializeConversationKey)
  * POST /api/encryption/conversation-key
  * Body: { conversationId, encryptedKey }
  */

@@ -10,6 +10,9 @@ import {
     getOrCreateConversationKey,
 } from '../utils/encryption';
 import {
+    getOrCreateSharedKey,
+} from '../utils/sharedKeyEncryption';
+import {
     readFileAsArrayBuffer,
     encryptMedia,
     downloadAndDecryptMedia,
@@ -41,13 +44,18 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
     const headerMenuRef = useRef(null);
     const pendingMessagesRef = useRef([]); // Queue for messages arriving before key is ready
 
-    // Initialize encryption key for this conversation
+    // Initialize encryption key for this conversation (shared across devices)
     useEffect(() => {
         const initEncryption = async () => {
             if (conversation?._id) {
                 try {
-                    const key = await getOrCreateConversationKey(conversation._id);
-                    setEncryptionKey(key);
+                    // Use shared key for cross-device decryption
+                    const sharedKey = await getOrCreateSharedKey(
+                        conversation._id,
+                        user?.token,
+                        API
+                    );
+                    setEncryptionKey(sharedKey);
                     setEncryptionReady(true);
 
                     // Process any pending messages that arrived before key was ready
