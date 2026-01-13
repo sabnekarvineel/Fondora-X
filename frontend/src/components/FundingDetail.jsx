@@ -500,6 +500,84 @@ const FundingDetail = () => {
               </div>
             </section>
 
+            <section className="funding-section">
+              <h3>Contact Information</h3>
+              <div className="detail-grid">
+                {fundingRequest.email && (
+                  <div className="detail-item">
+                    <strong>Email:</strong>
+                    <a href={`mailto:${fundingRequest.email}`}>{fundingRequest.email}</a>
+                  </div>
+                )}
+                {fundingRequest.phone && (
+                  <div className="detail-item">
+                    <strong>Phone:</strong>
+                    <a href={`tel:${fundingRequest.phone}`}>{fundingRequest.phone}</a>
+                  </div>
+                )}
+                {fundingRequest.website && (
+                  <div className="detail-item">
+                    <strong>Website:</strong>
+                    <a href={fundingRequest.website} target="_blank" rel="noopener noreferrer">
+                      {fundingRequest.website}
+                    </a>
+                  </div>
+                )}
+                {fundingRequest.linkedin && (
+                  <div className="detail-item">
+                    <strong>LinkedIn:</strong>
+                    <a href={fundingRequest.linkedin} target="_blank" rel="noopener noreferrer">
+                      LinkedIn Profile
+                    </a>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="funding-section">
+              <h3>Company Information</h3>
+              <div className="detail-grid">
+                {fundingRequest.country && (
+                  <div className="detail-item">
+                    <strong>Country:</strong>
+                    <span>{fundingRequest.country}</span>
+                  </div>
+                )}
+                {fundingRequest.city && (
+                  <div className="detail-item">
+                    <strong>City:</strong>
+                    <span>{fundingRequest.city}</span>
+                  </div>
+                )}
+                {fundingRequest.registrationNumber && (
+                  <div className="detail-item">
+                    <strong>Registration Number:</strong>
+                    <span>{fundingRequest.registrationNumber}</span>
+                  </div>
+                )}
+                {fundingRequest.registrationType && (
+                  <div className="detail-item">
+                    <strong>Registration Type:</strong>
+                    <span className="capitalize">
+                      {fundingRequest.registrationType.replace(/-/g, ' ')}
+                    </span>
+                  </div>
+                )}
+                {fundingRequest.yearsOfOperation !== undefined && fundingRequest.yearsOfOperation > 0 && (
+                  <div className="detail-item">
+                    <strong>Years of Operation:</strong>
+                    <span>{fundingRequest.yearsOfOperation} years</span>
+                  </div>
+                )}
+                {fundingRequest.employees !== undefined && fundingRequest.employees > 0 && (
+                  <div className="detail-item">
+                    <strong>Number of Employees:</strong>
+                    <span>{fundingRequest.employees}</span>
+                  </div>
+                )}
+              </div>
+            </section>
+
             {fundingRequest.pitchDeck && (
               <section className="funding-section">
                 <h3>Pitch Deck</h3>
