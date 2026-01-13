@@ -62,7 +62,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     if (pendingMessagesRef.current.length > 0) {
                         console.log(`Processing ${pendingMessagesRef.current.length} pending messages`);
                         const pendingMessages = pendingMessagesRef.current.splice(0);
-                        
+
                         for (const msg of pendingMessages) {
                             setMessages((prev) => {
                                 if (!Array.isArray(prev)) return [msg];
@@ -116,7 +116,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                 console.warn('Invalid message structure:', msg);
                 continue;
             }
-            
+
             // Only decrypt when explicitly marked as encrypted AND has content
             if (msg.isEncrypted === true && msg.content) {
                 try {
@@ -133,45 +133,51 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
     }, [encryptionKey]);
 
     useEffect(() => {
-        if (encryptionReady && Array.isArray(messages) && messages.length > 0) {
+        // Decrypt text messages when they change or when encryption key is ready
+        if (encryptionReady && Array.isArray(messages) && messages.length > 0 && encryptionKey) {
             decryptMessages(messages);
-
-            // Decrypt media messages
-            if (encryptionKey) {
-                messages.forEach(async (message) => {
-                    // Guard: validate message structure
-                    if (!message || !message._id || !message.encryptedMediaUrl || !message.mediaIv) {
-                        return;
-                    }
-                    
-                    // Only decrypt if not already decrypted
-                    if (decryptedMediaUrls[message._id]) {
-                        return;
-                    }
-                    
-                    try {
-                         const mediaUrl = await downloadAndDecryptMedia(
-                             message.encryptedMediaUrl,
-                             message.mediaIv,
-                             encryptionKey,
-                             message.mediaMimeType
-                         );
-                         setDecryptedMediaUrls((prev) => ({
-                             ...prev,
-                             [message._id]: mediaUrl,
-                         }));
-                     } catch (error) {
-                         console.error(`Failed to decrypt media for message ${message._id}:`, error.message || error);
-                         // Set a fallback indicator so UI knows not to keep loading
-                         setDecryptedMediaUrls((prev) => ({
-                             ...prev,
-                             [message._id]: null, // null indicates decryption failed
-                         }));
-                     }
-                });
-            }
         }
-    }, [messages, encryptionReady, decryptMessages, encryptionKey, decryptedMediaUrls]);
+    }, [messages, encryptionReady, decryptMessages, encryptionKey]);
+
+    // Decrypt media messages separately to avoid infinite loops
+    useEffect(() => {
+        if (!encryptionReady || !encryptionKey || !Array.isArray(messages) || messages.length === 0) {
+            return;
+        }
+
+        messages.forEach(async (message) => {
+            // Guard: validate message structure
+            if (!message || !message._id || !message.encryptedMediaUrl || !message.mediaIv) {
+                return;
+            }
+
+            // Only decrypt if not already decrypted
+            if (decryptedMediaUrls[message._id]) {
+                return;
+            }
+
+            try {
+                const mediaUrl = await downloadAndDecryptMedia(
+                    message.encryptedMediaUrl,
+                    message.mediaIv,
+                    encryptionKey,
+                    message.mediaMimeType
+                );
+                setDecryptedMediaUrls((prev) => ({
+                    ...prev,
+                    [message._id]: mediaUrl,
+                }));
+                console.log(`Decrypted media for message ${message._id}`);
+            } catch (error) {
+                console.error(`Failed to decrypt media for message ${message._id}:`, error.message || error);
+                // Set a fallback indicator so UI knows not to keep loading
+                setDecryptedMediaUrls((prev) => ({
+                    ...prev,
+                    [message._id]: null, // null indicates decryption failed
+                }));
+            }
+        });
+    }, [messages, encryptionReady, encryptionKey, decryptedMediaUrls]);
 
     useEffect(() => {
         // Only fetch messages after encryption key is ready to avoid decryption race condition
@@ -188,13 +194,13 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                 if (!message || message.conversation !== conversation?._id) {
                     return;
                 }
-                
+
                 // Guard: validate message structure
                 if (!message._id || typeof message._id !== 'string') {
                     console.warn('Invalid message ID from socket:', message);
                     return;
                 }
-                
+
                 // Guard: if encryption key is not ready yet, queue the message
                 if (!encryptionReady) {
                     pendingMessagesRef.current.push(message);
@@ -251,7 +257,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     console.warn('Invalid messageId from socket:', messageId);
                     return;
                 }
-                
+
                 setMessages((prev) => {
                     if (!Array.isArray(prev)) return prev;
                     return prev.map((msg) =>
@@ -327,10 +333,47 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
+
+            // Guard: ensure messages is an array
+            if (!Array.isArray(data.messages)) {
+                console.error('Invalid messages format from server:', data);
+                setMessages([]);
+                setLoading(false);
+                return;
+            }
+
             setMessages(data.messages);
+
+            // Decrypt fetched messages if encryption key is ready
+            if (encryptionKey) {
+                const decrypted = {};
+                for (const msg of data.messages) {
+                    if (!msg || typeof msg !== 'object' || !msg._id) {
+                        continue;
+                    }
+
+                    // Only decrypt when explicitly marked as encrypted AND has content
+                    if (msg.isEncrypted === true && msg.content) {
+                        try {
+                            decrypted[msg._id] = await decryptMessage(msg.content, encryptionKey);
+                            console.log(`Decrypted fetched message ${msg._id}`);
+                        } catch (error) {
+                            console.error(`Failed to decrypt fetched message ${msg._id}:`, error.message || error);
+                            decrypted[msg._id] = '[Encrypted message]';
+                        }
+                    } else {
+                        decrypted[msg._id] = msg.content || '';
+                    }
+                }
+                setDecryptedMessages((prev) => ({
+                    ...prev,
+                    ...decrypted,
+                }));
+            }
+
             setLoading(false);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching messages:', error);
             setLoading(false);
         }
     };
@@ -338,10 +381,10 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
     const markAsSeen = async () => {
         try {
             if (!conversation?._id) return;
-            
+
             const token = user?.token;
             if (!token) return;
-            
+
             await axios.put(
                 `${API}/api/messages/conversation/${conversation._id}/seen`,
                 {},
@@ -371,31 +414,31 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
 
             // Handle encrypted media upload
             if (mediaFile) {
-              setUploadingMedia(true);
-              try {
-                // Read file as ArrayBuffer
-                const fileBuffer = await readFileAsArrayBuffer(mediaFile);
+                setUploadingMedia(true);
+                try {
+                    // Read file as ArrayBuffer
+                    const fileBuffer = await readFileAsArrayBuffer(mediaFile);
 
-                // Encrypt the media
-                const { encrypted, iv } = await encryptMedia(fileBuffer, encryptionKey);
+                    // Encrypt the media
+                    const { encrypted, iv } = await encryptMedia(fileBuffer, encryptionKey);
 
-                // Prepare FormData for encrypted media upload
-                const formData = new FormData();
-                // Convert Base64 string to binary blob
-                const binaryString = atob(encrypted);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                  bytes[i] = binaryString.charCodeAt(i);
-                }
-                const encryptedBlob = new Blob([bytes], {
-                  type: 'application/octet-stream',
-                });
-                // Use original filename without adding .enc extension
-                // The file is already encrypted at the binary level
-                formData.append('media', encryptedBlob, mediaFile.name);
-                formData.append('iv', iv);
-                formData.append('originalName', mediaFile.name);
-                formData.append('mimeType', mediaFile.type);
+                    // Prepare FormData for encrypted media upload
+                    const formData = new FormData();
+                    // Convert Base64 string to binary blob
+                    const binaryString = atob(encrypted);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    const encryptedBlob = new Blob([bytes], {
+                        type: 'application/octet-stream',
+                    });
+                    // Use original filename without adding .enc extension
+                    // The file is already encrypted at the binary level
+                    formData.append('media', encryptedBlob, mediaFile.name);
+                    formData.append('iv', iv);
+                    formData.append('originalName', mediaFile.name);
+                    formData.append('mimeType', mediaFile.type);
 
                     // Upload encrypted media
                     const uploadRes = await axios.post(`${API}/api/messages/upload/encrypted-media`, formData, {
@@ -423,15 +466,15 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
 
             // Encrypt the message content before sending
             const messageContent = newMessage || (messageType !== 'text' ? 'Shared Media' : '');
-            
+
             // Ensure encryption key exists before encrypting
             if (!encryptionKey) {
                 throw new Error('Encryption key not available. Please try again.');
             }
-            
+
             let encryptedContent = messageContent;
             let isMessageEncrypted = false;
-            
+
             try {
                 encryptedContent = await encryptMessage(messageContent, encryptionKey);
                 isMessageEncrypted = true;
@@ -440,22 +483,22 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                 isMessageEncrypted = false;
             }
 
-           const { data } = await axios.post(
-            `${API}/api/messages/send`,
-            {
-                conversationId: conversation._id,
-                content: encryptedContent,
-                messageType,
-                encryptedMediaUrl,
-                mediaIv,
-                originalFileName,
-                mediaMimeType,
-                isEncrypted: isMessageEncrypted,
-                isMediaEncrypted: !!encryptedMediaUrl,
-            },
-            {
-                headers: { Authorization: `Bearer ${token}` },
-            }
+            const { data } = await axios.post(
+                `${API}/api/messages/send`,
+                {
+                    conversationId: conversation._id,
+                    content: encryptedContent,
+                    messageType,
+                    encryptedMediaUrl,
+                    mediaIv,
+                    originalFileName,
+                    mediaMimeType,
+                    isEncrypted: isMessageEncrypted,
+                    isMediaEncrypted: !!encryptedMediaUrl,
+                },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
             );
 
             // Store decrypted version locally for immediate display
@@ -498,15 +541,15 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
         } catch (error) {
             console.error('Error sending message:', error.message || error);
             console.error('Full error:', error);
-            
+
             // Provide more specific error messages
             let errorMessage = 'Failed to send message';
             if (error.response) {
-              errorMessage = error.response.data?.message || `Server error: ${error.response.status}`;
+                errorMessage = error.response.data?.message || `Server error: ${error.response.status}`;
             } else if (error.message) {
-              errorMessage = error.message;
+                errorMessage = error.message;
             }
-            
+
             alert(errorMessage);
         }
     };
@@ -555,20 +598,20 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
             alert('Cannot delete message: invalid message ID');
             return;
         }
-        
+
         if (!window.confirm('Delete this message?')) return;
-        
+
         try {
             const token = user?.token;
             if (!token) {
                 alert('Authentication required');
                 return;
             }
-            
+
             await axios.delete(`${API}/api/messages/${messageId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            
+
             setMessages((prev) => {
                 if (!Array.isArray(prev)) return prev;
                 return prev.filter((msg) => msg._id !== messageId);
@@ -586,27 +629,27 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
             alert('Cannot edit message: invalid message ID');
             return;
         }
-        
+
         if (!editingContent.trim()) {
             setEditingMessageId(null);
             return;
         }
-        
+
         try {
             const token = user?.token;
             if (!token) {
                 alert('Authentication required');
                 return;
             }
-            
+
             if (!encryptionKey) {
                 alert('Encryption key not ready');
                 return;
             }
-            
+
             let encryptedContent = editingContent;
             let isMessageEncrypted = false;
-            
+
             try {
                 encryptedContent = await encryptMessage(editingContent, encryptionKey);
                 isMessageEncrypted = true;
@@ -614,7 +657,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                 console.error('Failed to encrypt edited message:', error);
                 isMessageEncrypted = false;
             }
-            
+
             await axios.put(
                 `${API}/api/messages/${messageId}`,
                 { content: encryptedContent, isEncrypted: isMessageEncrypted },
@@ -652,7 +695,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
             element.setAttribute(
                 'href',
                 'data:text/plain;charset=utf-8,' +
-                    encodeURIComponent(JSON.stringify(chatData, null, 2))
+                encodeURIComponent(JSON.stringify(chatData, null, 2))
             );
             element.setAttribute(
                 'download',
@@ -691,7 +734,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
     return (
         <div className="chat-box">
             <div className={`chat-header ${profileClicked ? 'header-active' : ''}`}>
-                <div 
+                <div
                     className="chat-user-info-clickable"
                     onClick={() => setProfileClicked(!profileClicked)}
                 >
@@ -758,117 +801,117 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                             console.warn('Invalid message structure in render:', message);
                             return null;
                         }
-                        
+
                         return (
-                        <div
-                            key={message._id}
-                            className={`message ${message.sender._id === user._id ? 'sent' : 'received'
-                                }`}
-                        >
-                            <div className="message-content">
-                                {editingMessageId === message._id ? (
-                                    <div className="message-edit-box">
-                                        <input
-                                            type="text"
-                                            value={editingContent}
-                                            onChange={(e) => setEditingContent(e.target.value)}
-                                            className="message-edit-input"
-                                            autoFocus
-                                        />
-                                        <div className="message-edit-actions">
-                                            <button
-                                                onClick={() => handleEditMessage(message._id)}
-                                                className="btn-save"
-                                            >
-                                                Save
-                                            </button>
-                                            <button
-                                                onClick={() => setEditingMessageId(null)}
-                                                className="btn-cancel"
-                                            >
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <>
-                                        {message.messageType === 'image' && message.encryptedMediaUrl && (
-                                             <div className="message-media-container">
-                                                 {decryptedMediaUrls[message._id] ? (
-                                                     <img src={decryptedMediaUrls[message._id]} alt="Encrypted" className="message-image" />
-                                                 ) : decryptedMediaUrls[message._id] === null ? (
-                                                     <div className="media-error">Unable to decrypt image. Encryption key may have changed.</div>
-                                                 ) : (
-                                                     <div className="media-loading">Loading encrypted media...</div>
-                                                 )}
-                                             </div>
-                                         )}
-                                         {message.messageType === 'video' && message.encryptedMediaUrl && (
-                                             <div className="message-media-container">
-                                                 {decryptedMediaUrls[message._id] ? (
-                                                     <video controls className="message-video">
-                                                         <source src={decryptedMediaUrls[message._id]} type={message.mediaMimeType} />
-                                                     </video>
-                                                 ) : decryptedMediaUrls[message._id] === null ? (
-                                                     <div className="media-error">Unable to decrypt video. Encryption key may have changed.</div>
-                                                 ) : (
-                                                     <div className="media-loading">Loading encrypted video...</div>
-                                                 )}
-                                             </div>
-                                         )}
-                                        {message.messageType === 'image' && message.imageUrl && !message.encryptedMediaUrl && (
-                                            <img src={message.imageUrl} alt="Message" className="message-image" />
-                                        )}
-                                        <p>{getDisplayContent(message)}{message.edited && <span className="edited-label"> (edited)</span>}</p>
-                                        <div className="message-meta">
-                                            <span className="message-time">{formatTime(message.createdAt)}</span>
-                                            {message.sender._id === user._id && (
-                                                <span className="message-status">
-                                                    {message.seen ? '✓✓' : '✓'}
-                                                </span>
-                                            )}
-                                        </div>
-                                        {message.sender._id === user._id && (
-                                            <div className="message-menu-container" ref={menuRef}>
+                            <div
+                                key={message._id}
+                                className={`message ${message.sender._id === user._id ? 'sent' : 'received'
+                                    }`}
+                            >
+                                <div className="message-content">
+                                    {editingMessageId === message._id ? (
+                                        <div className="message-edit-box">
+                                            <input
+                                                type="text"
+                                                value={editingContent}
+                                                onChange={(e) => setEditingContent(e.target.value)}
+                                                className="message-edit-input"
+                                                autoFocus
+                                            />
+                                            <div className="message-edit-actions">
                                                 <button
-                                                    onClick={() => setOpenMenuId(openMenuId === message._id ? null : message._id)}
-                                                    className="message-menu-btn"
-                                                    title="Message options"
+                                                    onClick={() => handleEditMessage(message._id)}
+                                                    className="btn-save"
                                                 >
-                                                    ⋮
+                                                    Save
                                                 </button>
-                                                {openMenuId === message._id && (
-                                                    <div className="message-context-menu">
-                                                        <button
-                                                            onClick={() => {
-                                                                setEditingMessageId(message._id);
-                                                                setEditingContent(getDisplayContent(message));
-                                                                setOpenMenuId(null);
-                                                            }}
-                                                            className="menu-item"
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                handleDeleteMessage(message._id);
-                                                                setOpenMenuId(null);
-                                                            }}
-                                                            className="menu-item delete"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </div>
+                                                <button
+                                                    onClick={() => setEditingMessageId(null)}
+                                                    className="btn-cancel"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {message.messageType === 'image' && message.encryptedMediaUrl && (
+                                                <div className="message-media-container">
+                                                    {decryptedMediaUrls[message._id] ? (
+                                                        <img src={decryptedMediaUrls[message._id]} alt="Encrypted" className="message-image" />
+                                                    ) : decryptedMediaUrls[message._id] === null ? (
+                                                        <div className="media-error">Unable to decrypt image. Encryption key may have changed.</div>
+                                                    ) : (
+                                                        <div className="media-loading">Loading encrypted media...</div>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {message.messageType === 'video' && message.encryptedMediaUrl && (
+                                                <div className="message-media-container">
+                                                    {decryptedMediaUrls[message._id] ? (
+                                                        <video controls className="message-video">
+                                                            <source src={decryptedMediaUrls[message._id]} type={message.mediaMimeType} />
+                                                        </video>
+                                                    ) : decryptedMediaUrls[message._id] === null ? (
+                                                        <div className="media-error">Unable to decrypt video. Encryption key may have changed.</div>
+                                                    ) : (
+                                                        <div className="media-loading">Loading encrypted video...</div>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {message.messageType === 'image' && message.imageUrl && !message.encryptedMediaUrl && (
+                                                <img src={message.imageUrl} alt="Message" className="message-image" />
+                                            )}
+                                            <p>{getDisplayContent(message)}{message.edited && <span className="edited-label"> (edited)</span>}</p>
+                                            <div className="message-meta">
+                                                <span className="message-time">{formatTime(message.createdAt)}</span>
+                                                {message.sender._id === user._id && (
+                                                    <span className="message-status">
+                                                        {message.seen ? '✓✓' : '✓'}
+                                                    </span>
                                                 )}
                                             </div>
-                                        )}
-                                    </>
-                                )}
+                                            {message.sender._id === user._id && (
+                                                <div className="message-menu-container" ref={menuRef}>
+                                                    <button
+                                                        onClick={() => setOpenMenuId(openMenuId === message._id ? null : message._id)}
+                                                        className="message-menu-btn"
+                                                        title="Message options"
+                                                    >
+                                                        ⋮
+                                                    </button>
+                                                    {openMenuId === message._id && (
+                                                        <div className="message-context-menu">
+                                                            <button
+                                                                onClick={() => {
+                                                                    setEditingMessageId(message._id);
+                                                                    setEditingContent(getDisplayContent(message));
+                                                                    setOpenMenuId(null);
+                                                                }}
+                                                                className="menu-item"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    handleDeleteMessage(message._id);
+                                                                    setOpenMenuId(null);
+                                                                }}
+                                                                className="menu-item delete"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                            </div>
-                            );
-                            })
-                            )}
+                        );
+                    })
+                )}
                 {typing && (
                     <div className="typing-indicator">
                         <span></span>
