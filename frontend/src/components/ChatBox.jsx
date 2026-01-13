@@ -353,9 +353,10 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
 
             setMessages(data.messages);
 
-            // Decrypt fetched messages if encryption key is ready
-            if (encryptionKey) {
+            // Decrypt all fetched messages - always decrypt previous messages for display
+            if (Array.isArray(data.messages) && data.messages.length > 0) {
                 const decrypted = {};
+
                 for (const msg of data.messages) {
                     if (!msg || typeof msg !== 'object' || !msg._id) {
                         continue;
@@ -364,16 +365,32 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     // Only decrypt when explicitly marked as encrypted AND has content
                     if (msg.isEncrypted === true && msg.content) {
                         try {
-                            decrypted[msg._id] = await decryptMessage(msg.content, encryptionKey);
-                            console.log(`Decrypted fetched message ${msg._id}`);
+                            // Use encryption key if available, otherwise try to get it
+                            let keyToUse = encryptionKey;
+                            if (!keyToUse && conversation?._id) {
+                                keyToUse = await getOrCreateSharedKey(
+                                    conversation._id,
+                                    user?.token,
+                                    API
+                                );
+                            }
+
+                            if (keyToUse) {
+                                decrypted[msg._id] = await decryptMessage(msg.content, keyToUse);
+                                console.log(`Decrypted fetched message ${msg._id}`);
+                            } else {
+                                decrypted[msg._id] = '[Encryption key not available]';
+                            }
                         } catch (error) {
                             console.error(`Failed to decrypt fetched message ${msg._id}:`, error.message || error);
                             decrypted[msg._id] = '[Encrypted message]';
                         }
                     } else {
+                        // Non-encrypted messages show as-is
                         decrypted[msg._id] = msg.content || '';
                     }
                 }
+
                 setDecryptedMessages((prev) => ({
                     ...prev,
                     ...decrypted,
