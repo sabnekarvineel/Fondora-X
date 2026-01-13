@@ -16,6 +16,28 @@ const fundingRequestSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please add a description'],
     },
+    email: {
+      type: String,
+      required: [true, 'Please add an email address'],
+      lowercase: true,
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        'Please add a valid email',
+      ],
+    },
+    phone: {
+      type: String,
+      required: [true, 'Please add a phone number'],
+      match: [/^[0-9\+\-\s\(\)]+$/, 'Please add a valid phone number'],
+    },
+    website: {
+      type: String,
+      default: '',
+    },
+    linkedin: {
+      type: String,
+      default: '',
+    },
     fundingAmount: {
       type: Number,
       required: [true, 'Please add funding amount'],
@@ -84,6 +106,31 @@ const fundingRequestSchema = new mongoose.Schema(
       default: 'open',
     },
     views: {
+      type: Number,
+      default: 0,
+    },
+    country: {
+      type: String,
+      default: '',
+    },
+    city: {
+      type: String,
+      default: '',
+    },
+    registrationNumber: {
+      type: String,
+      default: '',
+    },
+    registrationType: {
+      type: String,
+      enum: ['sole-proprietorship', 'partnership', 'private-ltd', 'public-ltd', 'llc', 'other'],
+      default: 'other',
+    },
+    yearsOfOperation: {
+      type: Number,
+      default: 0,
+    },
+    employees: {
       type: Number,
       default: 0,
     },

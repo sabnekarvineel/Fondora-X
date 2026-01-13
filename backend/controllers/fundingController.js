@@ -10,6 +10,10 @@ export const createFundingRequest = async (req, res) => {
     const {
       title,
       description,
+      email,
+      phone,
+      website,
+      linkedin,
       fundingAmount,
       currency,
       stage,
@@ -23,12 +27,22 @@ export const createFundingRequest = async (req, res) => {
       team,
       revenue,
       customers,
+      country,
+      city,
+      registrationNumber,
+      registrationType,
+      yearsOfOperation,
+      employees,
     } = req.body;
 
     const fundingRequest = await FundingRequest.create({
       startup: req.user._id,
       title,
       description,
+      email,
+      phone,
+      website,
+      linkedin,
       fundingAmount,
       currency,
       stage,
@@ -42,6 +56,12 @@ export const createFundingRequest = async (req, res) => {
       team,
       revenue,
       customers,
+      country,
+      city,
+      registrationNumber,
+      registrationType,
+      yearsOfOperation,
+      employees,
     });
 
     const populated = await FundingRequest.findById(fundingRequest._id).populate(
