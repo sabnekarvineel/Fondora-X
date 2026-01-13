@@ -415,7 +415,22 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
 
             // Encrypt the message content before sending
             const messageContent = newMessage || (messageType !== 'text' ? 'Shared Media' : '');
-            const encryptedContent = await encryptMessage(messageContent, encryptionKey);
+            
+            // Ensure encryption key exists before encrypting
+            if (!encryptionKey) {
+                throw new Error('Encryption key not available. Please try again.');
+            }
+            
+            let encryptedContent = messageContent;
+            let isMessageEncrypted = false;
+            
+            try {
+                encryptedContent = await encryptMessage(messageContent, encryptionKey);
+                isMessageEncrypted = true;
+            } catch (error) {
+                console.error('Failed to encrypt message, sending unencrypted:', error);
+                isMessageEncrypted = false;
+            }
 
            const { data } = await axios.post(
             `${API}/api/messages/send`,
@@ -427,7 +442,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                 mediaIv,
                 originalFileName,
                 mediaMimeType,
-                isEncrypted: true,
+                isEncrypted: isMessageEncrypted,
                 isMediaEncrypted: !!encryptedMediaUrl,
             },
             {
@@ -581,10 +596,20 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                 return;
             }
             
-            const encryptedContent = await encryptMessage(editingContent, encryptionKey);
+            let encryptedContent = editingContent;
+            let isMessageEncrypted = false;
+            
+            try {
+                encryptedContent = await encryptMessage(editingContent, encryptionKey);
+                isMessageEncrypted = true;
+            } catch (error) {
+                console.error('Failed to encrypt edited message:', error);
+                isMessageEncrypted = false;
+            }
+            
             await axios.put(
                 `${API}/api/messages/${messageId}`,
-                { content: encryptedContent, isEncrypted: true },
+                { content: encryptedContent, isEncrypted: isMessageEncrypted },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setDecryptedMessages((prev) => ({

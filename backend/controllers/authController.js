@@ -219,7 +219,7 @@ export const forgotPassword = async (req, res) => {
 
     await sendEmail({
       to: user.email,
-      subject: "Password Reset - InnovateX Hub",
+      subject: "Password Reset - Fondora-X",
       text: `You requested a password reset.
 
 Click the link below to reset your password:

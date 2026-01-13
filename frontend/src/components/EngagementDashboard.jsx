@@ -56,7 +56,7 @@ const EngagementDashboard = () => {
         <p className="stat-value">{value}</p>
         {change !== undefined && (
           <p className={`stat-change ${changeType}`}>
-            {changeType === 'positive' ? '+' : '-'} {change}% this month
+            {changeType === 'positive' ? '📈' : '📉'} {change}% this month
           </p>
         )}
       </div>
@@ -489,7 +489,7 @@ const EngagementDashboard = () => {
       </div>
 
       {error && !Object.keys(engagementData.posts).length && (
-        <div className="engagement-error">Info: {error}</div>
+        <div className="engagement-error">⚠️ {error}</div>
       )}
 
       {/* Posts Engagement Section */}
@@ -499,22 +499,22 @@ const EngagementDashboard = () => {
             <StatCard
               label="Total Posts"
               value={engagementData.posts.total}
-              icon="P"
+              icon="📊"
             />
             <StatCard
               label="Total Likes"
               value={engagementData.posts.likes}
-              icon="L"
+              icon="👍"
             />
             <StatCard
               label="Total Comments"
               value={engagementData.posts.comments}
-              icon="C"
+              icon="💭"
             />
             <StatCard
               label="Total Shares"
               value={engagementData.posts.shares}
-              icon="S"
+              icon="🔗"
             />
           </div>
 
@@ -562,12 +562,12 @@ const EngagementDashboard = () => {
             <StatCard
               label="Profile Views"
               value={engagementData.profile.views}
-              icon="V"
+              icon="👀"
             />
             <StatCard
               label="Followers"
               value={engagementData.profile.followers}
-              icon="F"
+              icon="👥"
             />
           </div>
 

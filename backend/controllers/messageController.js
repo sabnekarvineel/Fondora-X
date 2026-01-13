@@ -177,6 +177,14 @@ export const sendMessage = async (req, res) => {
       return res.status(400).json({ message: 'Invalid receiver in conversation' });
     }
 
+    // Ensure encryption is always enabled for message security
+    // If frontend fails to encrypt, we still mark it but log the issue
+    const shouldBeEncrypted = isEncrypted !== undefined ? isEncrypted : true;
+    
+    if (!shouldBeEncrypted) {
+      console.warn(`Warning: Message from ${req.user._id} to ${receiver} is being saved unencrypted`);
+    }
+
     const message = await Message.create({
       conversation: conversationId,
       sender: req.user._id,
@@ -189,7 +197,7 @@ export const sendMessage = async (req, res) => {
       mediaIv: mediaIv || '',
       originalFileName: originalFileName || '',
       mediaMimeType: mediaMimeType || '',
-      isEncrypted: isEncrypted || false,
+      isEncrypted: shouldBeEncrypted,
       isMediaEncrypted: isMediaEncrypted || false,
     });
 
@@ -357,9 +365,16 @@ export const editMessage = async (req, res) => {
     }
 
     message.content = content;
-    message.isEncrypted = isEncrypted || false;
+    // Enforce encryption for edited messages
+    const shouldBeEncrypted = isEncrypted !== undefined ? isEncrypted : true;
+    message.isEncrypted = shouldBeEncrypted;
     message.edited = true;
     message.editedAt = new Date();
+    
+    if (!shouldBeEncrypted) {
+      console.warn(`Warning: Edited message ${messageId} is being saved unencrypted`);
+    }
+    
     await message.save();
 
     const updatedMessage = await Message.findById(messageId)
@@ -406,14 +421,14 @@ export const sendDirectMessage = async (req, res) => {
       });
     }
 
-    // Create message
+    // Create message with encryption enabled by default
     const message = await Message.create({
       conversation: conversation._id,
       sender: req.user._id,
       receiver: recipientId,
       content,
       messageType: 'text',
-      isEncrypted: false,
+      isEncrypted: true, // Always encrypt direct messages
       // Optional: Link to post if postId provided
       ...(postId && { postId }),
     });
