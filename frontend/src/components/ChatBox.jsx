@@ -5,6 +5,7 @@ import AuthContext from '../context/AuthContext';
 const API = import.meta.env.VITE_API_URL;
 import SocketContext from '../context/SocketContext';
 import NotificationContext from '../context/NotificationContext';
+import ToastContext from '../context/ToastContext';
 import {
     encryptMessage,
     decryptMessage,
@@ -23,7 +24,8 @@ import {
 const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseChat }) => {
     const { user } = useContext(AuthContext);
     const { socket, onlineUsers } = useContext(SocketContext);
-    const { fetchNotifications } = useContext(NotificationContext);
+    const { fetchNotifications, requestNotificationPermission } = useContext(NotificationContext);
+    const { showInfo } = useContext(ToastContext);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [messages, setMessages] = useState([]);
     const [decryptedMessages, setDecryptedMessages] = useState({});
@@ -45,6 +47,13 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
     const menuRef = useRef(null);
     const headerMenuRef = useRef(null);
     const pendingMessagesRef = useRef([]); // Queue for messages arriving before key is ready
+
+    // Request notification permissions on component mount
+    useEffect(() => {
+        if (requestNotificationPermission) {
+            requestNotificationPermission();
+        }
+    }, [requestNotificationPermission]);
 
     // Initialize encryption key for this conversation (shared across devices)
     useEffect(() => {
@@ -617,23 +626,58 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
         return decryptedMessages[message._id] || message.content;
     };
 
+    const playNotificationSound = () => {
+        try {
+            // Create a simple beep sound using Web Audio API as fallback
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800; // 800 Hz
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+
+            console.log('🔔 Notification sound played');
+        } catch (error) {
+            console.warn('Failed to play notification sound:', error);
+        }
+    };
+
     const showMessageNotification = (messageContent, senderName) => {
         try {
-            // Browser notification
+            const preview = messageContent.substring(0, 100);
+
+            // Show toast notification (in-app)
+            showInfo(`📨 New message from ${senderName}`);
+
+            // Play notification sound
+            playNotificationSound();
+
+            // Browser desktop notification
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification(`📨 New message from ${senderName}`, {
-                    body: messageContent.substring(0, 100),
+                    body: preview,
                     icon: '/logo.png',
+                    badge: '/logo.png',
                     tag: `message-${Date.now()}`,
+                    requireInteraction: false,
                 });
             }
 
-            // Also update in-app notifications if not in focus
-            if (document.hidden) {
-                fetchNotifications && fetchNotifications();
+            // Fetch notifications to update notification center if not in focus
+            if (document.hidden && fetchNotifications) {
+                fetchNotifications();
             }
 
-            console.log(`🔔 Message notification: ${senderName}`);
+            console.log(`🔔 Message notification: ${senderName} - ${preview}`);
         } catch (error) {
             console.error('Failed to show notification:', error);
         }
