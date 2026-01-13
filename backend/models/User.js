@@ -265,6 +265,42 @@ const userSchema = new mongoose.Schema(
         },
       ],
     },
+
+    // 🔐 End-to-End Encryption Keys Sync
+    encryptionKeys: {
+      // Store user's encrypted master key for key sync across devices
+      masterKeyEncrypted: {
+        type: String,
+        default: '',
+      },
+      // Salt and IV for deriving master key from password
+      masterKeySalt: {
+        type: String,
+        default: '',
+      },
+      masterKeyIv: {
+        type: String,
+        default: '',
+      },
+      // Conversation-specific keys (encrypted with master key)
+      conversationKeys: [
+        {
+          conversationId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Conversation',
+          },
+          encryptedKey: String, // Encrypted conversation key
+          createdAt: {
+            type: Date,
+            default: Date.now,
+          },
+        },
+      ],
+      keysSyncedAt: {
+        type: Date,
+        default: null,
+      },
+    },
   },
   {
     timestamps: true,

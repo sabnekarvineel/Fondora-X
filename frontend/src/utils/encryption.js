@@ -253,6 +253,101 @@ export const getOrCreateConversationKey = async (conversationId) => {
   return key;
 };
 
+// Sync keys with server for cross-device access
+export const syncKeysWithServer = async (password, apiUrl, token) => {
+  try {
+    const backup = await exportAllKeys(password);
+    
+    // Prepare conversation keys for storage
+    const conversationKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const storageKey = localStorage.key(i);
+      if (storageKey.startsWith(KEY_STORAGE_PREFIX)) {
+        const conversationId = storageKey.replace(KEY_STORAGE_PREFIX, '');
+        conversationKeys.push({
+          conversationId,
+          encryptedKey: localStorage.getItem(storageKey),
+        });
+      }
+    }
+
+    // Send to server
+    const response = await fetch(`${apiUrl}/api/encryption/sync-keys`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        masterKeyEncrypted: backup.data,
+        masterKeySalt: backup.salt,
+        masterKeyIv: backup.iv,
+        conversationKeys,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('Keys synced with server:', result);
+    return result;
+  } catch (error) {
+    console.error('Failed to sync keys with server:', error);
+    throw error;
+  }
+};
+
+// Retrieve synced keys from server
+export const retrieveKeysFromServer = async (apiUrl, token) => {
+  try {
+    const response = await fetch(`${apiUrl}/api/encryption/sync-keys`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null; // No keys synced yet
+      }
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.data;
+  } catch (error) {
+    console.error('Failed to retrieve keys from server:', error);
+    throw error;
+  }
+};
+
+// Restore keys from server backup after entering password
+export const restoreKeysFromServerBackup = async (password, serverBackup) => {
+  try {
+    if (!serverBackup || !serverBackup.masterKeyEncrypted) {
+      throw new Error('Invalid server backup data');
+    }
+
+    // Decrypt the backup using password
+    const backup = {
+      salt: serverBackup.masterKeySalt,
+      iv: serverBackup.masterKeyIv,
+      data: serverBackup.masterKeyEncrypted,
+    };
+
+    await importAllKeys(backup, password);
+    console.log('Keys restored from server backup');
+    return true;
+  } catch (error) {
+    console.error('Failed to restore keys from server backup:', error);
+    throw error;
+  }
+};
+
 // Export all keys for backup (encrypted with user password)
 export const exportAllKeys = async (password) => {
   const keys = {};
@@ -342,4 +437,7 @@ export default {
   hasStoredKey,
   exportAllKeys,
   importAllKeys,
+  syncKeysWithServer,
+  retrieveKeysFromServer,
+  restoreKeysFromServerBackup,
 };
