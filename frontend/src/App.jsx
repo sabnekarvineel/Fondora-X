@@ -17,6 +17,7 @@ import PostFunding from './components/PostFunding';
 import Feed from './components/Feed';
 import Admin from './components/Admin';
 import Settings from './components/Settings';
+import SavedPostsDashboard from './components/SavedPostsDashboard';
 import AuthContext from './context/AuthContext';
 import KeyRestoreModal from './components/KeyRestoreModal.jsx';
 import { useContext } from 'react';
@@ -186,6 +187,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute>
             <Settings />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/activity"
+        element={
+          <PrivateRoute>
+            <SavedPostsDashboard />
           </PrivateRoute>
         }
       />

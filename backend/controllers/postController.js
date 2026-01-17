@@ -89,6 +89,7 @@ export const getFeed = async (req, res) => {
 
     const posts = await Post.find(query)
       .populate('author', 'name profilePhoto role fundingStage')
+      .populate('likes', 'name profilePhoto')
       .populate('sharedPost')
       .populate('comments.user', 'name profilePhoto')
       .populate('taggedUsers', 'name profilePhoto')
@@ -144,6 +145,7 @@ export const getTrendingPosts = async (req, res) => {
 
     const populatedPosts = await Post.populate(posts, [
       { path: 'author', select: 'name profilePhoto role' },
+      { path: 'likes', select: 'name profilePhoto' },
       { path: 'comments.user', select: 'name profilePhoto' },
     ]);
 
@@ -157,6 +159,7 @@ export const getPost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
       .populate('author', 'name profilePhoto role')
+      .populate('likes', 'name profilePhoto')
       .populate('sharedPost')
       .populate('comments.user', 'name profilePhoto');
 
@@ -177,6 +180,7 @@ export const getUserPosts = async (req, res) => {
   try {
     const posts = await Post.find({ author: req.params.userId })
       .populate('author', 'name profilePhoto role')
+      .populate('likes', 'name profilePhoto')
       .populate('comments.user', 'name profilePhoto')
       .sort({ createdAt: -1 });
 
@@ -355,6 +359,178 @@ export const deleteComment = async (req, res) => {
     await post.save();
 
     res.json({ message: 'Comment deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const replyToComment = async (req, res) => {
+  try {
+    const { text } = req.body;
+    const { id: postId, commentId } = req.params;
+
+    if (!text || text.trim().length === 0) {
+      return res.status(400).json({ message: 'Reply text is required' });
+    }
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const comment = post.comments.id(commentId);
+
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    comment.replies.push({
+      user: req.user._id,
+      text,
+    });
+
+    await post.save();
+
+    const updatedPost = await Post.findById(postId)
+      .populate('comments.user', 'name profilePhoto')
+      .populate('comments.replies.user', 'name profilePhoto')
+      .populate('author', 'name');
+
+    const notification = await createNotification({
+      recipient: comment.user,
+      sender: req.user._id,
+      type: 'comment_reply',
+      post: postId,
+      message: `${req.user.name} replied to your comment`,
+      link: `/post/${postId}`,
+    });
+
+    if (notification) {
+      const io = getIO();
+      io.to(comment.user.toString()).emit('newNotification', notification);
+    }
+
+    res.status(201).json(updatedPost.comments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteReply = async (req, res) => {
+  try {
+    const { id: postId, commentId, replyId } = req.params;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const comment = post.comments.id(commentId);
+
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    const reply = comment.replies.id(replyId);
+
+    if (!reply) {
+      return res.status(404).json({ message: 'Reply not found' });
+    }
+
+    if (reply.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: 'Not authorized to delete this reply' });
+    }
+
+    reply.deleteOne();
+    await post.save();
+
+    res.json({ message: 'Reply deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const savePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    if (post.saves.includes(req.user._id)) {
+      return res.status(400).json({ message: 'Post already saved' });
+    }
+
+    post.saves.push(req.user._id);
+    await post.save();
+
+    res.json({ message: 'Post saved', savesCount: post.saves.length });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const unsavePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    if (!post.saves.includes(req.user._id)) {
+      return res.status(400).json({ message: 'Post not saved yet' });
+    }
+
+    post.saves = post.saves.filter((id) => id.toString() !== req.user._id.toString());
+    await post.save();
+
+    res.json({ message: 'Post unsaved', savesCount: post.saves.length });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getUserSavedPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ saves: req.user._id })
+      .populate('author', 'name profilePhoto role')
+      .populate('likes', 'name profilePhoto')
+      .populate('comments.user', 'name profilePhoto')
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getUserLikedPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ likes: req.user._id })
+      .populate('author', 'name profilePhoto role')
+      .populate('likes', 'name profilePhoto')
+      .populate('comments.user', 'name profilePhoto')
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getUserCommentedPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ 'comments.user': req.user._id })
+      .populate('author', 'name profilePhoto role')
+      .populate('likes', 'name profilePhoto')
+      .populate('comments.user', 'name profilePhoto')
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

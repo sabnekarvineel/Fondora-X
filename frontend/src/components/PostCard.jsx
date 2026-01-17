@@ -15,14 +15,23 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
      return null;
    }
    
-   const [isLiked, setIsLiked] = useState(post.likes?.includes(user?._id));
-   const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
-  const [comments, setComments] = useState(post.comments || []);
-  const [showComments, setShowComments] = useState(false);
-  const [commentText, setCommentText] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [editContent, setEditContent] = useState(post.content);
-  const [showShareModal, setShowShareModal] = useState(false);
+   const [likes, setLikes] = useState(post.likes || []);
+   const [isLiked, setIsLiked] = useState(likes.some(like => 
+     typeof like === 'object' ? like._id === user?._id : like === user?._id
+   ));
+   const [likesCount, setLikesCount] = useState(likes?.length || 0);
+   const [showLikes, setShowLikes] = useState(false);
+   const [comments, setComments] = useState(post.comments || []);
+   const [showComments, setShowComments] = useState(false);
+   const [commentText, setCommentText] = useState('');
+   const [isEditing, setIsEditing] = useState(false);
+   const [editContent, setEditContent] = useState(post.content);
+   const [showShareModal, setShowShareModal] = useState(false);
+   const [replyingTo, setReplyingTo] = useState(null);
+   const [replyText, setReplyText] = useState('');
+   const [isSaved, setIsSaved] = useState(post.saves?.some(save => 
+     typeof save === 'object' ? save._id === user?._id : save === user?._id
+   ));
 
   const handleLike = async () => {
     try {
@@ -39,6 +48,17 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
 
       setIsLiked(!isLiked);
       setLikesCount(data.likesCount);
+      
+      // Update likes array
+      if (!isLiked) {
+        // Add current user to likes
+        setLikes([...likes, { _id: user._id, name: user.name, profilePhoto: user.profilePhoto }]);
+      } else {
+        // Remove current user from likes
+        setLikes(likes.filter(like => 
+          typeof like === 'object' ? like._id !== user._id : like !== user._id
+        ));
+      }
     } catch (error) {
       console.error(error);
     }
@@ -99,6 +119,70 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
 
   const handleShare = () => {
     setShowShareModal(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      const token = user?.token;
+      const endpoint = isSaved ? 'unsave' : 'save';
+      
+      await axios.post(
+        `${API}/api/posts/${post._id}/${endpoint}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setIsSaved(!isSaved);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleReply = async (commentId) => {
+    if (!replyText.trim()) return;
+
+    try {
+      const token = user?.token;
+      const { data } = await axios.post(
+        `${API}/api/posts/${post._id}/comment/${commentId}/reply`,
+        { text: replyText },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setComments(data);
+      setReplyText('');
+      setReplyingTo(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDeleteReply = async (commentId, replyId) => {
+    if (!window.confirm('Delete this reply?')) return;
+
+    try {
+      const token = user?.token;
+      await axios.delete(
+        `${API}/api/posts/${post._id}/comment/${commentId}/reply/${replyId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment._id === commentId
+            ? { ...comment, replies: comment.replies.filter((r) => r._id !== replyId) }
+            : comment
+        )
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const formatDate = (date) => {
@@ -231,10 +315,43 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
       </div>
 
       <div className="post-stats">
-        <span>{likesCount} likes</span>
+        <button 
+          className="stats-link"
+          onClick={() => setShowLikes(!showLikes)}
+        >
+          {likesCount} likes
+        </button>
         <span>{comments.length} comments</span>
         <span>{post.shares?.length || 0} shares</span>
       </div>
+
+      {showLikes && likesCount > 0 && (
+        <div className="likes-modal">
+          <div className="likes-header">
+            <h4>Likes ({likesCount})</h4>
+            <button className="close-btn" onClick={() => setShowLikes(false)}>✕</button>
+          </div>
+          <div className="likes-list">
+            {likes.map((like) => (
+              <Link 
+                key={typeof like === 'object' ? like._id : like}
+                to={`/profile/${typeof like === 'object' ? like._id : like}`}
+                className="likes-item"
+                onClick={() => setShowLikes(false)}
+              >
+                <img 
+                  src={typeof like === 'object' ? like.profilePhoto : '/default-avatar.png'} 
+                  alt={typeof like === 'object' ? like.name : 'User'}
+                  className="likes-avatar"
+                />
+                <span className="likes-name">
+                  {typeof like === 'object' ? like.name : 'User'}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="post-interactions">
         <button
@@ -246,10 +363,16 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
         <button onClick={() => setShowComments(!showComments)} className="interaction-btn">
           💬 Comment
         </button>
+        <button 
+          onClick={handleSave} 
+          className={isSaved ? 'interaction-btn active' : 'interaction-btn'}
+        >
+          {isSaved ? '🔖' : '🔘'} Save
+        </button>
         <button onClick={handleShare} className="interaction-btn">
           🔄 Share
         </button>
-      </div>
+        </div>
 
       {showComments && (
         <div className="comments-section">
@@ -277,7 +400,87 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
                 <div className="comment-content">
                   <strong>{comment.user?.name}</strong>
                   <p>{comment.text}</p>
-                  <span className="comment-date">{formatDate(comment.createdAt)}</span>
+                  <div className="comment-actions">
+                    <span className="comment-date">{formatDate(comment.createdAt)}</span>
+                    <button
+                      className="reply-btn"
+                      onClick={() => setReplyingTo(comment._id)}
+                    >
+                      Reply
+                    </button>
+                    {user?._id === comment.user?._id && (
+                      <button
+                        className="delete-comment-btn"
+                        onClick={() => {
+                          if (window.confirm('Delete this comment?')) {
+                            const updatedComments = comments.filter(c => c._id !== comment._id);
+                            setComments(updatedComments);
+                            axios.delete(`${API}/api/posts/${post._id}/comment/${comment._id}`, {
+                              headers: { Authorization: `Bearer ${user?.token}` },
+                            });
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+
+                  {comment.replies && comment.replies.length > 0 && (
+                    <div className="replies-section">
+                      {comment.replies.map((reply) => (
+                        <div key={reply._id} className="reply">
+                          <img
+                            src={reply.user?.profilePhoto || '/default-avatar.png'}
+                            alt={reply.user?.name}
+                            className="reply-author-photo"
+                          />
+                          <div className="reply-content">
+                            <strong>{reply.user?.name}</strong>
+                            <p>{reply.text}</p>
+                            <div className="reply-actions">
+                              <span className="reply-date">{formatDate(reply.createdAt)}</span>
+                              {user?._id === reply.user?._id && (
+                                <button
+                                  className="delete-reply-btn"
+                                  onClick={() => handleDeleteReply(comment._id, reply._id)}
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {replyingTo === comment._id && (
+                    <div className="reply-form">
+                      <input
+                        type="text"
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Write a reply..."
+                        maxLength="500"
+                      />
+                      <button
+                        onClick={() => handleReply(comment._id)}
+                        className="btn btn-sm"
+                      >
+                        Reply
+                      </button>
+                      <button
+                        onClick={() => {
+                          setReplyingTo(null);
+                          setReplyText('');
+                        }}
+                        className="btn btn-sm btn-cancel"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

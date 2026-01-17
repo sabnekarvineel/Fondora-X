@@ -129,6 +129,13 @@ const Navbar = () => {
                                     👤 Profile
                                 </Link>
                                 <Link
+                                    to="/activity"
+                                    className={`nav-link ${isActive('/activity') ? 'active' : ''}`}
+                                    onClick={closeMenu}
+                                >
+                                    📌 My Activity
+                                </Link>
+                                <Link
                                     to="/settings"
                                     className={`nav-link ${isActive('/settings') ? 'active' : ''}`}
                                     onClick={closeMenu}
