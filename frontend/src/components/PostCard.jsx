@@ -354,25 +354,25 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
       )}
 
       <div className="post-interactions">
-        <button
-          onClick={handleLike}
-          className={isLiked ? 'interaction-btn active' : 'interaction-btn'}
-        >
-          {isLiked ? 'Liked' : 'Like'}
-        </button>
-        <button onClick={() => setShowComments(!showComments)} className="interaction-btn">
-          Comment
-        </button>
-        <button 
-          onClick={handleSave} 
-          className={isSaved ? 'interaction-btn active' : 'interaction-btn'}
-        >
-          {isSaved ? 'Saved' : 'Save'}
-        </button>
-        <button onClick={handleShare} className="interaction-btn">
-          Share
-        </button>
-        </div>
+         <button
+           onClick={handleLike}
+           className={isLiked ? 'interaction-btn active' : 'interaction-btn'}
+         >
+           {isLiked ? '❤️ Liked' : '🤍 Like'}
+         </button>
+         <button onClick={() => setShowComments(!showComments)} className="interaction-btn">
+           💬 Comment
+         </button>
+         <button 
+           onClick={handleSave} 
+           className={isSaved ? 'interaction-btn active' : 'interaction-btn'}
+         >
+           {isSaved ? '🔖 Saved' : '🔖 Save'}
+         </button>
+         <button onClick={handleShare} className="interaction-btn">
+           📤 Share
+         </button>
+         </div>
 
       {showComments && (
         <div className="comments-section">
