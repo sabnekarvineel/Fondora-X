@@ -184,13 +184,21 @@ const Settings = () => {
 
       <div className="container">
          <div className="settings-container">
-           <h2>⚙️ Settings & Privacy</h2>
+           <h2>Settings & Privacy</h2>
 
            {error && <div className="error-message">{error}</div>}
            {success && <div className="success-message">{success}</div>}
 
            <div className="settings-section">
-            <h3> Edit Profile</h3>
+            <h3>My Activity</h3>
+            <p>View your saved posts, liked posts, and posts you've commented on.</p>
+            <Link to="/activity" className="btn">
+              Go to My Activity
+            </Link>
+          </div>
+
+           <div className="settings-section">
+            <h3>Edit Profile</h3>
             <p>Update your profile information, skills, and role-specific details.</p>
             <Link to={`/profile/${user?._id}`} className="btn">
               Go to Profile (Edit from there)
@@ -198,7 +206,7 @@ const Settings = () => {
           </div>
 
           <div className="settings-section">
-            <h3>🔒 Change Password</h3>
+            <h3>Change Password</h3>
             <form onSubmit={handlePasswordChange}>
               <div className="form-group">
                 <label>Current Password</label>
@@ -245,7 +253,7 @@ const Settings = () => {
           </div>
 
           <div className="settings-section">
-            <h3>🔔 Notifications</h3>
+            <h3>Notifications</h3>
             <div className="notification-toggle">
               <label>
                 <input
@@ -266,7 +274,7 @@ const Settings = () => {
           </div>
 
           <div className="settings-section danger-zone">
-            <h3>⚠️ Deactivate Account</h3>
+            <h3>Deactivate Account</h3>
             <p>
               Deactivating your account will hide your profile and prevent others from seeing your
               content.
@@ -283,7 +291,7 @@ const Settings = () => {
               <div className="deactivate-modal-overlay">
                 <div className="deactivate-modal">
                   <div className="modal-header">
-                    <h4>⚠️ This action cannot be undone</h4>
+                    <h4>This action cannot be undone</h4>
                     <button
                       className="modal-close"
                       onClick={() => {
@@ -292,7 +300,7 @@ const Settings = () => {
                         setError('');
                       }}
                     >
-                      ✕
+                      X
                     </button>
                   </div>
 
@@ -344,7 +352,7 @@ const Settings = () => {
           </div>
 
           <div className="settings-section feedback-section">
-            <h3> Send us Feedback</h3>
+            <h3>Send us Feedback</h3>
             <p>Help us improve! Share your feedback, bug reports, or feature requests.</p>
             <form onSubmit={handleFeedbackSubmit}>
               <div className="form-group">
@@ -353,9 +361,9 @@ const Settings = () => {
                   value={feedbackData.type}
                   onChange={(e) => setFeedbackData({ ...feedbackData, type: e.target.value })}
                 >
-                  <option value="bug"> Bug Report</option>
-                  <option value="feature"> Feature Request</option>
-                  <option value="general"> General Feedback</option>
+                  <option value="bug">Bug Report</option>
+                  <option value="feature">Feature Request</option>
+                  <option value="general">General Feedback</option>
                 </select>
               </div>
 
@@ -388,7 +396,7 @@ const Settings = () => {
           </div>
 
           <div className="settings-section contact-section">
-            <h3> Contact Us</h3>
+            <h3>Contact Us</h3>
             <p>Have questions or need help? Reach out to us through any of these channels:</p>
 
             <div className="contact-info">

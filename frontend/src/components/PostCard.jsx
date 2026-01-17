@@ -358,19 +358,19 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
           onClick={handleLike}
           className={isLiked ? 'interaction-btn active' : 'interaction-btn'}
         >
-          {isLiked ? '❤️' : '🤍'} Like
+          {isLiked ? 'Liked' : 'Like'}
         </button>
         <button onClick={() => setShowComments(!showComments)} className="interaction-btn">
-          💬 Comment
+          Comment
         </button>
         <button 
           onClick={handleSave} 
           className={isSaved ? 'interaction-btn active' : 'interaction-btn'}
         >
-          {isSaved ? '🔖' : '🔘'} Save
+          {isSaved ? 'Saved' : 'Save'}
         </button>
         <button onClick={handleShare} className="interaction-btn">
-          🔄 Share
+          Share
         </button>
         </div>
 

@@ -90,19 +90,19 @@ const SavedPostsDashboard = () => {
               className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`}
               onClick={() => setActiveTab('saved')}
             >
-              🔖 Saved Posts ({posts.length})
+              Saved Posts ({posts.length})
             </button>
             <button
               className={`tab-btn ${activeTab === 'liked' ? 'active' : ''}`}
               onClick={() => setActiveTab('liked')}
             >
-              ❤️ Liked Posts ({posts.length})
+              Liked Posts ({posts.length})
             </button>
             <button
               className={`tab-btn ${activeTab === 'commented' ? 'active' : ''}`}
               onClick={() => setActiveTab('commented')}
             >
-              💬 Commented Posts ({posts.length})
+              Commented Posts ({posts.length})
             </button>
           </div>
 

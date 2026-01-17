@@ -133,14 +133,14 @@ const Navbar = () => {
                                     className={`nav-link ${isActive('/activity') ? 'active' : ''}`}
                                     onClick={closeMenu}
                                 >
-                                    📌 My Activity
+                                    My Activity
                                 </Link>
                                 <Link
                                     to="/settings"
                                     className={`nav-link ${isActive('/settings') ? 'active' : ''}`}
                                     onClick={closeMenu}
                                 >
-                                    ⚙️ Settings
+                                    Settings
                                 </Link>
                             </>
                         )}
