@@ -405,11 +405,6 @@ const FundingDetail = () => {
           <div className="funding-detail-header">
             <div className="funding-detail-title-section">
               <h1>{fundingRequest.title}</h1>
-              <div className="funding-detail-meta">
-                <span className="badge">{fundingRequest.stage}</span>
-                <span className="badge">{fundingRequest.industry}</span>
-                <span className={`status-badge ${fundingRequest.status}`}>{fundingRequest.status}</span>
-              </div>
               {isOwner && (
                 <div className="funding-actions">
                   <button

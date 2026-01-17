@@ -21,24 +21,42 @@ export const searchUsers = async (req, res) => {
     const skip = (page - 1) * limit;
     let searchQuery = {};
 
-    if (query) {
-      searchQuery.$or = [
-        { name: { $regex: query, $options: 'i' } },
-        { bio: { $regex: query, $options: 'i' } },
-        { 'startupProfile.startupName': { $regex: query, $options: 'i' } },
-        { 'startupProfile.mission': { $regex: query, $options: 'i' } },
-      ];
-    }
-
+    // ✅ Apply role filter first (before adding $or conditions)
     if (role) {
       searchQuery.role = role;
+    }
+
+    if (query) {
+      // ✅ Build role-specific search fields
+      const orConditions = [
+        { name: { $regex: query, $options: 'i' } },
+        { bio: { $regex: query, $options: 'i' } },
+      ];
+
+      // ✅ Only search startup fields if role is startup
+      if (!role || role === 'startup') {
+        orConditions.push(
+          { 'startupProfile.startupName': { $regex: query, $options: 'i' } },
+          { 'startupProfile.mission': { $regex: query, $options: 'i' } }
+        );
+      }
+
+      // ✅ Only search freelancer fields if role is freelancer
+      if (!role || role === 'freelancer') {
+        orConditions.push(
+          { skills: { $regex: query, $options: 'i' } }
+        );
+      }
+
+      searchQuery.$or = orConditions;
     }
 
     if (location) {
       searchQuery.location = { $regex: location, $options: 'i' };
     }
 
-    if (skills) {
+    // ✅ Only apply skills filter if role is NOT specified or is freelancer
+    if (skills && (!role || role === 'freelancer')) {
       const skillsArray = skills.split(',');
       searchQuery.skills = { $in: skillsArray };
     }

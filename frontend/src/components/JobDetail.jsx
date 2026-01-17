@@ -180,13 +180,6 @@ const JobDetail = () => {
           <div className="job-detail-header">
             <div className="job-detail-title-section">
               <h1>{job.title}</h1>
-              <div className="job-detail-meta">
-                <span className="badge">{job.type}</span>
-                <span className="badge">{job.category.replace('-', ' ')}</span>
-                <span className="badge">{job.locationType}</span>
-                <span className="badge">{job.experienceLevel}</span>
-                <span className={`status-badge ${job.status}`}>{job.status}</span>
-              </div>
             </div>
 
             <div className="job-poster-card">

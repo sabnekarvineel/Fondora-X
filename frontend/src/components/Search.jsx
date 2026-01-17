@@ -191,39 +191,6 @@ const Search = () => {
           <p>Find students, freelancers, startups, investors, projects, and more</p>
         </div>
 
-        <div className="search-type-selector">
-          <button
-            className={searchType === 'users' ? 'search-type-btn active' : 'search-type-btn'}
-            onClick={() => setSearchType('users')}
-          >
-            Users
-          </button>
-          <button
-            className={searchType === 'startups' ? 'search-type-btn active' : 'search-type-btn'}
-            onClick={() => setSearchType('startups')}
-          >
-            Startups
-          </button>
-          <button
-            className={searchType === 'freelancers' ? 'search-type-btn active' : 'search-type-btn'}
-            onClick={() => setSearchType('freelancers')}
-          >
-            Freelancers
-          </button>
-          <button
-            className={searchType === 'projects' ? 'search-type-btn active' : 'search-type-btn'}
-            onClick={() => setSearchType('projects')}
-          >
-            Projects
-          </button>
-          <button
-            className={searchType === 'skills' ? 'search-type-btn active' : 'search-type-btn'}
-            onClick={() => setSearchType('skills')}
-          >
-            Skills
-          </button>
-        </div>
-
         <form onSubmit={handleSearch} className="search-form">
           <div className="search-input-group">
             <input

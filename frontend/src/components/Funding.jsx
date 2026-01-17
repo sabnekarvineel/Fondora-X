@@ -146,12 +146,8 @@ const Funding = () => {
             <Link key={request._id} to={`/funding/${request._id}`} className="funding-card">
               <div className="funding-card-header">
                 <div>
-                  <h3>{request.title}</h3>
-                  <div className="funding-meta">
-                    <span className="funding-stage">{request.stage}</span>
-                    <span className="funding-industry">{request.industry}</span>
-                  </div>
-                </div>
+                   <h3>{request.title}</h3>
+                 </div>
                 <div className="funding-startup">
                   <img
                     src={request.startup?.profilePhoto || '/default-avatar.png'}
