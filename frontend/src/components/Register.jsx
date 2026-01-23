@@ -11,10 +11,6 @@ const Register = () => {
     role: "",
     // Startup-specific fields
     companyName: "",
-    founderName: "",
-    founderNumber: "",
-    coFounderName: "",
-    coFounderNumber: "",
   });
 
   const [error, setError] = useState("");
@@ -23,7 +19,7 @@ const Register = () => {
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const { name, email, mobile, password, role, companyName, founderName, founderNumber, coFounderName, coFounderNumber } = formData;
+  const { name, email, mobile, password, role, companyName } = formData;
 
   // ✅ handle input changes
   const onChange = (e) => {
@@ -52,30 +48,10 @@ const Register = () => {
 
     // ✅ startup-specific validation
     if (role === "startup") {
-      if (!companyName || !founderName || !founderNumber) {
-        setError("For Startup: Company Name, Founder Name, and Founder Number are required");
+      if (!companyName) {
+        setError("For Startup: Company Name is required");
         setLoading(false);
         return;
-      }
-      // Validate founder number (10-digit Indian mobile)
-      const founderMobileRegex = /^[6-9]\d{9}$/;
-      if (!founderMobileRegex.test(founderNumber)) {
-        setError("Founder Number must be a valid 10-digit Indian mobile number");
-        setLoading(false);
-        return;
-      }
-      // Validate co-founder number if provided
-      if (coFounderNumber) {
-        if (!coFounderName) {
-          setError("Co-founder Name is required if Co-founder Number is provided");
-          setLoading(false);
-          return;
-        }
-        if (!founderMobileRegex.test(coFounderNumber)) {
-          setError("Co-founder Number must be a valid 10-digit Indian mobile number");
-          setLoading(false);
-          return;
-        }
       }
     }
 
@@ -97,10 +73,6 @@ const Register = () => {
     try {
       await register(name, email, mobile, password, role, {
         companyName: role === "startup" ? companyName : null,
-        founderName: role === "startup" ? founderName : null,
-        founderNumber: role === "startup" ? founderNumber : null,
-        coFounderName: role === "startup" ? coFounderName : null,
-        coFounderNumber: role === "startup" ? coFounderNumber : null,
       });
       navigate("/dashboard");
     } catch (err) {
@@ -188,62 +160,6 @@ const Register = () => {
                 value={companyName}
                 onChange={onChange}
                 placeholder="Enter company name"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Founder Name *</label>
-              <input
-                type="text"
-                name="founderName"
-                value={founderName}
-                onChange={onChange}
-                placeholder="Enter founder name"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Founder Mobile Number *</label>
-              <input
-                type="tel"
-                name="founderNumber"
-                value={founderNumber}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
-                  if (value.length <= 10) {
-                    setFormData({ ...formData, founderNumber: value });
-                  }
-                }}
-                placeholder="10-digit mobile number"
-                maxLength={10}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Co-founder Name (Optional)</label>
-              <input
-                type="text"
-                name="coFounderName"
-                value={coFounderName}
-                onChange={onChange}
-                placeholder="Enter co-founder name (optional)"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Co-founder Mobile Number (Optional)</label>
-              <input
-                type="tel"
-                name="coFounderNumber"
-                value={coFounderNumber}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
-                  if (value.length <= 10) {
-                    setFormData({ ...formData, coFounderNumber: value });
-                  }
-                }}
-                placeholder="10-digit mobile number (optional)"
-                maxLength={10}
               />
             </div>
           </>

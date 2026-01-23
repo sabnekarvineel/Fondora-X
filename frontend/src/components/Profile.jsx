@@ -253,7 +253,7 @@ const Profile = () => {
                     <div className="profile-header">
                         <div className="profile-photo-container">
                             <img
-                                src={profile.profilePhoto || '/default-avatar.png'}
+                                src={profile.profilePhoto || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}
                                 alt={profile.name}
                                 className="profile-photo-large"
                             />
@@ -261,8 +261,8 @@ const Profile = () => {
 
                         <div className="profile-info">
                             <h1>
-                                {profile.role === 'startup' && profile.startupProfile?.companyName
-                                    ? profile.startupProfile.companyName
+                                {profile.role === 'startup'
+                                    ? profile.startupProfile?.companyName
                                     : profile.name}
                             </h1>
                             <p className="role-badge">{profile.role}</p>

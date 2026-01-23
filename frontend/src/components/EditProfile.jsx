@@ -271,66 +271,43 @@ const EditProfile = () => {
 
                     {/* ✅ Startup-specific fields */}
                     {userRole === 'startup' && (
-                        <>
-                            <h3>Startup Information</h3>
+                      <>
+                        <h3>Startup Information</h3>
+                        
+                        <div className="form-group">
+                          <label>Company Name</label>
+                          <input
+                            type="text"
+                            name="companyName"
+                            value={roleData.companyName || ''}
+                            onChange={onRoleDataChange}
+                            placeholder="Your company name"
+                          />
+                        </div>
 
-                            <div className="form-group">
-                                <label>Company Name</label>
-                                <input
-                                    type="text"
-                                    name="companyName"
-                                    value={roleData.companyName || ''}
-                                    onChange={onRoleDataChange}
-                                    placeholder="Your company name"
-                                />
-                            </div>
+                        <div className="form-group">
+                          <label>Mission</label>
+                          <textarea
+                            name="mission"
+                            value={roleData.mission || ''}
+                            onChange={onRoleDataChange}
+                            rows="3"
+                            placeholder="What is your startup's mission?"
+                          />
+                        </div>
 
-                            <div className="form-group">
-                                <label>Founder Name</label>
-                                <input
-                                    type="text"
-                                    name="founderName"
-                                    value={roleData.founderName || ''}
-                                    onChange={onRoleDataChange}
-                                    placeholder="Founder name"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Founder Mobile Number</label>
-                                <input
-                                    type="tel"
-                                    name="founderNumber"
-                                    value={roleData.founderNumber || ''}
-                                    onChange={onRoleDataChange}
-                                    placeholder="10-digit mobile number"
-                                    maxLength="10"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Mission</label>
-                                <textarea
-                                    name="mission"
-                                    value={roleData.mission || ''}
-                                    onChange={onRoleDataChange}
-                                    rows="3"
-                                    placeholder="What is your startup's mission?"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Stage</label>
-                                <select name="stage" value={roleData.stage || ''} onChange={onRoleDataChange}>
-                                    <option value="">Select stage</option>
-                                    <option value="idea">Idea</option>
-                                    <option value="seed">Seed</option>
-                                    <option value="series-a">Series A</option>
-                                    <option value="series-b">Series B</option>
-                                    <option value="series-c">Series C</option>
-                                </select>
-                            </div>
-                        </>
+                        <div className="form-group">
+                          <label>Stage</label>
+                          <select name="stage" value={roleData.stage || ''} onChange={onRoleDataChange}>
+                            <option value="">Select stage</option>
+                            <option value="idea">Idea</option>
+                            <option value="seed">Seed</option>
+                            <option value="series-a">Series A</option>
+                            <option value="series-b">Series B</option>
+                            <option value="series-c">Series C</option>
+                          </select>
+                        </div>
+                      </>
                     )}
 
                     <button type="submit" className="btn" disabled={loading}>
