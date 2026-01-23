@@ -205,31 +205,33 @@ const EditProfile = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label>Skills</label>
-            <div className="skills-input">
-              <input
-                type="text"
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
-                placeholder="Add a skill"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-              />
-              <button type="button" onClick={addSkill} className="btn-add">
-                Add
-              </button>
+          {userRole !== 'startup' && (
+            <div className="form-group">
+              <label>Skills</label>
+              <div className="skills-input">
+                <input
+                  type="text"
+                  value={skillInput}
+                  onChange={(e) => setSkillInput(e.target.value)}
+                  placeholder="Add a skill"
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                />
+                <button type="button" onClick={addSkill} className="btn-add">
+                  Add
+                </button>
+              </div>
+              <div className="skills-list">
+                {formData.skills.map((skill, index) => (
+                  <span key={index} className="skill-tag">
+                    {skill}
+                    <button type="button" onClick={() => removeSkill(index)}>
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="skills-list">
-              {formData.skills.map((skill, index) => (
-                <span key={index} className="skill-tag">
-                  {skill}
-                  <button type="button" onClick={() => removeSkill(index)}>
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
+          )}
 
           <h3>Social Links</h3>
           <div className="form-group">
@@ -301,40 +303,6 @@ const EditProfile = () => {
                   onChange={onRoleDataChange}
                   placeholder="10-digit mobile number"
                   maxLength="10"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Co-founder Name (Optional)</label>
-                <input
-                  type="text"
-                  name="coFounderName"
-                  value={roleData.coFounderName || ''}
-                  onChange={onRoleDataChange}
-                  placeholder="Co-founder name (optional)"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Co-founder Mobile Number (Optional)</label>
-                <input
-                  type="tel"
-                  name="coFounderNumber"
-                  value={roleData.coFounderNumber || ''}
-                  onChange={onRoleDataChange}
-                  placeholder="10-digit mobile number (optional)"
-                  maxLength="10"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Company Name</label>
-                <input
-                  type="text"
-                  name="companyName"
-                  value={roleData.companyName || ''}
-                  onChange={onRoleDataChange}
-                  placeholder="Company name"
                 />
               </div>
 
