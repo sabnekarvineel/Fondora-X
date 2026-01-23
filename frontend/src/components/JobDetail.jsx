@@ -190,7 +190,7 @@ const JobDetail = () => {
               />
               <div>
                 <Link to={`/profile/${job.postedBy._id}`} className="poster-name-link">
-                  {job.postedBy?.startupProfile?.startupName || job.postedBy?.name}
+                  {job.postedBy?.startupProfile?.companyName || job.postedBy?.name}
                 </Link>
                 <p className="poster-role">{job.postedBy?.role}</p>
               </div>

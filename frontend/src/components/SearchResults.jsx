@@ -43,7 +43,7 @@ const SearchResults = ({ results, searchType, loading }) => {
         className="result-photo"
       />
       <div className="result-info">
-        <h3>{startup.startupProfile?.startupName || startup.name}</h3>
+        <h3>{startup.startupProfile?.companyName || startup.name}</h3>
         <p className="startup-stage">
           {startup.startupProfile?.stage && `Stage: ${startup.startupProfile.stage}`}
         </p>

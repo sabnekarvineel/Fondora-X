@@ -165,7 +165,7 @@ const Jobs = () => {
                     />
                     <div>
                       <p className="poster-name">
-                        {job.postedBy?.startupProfile?.startupName || job.postedBy?.name}
+                        {job.postedBy?.startupProfile?.companyName || job.postedBy?.name}
                       </p>
                       <p className="poster-role">{job.postedBy?.role}</p>
                     </div>

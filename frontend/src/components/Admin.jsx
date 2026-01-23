@@ -434,14 +434,14 @@ const Admin = () => {
                   <div className="verification-header">
                     <img src={startup.profilePhoto || '/default-avatar.png'} alt={startup.name} />
                     <div className="verification-info">
-                      <h4>{startup.startupProfile?.startupName || startup.name}</h4>
+                      <h4>{startup.startupProfile?.companyName || startup.name}</h4>
                       <p>{startup.email}</p>
                       {startup.isVerified && <span className="badge verified">✓ Verified</span>}
                       {startup.isBanned && <span className="badge banned">🚫 Banned</span>}
                     </div>
                   </div>
                   <div className="verification-details">
-                    <p><strong>Startup Name:</strong> {startup.startupProfile?.startupName || 'Not specified'}</p>
+                    <p><strong>Company Name:</strong> {startup.startupProfile?.companyName || 'Not specified'}</p>
                     <p><strong>Stage:</strong> {startup.startupProfile?.stage || 'Not specified'}</p>
                     <p><strong>Mission:</strong> {startup.startupProfile?.mission || 'Not specified'}</p>
                     <p><strong>Team Size:</strong> {startup.startupProfile?.teamMembers?.length || 0} members</p>

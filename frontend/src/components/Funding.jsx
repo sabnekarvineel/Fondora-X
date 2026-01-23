@@ -156,7 +156,7 @@ const Funding = () => {
                   />
                   <div>
                     <p className="startup-name">
-                      {request.startup?.startupProfile?.startupName || request.startup?.name}
+                      {request.startup?.startupProfile?.companyName || request.startup?.name}
                     </p>
                   </div>
                 </div>

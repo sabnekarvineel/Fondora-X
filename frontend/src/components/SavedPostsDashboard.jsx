@@ -86,8 +86,6 @@ const SavedPostsDashboard = () => {
             <p>View your saved, liked, and commented posts</p>
           </div>
 
-          <EngagementDashboard />
-
           <div className="tabs-container">
             <button
               className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`}
@@ -137,6 +135,8 @@ const SavedPostsDashboard = () => {
               </div>
             )}
           </div>
+
+          <EngagementDashboard />
         </div>
       </div>
     </div>

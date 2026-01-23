@@ -599,10 +599,10 @@ const Profile = () => {
 
                         {profile.role === 'startup' && profile.startupProfile && (
                             <>
-                                {profile.startupProfile.startupName && (
+                                {profile.startupProfile.companyName && (
                                     <div className="profile-section">
-                                        <h3>Startup</h3>
-                                        <h2>{profile.startupProfile.startupName}</h2>
+                                        <h3>Company</h3>
+                                        <h2>{profile.startupProfile.companyName}</h2>
                                         <p className="startup-stage">Stage: {profile.startupProfile.stage}</p>
                                         {profile.startupProfile.mission && <p>{profile.startupProfile.mission}</p>}
                                     </div>

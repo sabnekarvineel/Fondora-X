@@ -328,13 +328,13 @@ const EditProfile = () => {
               </div>
 
               <div className="form-group">
-                <label>Startup Name</label>
+                <label>Company Name</label>
                 <input
                   type="text"
-                  name="startupName"
-                  value={roleData.startupName || ''}
+                  name="companyName"
+                  value={roleData.companyName || ''}
                   onChange={onRoleDataChange}
-                  placeholder="Startup name"
+                  placeholder="Company name"
                 />
               </div>
 

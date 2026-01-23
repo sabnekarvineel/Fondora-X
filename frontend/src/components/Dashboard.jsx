@@ -169,7 +169,7 @@ const StudentDashboard = ({ data }) => (
                     data.suggestedJobs.slice(0, 3).map((job) => (
                         <Link key={job?._id} to={`/jobs/${job._id}`} className="dashboard-card">
                             <h4>{job?.title || 'Untitled'}</h4>
-                            <p>{job?.postedBy?.startupProfile?.startupName || job?.postedBy?.name || 'Unknown'}</p>
+                            <p>{job?.postedBy?.startupProfile?.companyName || job?.postedBy?.name || 'Unknown'}</p>
                             <span className="card-tag">{job?.type || 'job'}</span>
                         </Link>
                     ))
@@ -350,7 +350,7 @@ const InvestorDashboard = ({ data }) => (
                     data.recommendedStartups.slice(0, 3).map((request) => (
                         <Link key={request?._id} to={`/funding/${request._id}`} className="dashboard-card">
                             <h4>{request?.title}</h4>
-                            <p>{request?.startup?.startupProfile?.startupName || request?.startup?.name}</p>
+                            <p>{request?.startup?.startupProfile?.companyName || request?.startup?.name}</p>
                             <span className="card-tag">{request?.fundingAmount?.toLocaleString() || '0'}</span>
                         </Link>
                     ))
@@ -370,7 +370,7 @@ const InvestorDashboard = ({ data }) => (
                             <div>
                                 <strong>{interest?.fundingRequest?.title || 'Untitled'}</strong>
                                 <span className="interest-meta">
-                                    {interest?.fundingRequest?.startup?.startupProfile?.startupName || 'Unknown Startup'}
+                                    {interest?.fundingRequest?.startup?.startupProfile?.companyName || 'Unknown Startup'}
                                 </span>
                             </div>
                             <span className={`status-badge ${interest?.status}`}>{interest?.status || 'pending'}</span>

@@ -451,7 +451,7 @@ const FundingDetail = () => {
               />
               <div>
                 <Link to={`/profile/${fundingRequest.startup._id}`} className="startup-name-link">
-                  {fundingRequest.startup?.startupProfile?.startupName || fundingRequest.startup?.name}
+                  {fundingRequest.startup?.startupProfile?.companyName || fundingRequest.startup?.name}
                 </Link>
                 <p className="startup-role">Startup</p>
               </div>
