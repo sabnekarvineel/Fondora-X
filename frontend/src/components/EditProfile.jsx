@@ -177,10 +177,12 @@ const EditProfile = () => {
         </div>
 
         <form onSubmit={onSubmit}>
-          <div className="form-group">
-            <label>Name</label>
-            <input type="text" name="name" value={formData.name} onChange={onChange} />
-          </div>
+          {userRole !== 'startup' && (
+            <div className="form-group">
+              <label>Name</label>
+              <input type="text" name="name" value={formData.name} onChange={onChange} />
+            </div>
+          )}
 
           <div className="form-group">
             <label>Bio</label>
