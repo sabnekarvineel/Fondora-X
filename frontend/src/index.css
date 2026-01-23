@@ -4067,6 +4067,151 @@ textarea {
     background: #ffebee;
 }
 
+.btn-action-view-applicants {
+    color: #4CAF50;
+    border-color: #4CAF50;
+    font-weight: 600;
+}
+
+.btn-action-view-applicants:hover {
+    background: #e8f5e9;
+}
+
+/* Application Card Styles */
+.application-card {
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.application-card:hover {
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-color: #4CAF50;
+}
+
+.application-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.applicant-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.applicant-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.applicant-name {
+    font-weight: 600;
+    color: #333;
+    text-decoration: none;
+}
+
+.applicant-name:hover {
+    color: #4CAF50;
+}
+
+.applicant-role {
+    margin: 3px 0 0 0;
+    font-size: 12px;
+    color: #999;
+}
+
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.accepted {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.application-content {
+    margin: 15px 0;
+    padding: 15px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.application-content p {
+    margin: 10px 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+.application-content strong {
+    color: #333;
+}
+
+.application-content a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.application-content a:hover {
+    text-decoration: underline;
+}
+
+.application-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.application-actions .btn {
+    flex: 1;
+    padding: 10px;
+    font-weight: 500;
+}
+
+.btn-success {
+    background: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.btn-success:hover {
+    background: #45a049;
+}
+
+.btn-danger {
+    background: #f44336;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background: #da190b;
+}
+
 .post-job-container {
     max-width: 800px;
     margin: 20px auto;
@@ -4697,6 +4842,17 @@ textarea {
     margin-right: 8px;
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
     transition: all 0.3s ease;
+}
+
+.badge-pending {
+    display: inline-block;
+    background: #fff3cd;
+    color: #856404;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
 }
 
 .badge.verified {
@@ -7889,6 +8045,12 @@ textarea {
 .tab-btn.active {
     color: #4CAF50;
     border-bottom-color: #4CAF50;
+}
+
+.saved-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
 }
 
 .dashboard-content {

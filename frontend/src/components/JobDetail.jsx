@@ -364,7 +364,14 @@ const JobDetail = () => {
 
             {isOwner && applications.length > 0 && (
               <section className="job-section">
-                <h3>Applications ({applications.length})</h3>
+                <h3>
+                  Applications ({applications.length})
+                  {applications.filter(a => a.status === 'pending').length > 0 && (
+                    <span className="badge-pending">
+                      {applications.filter(a => a.status === 'pending').length} pending
+                    </span>
+                  )}
+                </h3>
                 <div className="applications-list">
                   {applications.map((application) => (
                     <div key={application._id} className="application-card">

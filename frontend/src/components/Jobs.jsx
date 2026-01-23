@@ -204,6 +204,13 @@ const Jobs = () => {
               {isJobOwner && (
                 <div className="job-actions">
                   <button 
+                    className="btn-action-view-applicants"
+                    onClick={() => navigate(`/jobs/${job._id}`)}
+                    title="View applicants for this job"
+                  >
+                    👥 Applicants ({job.applications?.length || 0})
+                  </button>
+                  <button 
                     className="btn-action-edit"
                     onClick={() => navigate(`/jobs/${job._id}/edit`)}
                     title="Edit this job post"
