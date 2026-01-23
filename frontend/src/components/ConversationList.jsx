@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import { getAvatarUrl } from '../utils/avatarHelper';
 
 const API = import.meta.env.VITE_API_URL;
 import SocketContext from '../context/SocketContext';
@@ -184,7 +185,7 @@ const ConversationList = ({
                                 onClick={() => handleUserClick(user._id)}
                             >
                                 <img
-                                    src={user.profilePhoto || '/default-avatar.png'}
+                                    src={getAvatarUrl(user.profilePhoto, user.name)}
                                     alt={user.name}
                                     className="conversation-avatar"
                                 />
@@ -223,7 +224,7 @@ const ConversationList = ({
                             >
                                 <div className="avatar-container">
                                     <img
-                                        src={otherUser?.profilePhoto || '/default-avatar.png'}
+                                        src={getAvatarUrl(otherUser?.profilePhoto, otherUser?.name)}
                                         alt={otherUser?.name}
                                         className="conversation-avatar"
                                     />

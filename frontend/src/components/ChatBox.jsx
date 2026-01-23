@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import { getAvatarUrl } from '../utils/avatarHelper';
 
 const API = import.meta.env.VITE_API_URL;
 import SocketContext from '../context/SocketContext';
@@ -831,7 +832,7 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     onClick={() => setProfileClicked(!profileClicked)}
                 >
                     <img
-                        src={otherUser?.profilePhoto || '/default-avatar.png'}
+                        src={getAvatarUrl(otherUser?.profilePhoto, otherUser?.name)}
                         alt={otherUser?.name}
                         className="chat-avatar"
                     />

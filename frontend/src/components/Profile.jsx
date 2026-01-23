@@ -5,6 +5,7 @@ import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 import PostCard from './PostCard';
 import ChatBox from './ChatBox';
+import { getAvatarUrl } from '../utils/avatarHelper';
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -253,7 +254,7 @@ const Profile = () => {
                     <div className="profile-header">
                         <div className="profile-photo-container">
                             <img
-                                src={profile.profilePhoto || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}
+                                src={getAvatarUrl(profile.profilePhoto, profile.role === 'startup' ? profile.startupProfile?.companyName : profile.name)}
                                 alt={profile.name}
                                 className="profile-photo-large"
                             />
@@ -752,7 +753,7 @@ const Profile = () => {
                                                 style={{ cursor: 'pointer' }}
                                             >
                                                 <img
-                                                    src={follower.profilePhoto || '/default-avatar.png'}
+                                                    src={getAvatarUrl(follower.profilePhoto, follower.name)}
                                                     alt={follower.name}
                                                     className="follower-avatar"
                                                 />
@@ -798,7 +799,7 @@ const Profile = () => {
                                                 style={{ cursor: 'pointer' }}
                                             >
                                                 <img
-                                                    src={followed.profilePhoto || '/default-avatar.png'}
+                                                    src={getAvatarUrl(followed.profilePhoto, followed.name)}
                                                     alt={followed.name}
                                                     className="follower-avatar"
                                                 />

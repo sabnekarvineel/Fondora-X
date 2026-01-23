@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import ShareModal from './ShareModal';
+import { getAvatarUrl } from '../utils/avatarHelper';
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -203,7 +204,7 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
       <div className="post-header">
         <Link to={`/profile/${post.author?._id}`} className="post-author">
           <img
-            src={post.author?.profilePhoto || '/default-avatar.png'}
+            src={getAvatarUrl(post.author?.profilePhoto, post.author?.name)}
             alt={post.author?.name}
             className="post-author-photo"
           />
@@ -393,7 +394,7 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
             {comments.map((comment) => (
               <div key={comment._id} className="comment">
                 <img
-                  src={comment.user?.profilePhoto || '/default-avatar.png'}
+                  src={getAvatarUrl(comment.user?.profilePhoto, comment.user?.name)}
                   alt={comment.user?.name}
                   className="comment-author-photo"
                 />
@@ -431,7 +432,7 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
                       {comment.replies.map((reply) => (
                         <div key={reply._id} className="reply">
                           <img
-                            src={reply.user?.profilePhoto || '/default-avatar.png'}
+                            src={getAvatarUrl(reply.user?.profilePhoto, reply.user?.name)}
                             alt={reply.user?.name}
                             className="reply-author-photo"
                           />
