@@ -19,6 +19,7 @@ import Admin from './components/Admin';
 import Settings from './components/Settings';
 import SavedPostsDashboard from './components/SavedPostsDashboard';
 import SharePostPage from './components/SharePostPage';
+import NotificationsPage from './components/NotificationsPage';
 import AuthContext from './context/AuthContext';
 import KeyRestoreModal from './components/KeyRestoreModal.jsx';
 import { useContext } from 'react';
@@ -202,6 +203,14 @@ const AppRoutes = () => {
       <Route
         path="/share/post/:postId"
         element={<SharePostPage />}
+      />
+      <Route
+        path="/notifications"
+        element={
+          <PrivateRoute>
+            <NotificationsPage />
+          </PrivateRoute>
+        }
       />
     </Routes>
   );
