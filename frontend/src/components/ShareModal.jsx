@@ -54,6 +54,16 @@ const ShareModal = ({ post, isOpen, onClose }) => {
       let successCount = 0;
       let failureCount = 0;
 
+      // Prepare media URLs from the post
+      const mediaUrls = [];
+      if (post.mediaItems && post.mediaItems.length > 0) {
+        mediaUrls.push(...post.mediaItems.map(item => item.url));
+      } else if (post.mediaUrls && post.mediaUrls.length > 0) {
+        mediaUrls.push(...post.mediaUrls);
+      } else if (post.mediaUrl) {
+        mediaUrls.push(post.mediaUrl);
+      }
+
       for (const userId of selectedUsers) {
         try {
           await axios.post(
@@ -62,6 +72,7 @@ const ShareModal = ({ post, isOpen, onClose }) => {
               recipientId: userId,
               content: message,
               postId: post._id,
+              mediaUrls: mediaUrls, // Include actual media URLs
             },
             {
               headers: { Authorization: `Bearer ${token}` },
@@ -160,6 +171,36 @@ const ShareModal = ({ post, isOpen, onClose }) => {
           {/* Share to Messages */}
           {shareMethod === 'messages' && (
             <div className="share-section">
+              {/* Media Preview */}
+              {(post.mediaItems?.length > 0 || post.mediaUrls?.length > 0 || post.mediaUrl) && (
+                <div className="share-media-preview">
+                  <p className="preview-label">📎 Media will be shared:</p>
+                  <div className="preview-media-grid">
+                    {post.mediaItems?.map((item, index) => (
+                      <div key={index} className="preview-media-item">
+                        {item.type === 'video' ? (
+                          <video src={item.url} className="preview-media" />
+                        ) : (
+                          <img src={item.url} alt={`Media ${index + 1}`} className="preview-media" />
+                        )}
+                      </div>
+                    )) || (post.mediaUrls?.map((url, index) => (
+                      <div key={index} className="preview-media-item">
+                        <img src={url} alt={`Media ${index + 1}`} className="preview-media" />
+                      </div>
+                    )) || (post.mediaUrl && (
+                      <div className="preview-media-item">
+                        {post.mediaType === 'video' ? (
+                          <video src={post.mediaUrl} className="preview-media" />
+                        ) : (
+                          <img src={post.mediaUrl} alt="Post media" className="preview-media" />
+                        )}
+                      </div>
+                    )))}
+                  </div>
+                </div>
+              )}
+
               <div className="search-users">
                 <input
                   type="text"

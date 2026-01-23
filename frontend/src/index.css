@@ -7199,6 +7199,43 @@ textarea {
     gap: 15px;
 }
 
+/* Share Media Preview */
+.share-media-preview {
+    background: #f0f8ff;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    padding: 12px 15px;
+}
+
+.preview-label {
+    margin: 0 0 10px 0;
+    color: #0c4a6e;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.preview-media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+}
+
+.preview-media-item {
+    border-radius: 6px;
+    overflow: hidden;
+    background: #e0e7ff;
+    aspect-ratio: 1;
+}
+
+.preview-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* Share to Messages */
 .search-users {
     margin-bottom: 10px;
