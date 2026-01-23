@@ -77,6 +77,8 @@ const Profile = () => {
             setLoading(false);
         } catch (error) {
             console.error('Profile fetch error:', error);
+            console.error('Error details:', error.response?.data);
+            setError(error.response?.data?.message || 'Failed to load profile. Please try again.');
             setLoading(false);
         }
     };
@@ -226,14 +228,40 @@ const Profile = () => {
     if (loading) return (
         <div>
             <Navbar />
-            <div className="container">Loading...</div>
+            <div className="container">
+                <div style={{ padding: '40px 20px', textAlign: 'center', color: '#666' }}>
+                    Loading profile...
+                </div>
+            </div>
+        </div>
+    );
+
+    if (error) return (
+        <div>
+            <Navbar />
+            <div className="container">
+                <div style={{ padding: '40px 20px', textAlign: 'center', color: '#d32f2f', background: '#ffebee', borderRadius: '4px' }}>
+                    <h2>Error</h2>
+                    <p>{error}</p>
+                    <button 
+                        onClick={() => window.history.back()}
+                        style={{ marginTop: '10px', padding: '10px 20px', background: '#d32f2f', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                        Go Back
+                    </button>
+                </div>
+            </div>
         </div>
     );
 
     if (!profile) return (
         <div>
             <Navbar />
-            <div className="container">Profile not found</div>
+            <div className="container">
+                <div style={{ padding: '40px 20px', textAlign: 'center', color: '#666' }}>
+                    Profile not found
+                </div>
+            </div>
         </div>
     );
 
