@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
-import EngagementDashboard from './EngagementDashboard';
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -436,8 +435,6 @@ const Settings = () => {
 
             </div>
             </div>
-
-            <EngagementDashboard />
 
             </div>
             </div>
