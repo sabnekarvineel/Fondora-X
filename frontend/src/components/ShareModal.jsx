@@ -110,19 +110,45 @@ const ShareModal = ({ post, isOpen, onClose }) => {
   };
 
   const shareToSocialMedia = (platform) => {
-    const postUrl = `${window.location.origin}/feed`;
+    // Create a shareable post URL with the post ID for proper media handling
+    const postShareUrl = `${window.location.origin}/share/post/${post._id}`;
     const text = `Check out this post: "${post.content.substring(0, 100)}..."`;
+    
+    // Get first media URL if available
+    let mediaUrl = null;
+    if (post.mediaItems && post.mediaItems.length > 0) {
+      mediaUrl = post.mediaItems[0].url;
+    } else if (post.mediaUrls && post.mediaUrls.length > 0) {
+      mediaUrl = post.mediaUrls[0];
+    } else if (post.mediaUrl) {
+      mediaUrl = post.mediaUrl;
+    }
 
     const urls = {
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(postUrl)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`,
-      whatsapp: `https://wa.me/?text=${encodeURIComponent(text)}`,
-      telegram: `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`,
+      // Twitter - supports media via card metadata
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(postShareUrl)}`,
+      
+      // Facebook - will pull metadata from shared URL
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postShareUrl)}`,
+      
+      // LinkedIn - shares metadata from URL
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postShareUrl)}`,
+      
+      // WhatsApp - include media URL in message
+      whatsapp: mediaUrl 
+        ? `https://wa.me/?text=${encodeURIComponent(text + '\n\n📸 ' + mediaUrl)}`
+        : `https://wa.me/?text=${encodeURIComponent(text + '\n\n' + postShareUrl)}`,
+      
+      // Telegram - include media URL in message
+      telegram: mediaUrl
+        ? `https://t.me/share/url?url=${encodeURIComponent(mediaUrl)}&text=${encodeURIComponent(text)}`
+        : `https://t.me/share/url?url=${encodeURIComponent(postShareUrl)}&text=${encodeURIComponent(text)}`,
     };
 
     if (urls[platform]) {
       window.open(urls[platform], '_blank', 'width=600,height=400');
+      setShareStatus(`Opened ${platform.charAt(0).toUpperCase() + platform.slice(1)} share!`);
+      setTimeout(() => setShareStatus(null), 2000);
     }
   };
 

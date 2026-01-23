@@ -126,7 +126,11 @@ export const decryptMessage = async (encryptedData, key) => {
     try {
       combined = base64ToArrayBuffer(encryptedData);
     } catch (parseError) {
-      console.warn('Decryption failed: invalid base64 format', parseError.message);
+      console.warn('Decryption failed: invalid base64 format', {
+        error: parseError.message,
+        contentLength: encryptedData?.length || 0,
+        contentPreview: encryptedData?.substring(0, 50) || 'N/A',
+      });
       return '[Encrypted message]';
     }
 
@@ -227,12 +231,27 @@ const arrayBufferToBase64 = (buffer) => {
 
 // Helper: Base64 to ArrayBuffer
 const base64ToArrayBuffer = (base64) => {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
+  // Guard: validate input
+  if (!base64 || typeof base64 !== 'string') {
+    throw new Error('Invalid base64 input: must be a non-empty string');
   }
-  return bytes.buffer;
+
+  // Guard: validate base64 format - check for valid base64 characters
+  // Base64 uses A-Z, a-z, 0-9, +, /, and = for padding
+  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(base64)) {
+    throw new Error('Invalid base64 format: contains invalid characters');
+  }
+
+  try {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  } catch (error) {
+    throw new Error(`Base64 decoding failed: ${error.message}`);
+  }
 };
 
 // Key storage management (local only - never sent to server)

@@ -373,32 +373,35 @@ const ChatBox = ({ conversation, onConversationUpdate, onShowSidebar, onCloseCha
                     }
 
                     // Only decrypt when explicitly marked as encrypted AND has content
-                    if (msg.isEncrypted === true && msg.content) {
-                        try {
-                            // Use encryption key if available, otherwise try to get it
-                            let keyToUse = encryptionKey;
-                            if (!keyToUse && conversation?._id) {
-                                keyToUse = await getOrCreateSharedKey(
-                                    conversation._id,
-                                    user?.token,
-                                    API
-                                );
-                            }
+                    if (msg.isEncrypted === true && msg.content && typeof msg.content === 'string') {
+                         try {
+                             // Use encryption key if available, otherwise try to get it
+                             let keyToUse = encryptionKey;
+                             if (!keyToUse && conversation?._id) {
+                                 keyToUse = await getOrCreateSharedKey(
+                                     conversation._id,
+                                     user?.token,
+                                     API
+                                 );
+                             }
 
-                            if (keyToUse) {
-                                decrypted[msg._id] = await decryptMessage(msg.content, keyToUse);
-                                console.log(`Decrypted fetched message ${msg._id}`);
-                            } else {
-                                decrypted[msg._id] = '[Encryption key not available]';
-                            }
-                        } catch (error) {
-                            console.error(`Failed to decrypt fetched message ${msg._id}:`, error.message || error);
-                            decrypted[msg._id] = '[Encrypted message]';
-                        }
-                    } else {
-                        // Non-encrypted messages show as-is
-                        decrypted[msg._id] = msg.content || '';
-                    }
+                             if (keyToUse) {
+                                 decrypted[msg._id] = await decryptMessage(msg.content, keyToUse);
+                                 console.log(`Decrypted fetched message ${msg._id}`);
+                             } else {
+                                 decrypted[msg._id] = '[Encryption key not available]';
+                             }
+                         } catch (error) {
+                             console.error(`Failed to decrypt fetched message ${msg._id}:`, error.message || error);
+                             decrypted[msg._id] = '[Encrypted message]';
+                         }
+                     } else if (msg.isEncrypted === true && !msg.content) {
+                         // Mark messages with missing content
+                         decrypted[msg._id] = '[Message content missing]';
+                     } else {
+                         // Non-encrypted messages show as-is
+                         decrypted[msg._id] = msg.content || '';
+                     }
                 }
 
                 setDecryptedMessages((prev) => ({

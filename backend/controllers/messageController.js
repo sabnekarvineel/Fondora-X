@@ -185,6 +185,15 @@ export const sendMessage = async (req, res) => {
       console.warn(`Warning: Message from ${req.user._id} to ${receiver} is being saved unencrypted`);
     }
 
+    // Validate that encrypted messages have valid base64 content
+    if (shouldBeEncrypted && content) {
+      // Check if content looks like valid base64
+      const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+      if (!base64Regex.test(content)) {
+        console.warn(`Warning: Message content does not appear to be valid base64. Content preview: ${content.substring(0, 50)}`);
+      }
+    }
+
     const message = await Message.create({
       conversation: conversationId,
       sender: req.user._id,
