@@ -3,6 +3,7 @@ import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import Navbar from './Navbar';
 import PostCard from './PostCard';
+import EngagementDashboard from './EngagementDashboard';
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -84,6 +85,8 @@ const SavedPostsDashboard = () => {
             <h1>My Activity</h1>
             <p>View your saved, liked, and commented posts</p>
           </div>
+
+          <EngagementDashboard />
 
           <div className="tabs-container">
             <button
