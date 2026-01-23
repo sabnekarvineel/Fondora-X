@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import AuthContext from "../context/AuthContext";
 import Navbar from "./Navbar";
@@ -10,6 +11,7 @@ const API = import.meta.env.VITE_API_URL;
 
 const Feed = () => {
   const { user } = useContext(AuthContext);
+  const [searchParams] = useSearchParams();
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +19,22 @@ const Feed = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showTrending, setShowTrending] = useState(false);
+  const [highlightedPostId, setHighlightedPostId] = useState(null);
+
+  // ✅ Handle query parameter for highlighted post
+  useEffect(() => {
+    const postId = searchParams.get('post');
+    if (postId) {
+      setHighlightedPostId(postId);
+      // Scroll to post after a short delay to ensure DOM is rendered
+      setTimeout(() => {
+        const postElement = document.getElementById(`post-${postId}`);
+        if (postElement) {
+          postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    }
+  }, [searchParams]);
 
   // ✅ Fetch only when user + token exist
   useEffect(() => {
@@ -155,12 +173,17 @@ const Feed = () => {
               <div className="no-posts">No posts to show</div>
             ) : (
               posts.map((post) => (
-                <PostCard
+                <div
                   key={post._id}
-                  post={post}
-                  onDelete={handlePostDeleted}
-                  onUpdate={handlePostUpdated}
-                />
+                  id={`post-${post._id}`}
+                  className={highlightedPostId === post._id ? 'post-highlighted' : ''}
+                >
+                  <PostCard
+                    post={post}
+                    onDelete={handlePostDeleted}
+                    onUpdate={handlePostUpdated}
+                  />
+                </div>
               ))
             )}
           </div>

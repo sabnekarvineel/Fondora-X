@@ -8311,3 +8311,21 @@ textarea {
         font-size: 14px;
     }
 }
+
+/* Highlighted post from notification */
+.post-highlighted {
+    animation: highlightPost 1.5s ease-in-out;
+}
+
+@keyframes highlightPost {
+    0% {
+        background-color: rgba(255, 193, 7, 0.3);
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+    }
+    50% {
+        background-color: rgba(255, 193, 7, 0.2);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
