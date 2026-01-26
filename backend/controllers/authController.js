@@ -189,7 +189,7 @@ This link will expire in 15 minutes.`,
 export const verifyGoogleToken = async (req, res) => {
   try {
     console.log("🔐 Google token verification started");
-    const { token, role, mobile, companyName } = req.body;
+    const { token, role, mobile, password, companyName } = req.body;
 
     console.log("📝 Received:", { hasToken: !!token, role, mobile, hasCompanyName: !!companyName });
 
@@ -271,7 +271,7 @@ export const verifyGoogleToken = async (req, res) => {
         googleId: sub,
         profilePhoto: picture,
         isVerified: true, // Google verified emails
-        password: Math.random().toString(36).slice(-20), // Random password for OAuth users
+        password: password || Math.random().toString(36).slice(-20), // Use provided password or generate random for OAuth users
         role: role,
       };
 

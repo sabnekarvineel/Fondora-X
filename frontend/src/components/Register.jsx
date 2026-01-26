@@ -7,6 +7,7 @@ const Register = () => {
     role: "",
     mobile: "",
     companyName: "",
+    password: "",
   });
 
   const [error, setError] = useState("");
@@ -14,7 +15,7 @@ const Register = () => {
   const [googleUser, setGoogleUser] = useState(null);
 
   const navigate = useNavigate();
-  const { role, mobile, companyName } = formData;
+  const { role, mobile, companyName, password } = formData;
 
   // Load Google Script
   useEffect(() => {
@@ -103,6 +104,12 @@ const Register = () => {
       return;
     }
 
+    // Validate password (optional but if provided, must be 6+ characters)
+    if (password && password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     // Validate startup company name
     if (role === "startup" && !companyName) {
       setError("Please enter your company name");
@@ -118,6 +125,7 @@ const Register = () => {
           token: googleUser.token,
           role,
           mobile,
+          password: password || null,
           companyName: role === "startup" ? companyName : null,
         }
       );
@@ -220,6 +228,17 @@ const Register = () => {
                 placeholder="Enter 10-digit mobile number"
                 maxLength={10}
                 required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Password (Optional - for backup login)</label>
+              <input
+                type="password"
+                name="password"
+                value={password}
+                onChange={onChange}
+                placeholder="Enter password (min 6 characters)"
               />
             </div>
 
