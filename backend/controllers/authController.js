@@ -183,6 +183,62 @@ This link will expire in 15 minutes.`,
 };
 
 /* =========================
+   RESET PASSWORD
+========================= */
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: "Reset token is required" });
+    }
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    // Hash the token to compare with database
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    // Find user with valid reset token
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ 
+        message: "Invalid or expired reset token. Please request a new password reset." 
+      });
+    }
+
+    // Update password
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    console.log("✅ Password reset successfully for:", user.email);
+
+    res.status(200).json({
+      message: "Password has been reset successfully. You can now login with your new password.",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({ message: "Server error during password reset" });
+  }
+};
+
+/* =========================
    GOOGLE AUTH VERIFICATION
    Handles both Login and Registration via Google OAuth
 ========================= */
