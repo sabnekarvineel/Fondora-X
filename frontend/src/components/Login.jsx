@@ -50,7 +50,7 @@ const Login = () => {
       setLoading(false);
       // Redirect after a brief delay to ensure state updates
       setTimeout(() => {
-        window.location.href = "/profile";
+        window.location.href = `/profile/${data._id}`;
       }, 500);
     } catch (err) {
       console.error("❌ Login error:", err);
