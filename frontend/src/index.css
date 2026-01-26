@@ -11,6 +11,12 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: linear-gradient(90deg, #3ec6c4 0%, #efdc63 100%);
+    min-height: 100vh;
+}
+
+#root {
+    background: linear-gradient(90deg, #3ec6c4 0%, #efdc63 100%);
+    min-height: 100vh;
 }
 
 
@@ -26,9 +32,9 @@ body {
     height: 600px;
     margin: auto;
     padding: 60px 40px;
-    background: white;
+    background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -37,6 +43,8 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 1000;
+    overflow-y: auto;
 }
 
 .auth-container > * {
