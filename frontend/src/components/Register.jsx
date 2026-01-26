@@ -1,32 +1,75 @@
-import { useState, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import axios from "axios";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    mobile: "",
-    password: "",
     role: "",
-    // Startup-specific fields
+    mobile: "",
     companyName: "",
   });
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleUser, setGoogleUser] = useState(null);
 
-  const { register } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { role, mobile, companyName } = formData;
 
-  const { name, email, mobile, password, role, companyName } = formData;
+  // Load Google Script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
 
-  // ✅ handle input changes
+    script.onload = () => {
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: handleGoogleResponse,
+        });
+        window.google.accounts.id.renderButton(
+          document.getElementById("google-signup-btn"),
+          { theme: "outline", size: "large" }
+        );
+      }
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleGoogleResponse = (response) => {
+    try {
+      setError("");
+      // Decode the JWT to get user info
+      const base64Url = response.credential.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
+      );
+      const userData = JSON.parse(jsonPayload);
+      setGoogleUser({
+        name: userData.name,
+        email: userData.email,
+        picture: userData.picture,
+        token: response.credential,
+      });
+    } catch (err) {
+      setError("Failed to process Google sign-in");
+    }
+  };
+
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ handle mobile input separately (numbers only, max 10)
   const onMobileChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 10) {
@@ -37,43 +80,49 @@ const Register = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    // ✅ required fields
-    if (!name || !email || !mobile || !password || !role) {
-      setError("Please fill in all fields");
-      setLoading(false);
+    if (!googleUser) {
+      setError("Please sign in with Google first");
       return;
     }
 
-    // ✅ startup-specific validation
-    if (role === "startup") {
-      if (!companyName) {
-        setError("For Startup: Company Name is required");
-        setLoading(false);
-        return;
-      }
-    }
-
-    // ✅ password validation
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      setLoading(false);
+    if (!role) {
+      setError("Please select your role");
       return;
     }
 
-    // ✅ Indian mobile validation (6–9 + 10 digits)
+    if (!mobile) {
+      setError("Please enter your mobile number");
+      return;
+    }
+
+    // Validate Indian mobile format (6-9 + 10 digits)
     const mobileRegex = /^[6-9]\d{9}$/;
     if (!mobileRegex.test(mobile)) {
-      setError("Please enter a valid 10-digit mobile number");
-      setLoading(false);
+      setError("Please enter a valid 10-digit Indian mobile number");
       return;
     }
 
+    // Validate startup company name
+    if (role === "startup" && !companyName) {
+      setError("Please enter your company name");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      await register(name, email, mobile, password, role, {
-        companyName: role === "startup" ? companyName : null,
-      });
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/google`,
+        {
+          token: googleUser.token,
+          role,
+          mobile,
+          companyName: role === "startup" ? companyName : null,
+        }
+      );
+
+      localStorage.setItem("token", data.token);
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -92,83 +141,109 @@ const Register = () => {
 
       {error && <div className="error-message">{error}</div>}
 
-      <form onSubmit={onSubmit}>
-        <div className="form-group">
-          <label>Name</label>
-          <input
-            type="text"
-            name="name"
-            value={name}
-            onChange={onChange}
-            placeholder="Enter your name"
-          />
+      {!googleUser ? (
+        <div className="google-signup-section">
+          <p style={{ marginBottom: "20px", textAlign: "center", color: "#666" }}>
+            Sign up with your Google account to get started
+          </p>
+          <div id="google-signup-btn"></div>
         </div>
+      ) : (
+        <>
+          <div
+            className="google-user-info"
+            style={{
+              padding: "15px",
+              backgroundColor: "#f5f5f5",
+              borderRadius: "8px",
+              marginBottom: "20px",
+              textAlign: "center",
+            }}
+          >
+            {googleUser.picture && (
+              <img
+                src={googleUser.picture}
+                alt="Profile"
+                style={{
+                  width: "60px",
+                  height: "60px",
+                  borderRadius: "50%",
+                  marginBottom: "10px",
+                }}
+              />
+            )}
+            <p style={{ fontWeight: "bold", margin: "5px 0" }}>
+              {googleUser.name}
+            </p>
+            <p style={{ color: "#888", fontSize: "14px", margin: "5px 0" }}>
+              {googleUser.email}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setGoogleUser(null);
+                setFormData({ role: "", mobile: "", companyName: "" });
+              }}
+              style={{
+                marginTop: "10px",
+                background: "none",
+                border: "none",
+                color: "#007bff",
+                cursor: "pointer",
+                textDecoration: "underline",
+                fontSize: "12px",
+              }}
+            >
+              Use different account
+            </button>
+          </div>
 
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={email}
-            onChange={onChange}
-            placeholder="Enter your email"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Mobile Number</label>
-          <input
-            type="tel"
-            name="mobile"
-            value={mobile}
-            onChange={onMobileChange}   // ✅ restricted input
-            placeholder="Enter 10-digit mobile number"
-            maxLength={10}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={password}
-            onChange={onChange}
-            placeholder="Enter your password"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Role</label>
-          <select name="role" value={role} onChange={onChange}>
-            <option value="">Select your role</option>
-            <option value="student">Student</option>
-            <option value="freelancer">Freelancer</option>
-            <option value="startup">Startup</option>
-            <option value="investor">Investor</option>
-          </select>
-        </div>
-
-        {/* ✅ Startup-specific fields */}
-        {role === "startup" && (
-          <>
+          <form onSubmit={onSubmit}>
             <div className="form-group">
-              <label>Company Name *</label>
+              <label>Role *</label>
+              <select name="role" value={role} onChange={onChange} required>
+                <option value="">Select your role</option>
+                <option value="student">Student</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="startup">Startup</option>
+                <option value="investor">Investor</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Mobile Number *</label>
               <input
-                type="text"
-                name="companyName"
-                value={companyName}
-                onChange={onChange}
-                placeholder="Enter company name"
+                type="tel"
+                name="mobile"
+                value={mobile}
+                onChange={onMobileChange}
+                placeholder="Enter 10-digit mobile number"
+                maxLength={10}
+                required
               />
             </div>
-          </>
-        )}
 
-        <button type="submit" className="btn" disabled={loading}>
-          {loading ? "Creating Account..." : "Register"}
-        </button>
-      </form>
+            {/* Startup-specific fields */}
+            {role === "startup" && (
+              <div className="form-group">
+                <label>Company Name *</label>
+                <input
+                  type="text"
+                  name="companyName"
+                  value={companyName}
+                  onChange={onChange}
+                  placeholder="Enter company name"
+                  required
+                />
+              </div>
+            )}
+
+            <button type="submit" className="btn" disabled={loading}>
+              {loading ? "Creating Account..." : "Register"}
+            </button>
+          </form>
+        </>
+      )}
 
       <div className="auth-switch">
         Already have an account? <Link to="/login">Login</Link>

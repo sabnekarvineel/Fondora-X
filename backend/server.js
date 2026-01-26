@@ -43,6 +43,7 @@ const corsOriginValidator = (origin, callback) => {
   // Whitelist of static origins
   const whitelistedOrigins = [
     'https://fondora-x.vercel.app', // Production Vercel
+    'https://fondora-x.onrender.com', // Production backend (for requests from other services)
     'http://localhost:3000', // Local development
   ];
 

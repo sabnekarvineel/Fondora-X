@@ -21,24 +21,24 @@ const userSchema = new mongoose.Schema(
       ],
     },
 
-    // ✅ ADD THIS BLOCK
+    // ✅ Mobile number (required for registration)
     mobile: {
-  type: String,
-  required: [true, "Please add a mobile number"],
-  unique: true,
-  trim: true,
-  match: [
-    /^[6-9]\d{9}$/,
-    "Please enter a valid 10-digit Indian mobile number",
-  ],
-},
+      type: String,
+      unique: true,
+      sparse: true, // Allows null values while maintaining unique constraint
+      trim: true,
+      match: [
+        /^[6-9]\d{9}$/,
+        "Please enter a valid 10-digit Indian mobile number",
+      ],
+    },
 
 
     password: {
       type: String,
-      required: [true, "Please add a password"],
       minlength: 6,
       select: false,
+      // Password is optional for OAuth users (Google Sign-In)
     },
 
     resetPasswordToken: {
@@ -53,6 +53,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["student", "freelancer", "startup", "investor", "admin"],
       default: "student",
+    },
+
+    googleId: {
+      type: String,
+      default: null,
     },
 
     isVerified: {

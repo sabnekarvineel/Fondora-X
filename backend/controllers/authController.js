@@ -2,73 +2,18 @@ import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 import crypto from "crypto";
 import sendEmail from "../utils/sendEmail.js";
+import { OAuth2Client } from "google-auth-library";
 
 /* =========================
-   REGISTER
+   REGISTER - DISABLED (Google OAuth Only)
 ========================= */
 export const register = async (req, res) => {
   try {
-    const { name, email, password, mobile, role, companyName, founderName, founderNumber, coFounderName, coFounderNumber } = req.body;
-
-    // ✅ validate all required fields
-    if (!name || !email || !password || !mobile) {
-      return res.status(400).json({
-        message: "Please provide all required fields",
-      });
-    }
-
-    // ✅ check email
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-
-    // ✅ check mobile
-    const mobileExists = await User.findOne({ mobile });
-    if (mobileExists) {
-      return res.status(400).json({ message: "Mobile number already exists" });
-    }
-
-    // ✅ role validation
-    const allowedRoles = ["student", "freelancer", "startup", "investor", "admin"];
-    const finalRole = allowedRoles.includes(role) ? role : undefined;
-
-    // ✅ Build user object
-    const userData = {
-      name,
-      email,
-      password,
-      mobile,
-      ...(finalRole && { role: finalRole }),
-    };
-
-    // ✅ Add startup profile data if role is startup
-    if (finalRole === "startup") {
-      userData.startupProfile = {
-        companyName: companyName || "",
-        founderName: founderName || "",
-        founderNumber: founderNumber || "",
-        coFounderName: coFounderName || "",
-        coFounderNumber: coFounderNumber || "",
-      };
-    }
-
-    const user = await User.create(userData);
-
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      mobile: user.mobile,
-      role: user.role,
-      startupProfile: user.role === "startup" ? user.startupProfile : undefined,
-      token: generateToken(user._id),
+    return res.status(403).json({
+      message: "Registration with email and password is not allowed. Please register using Google Sign-In.",
+      requireGoogle: true
     });
   } catch (error) {
-    if (error.name === "ValidationError") {
-      return res.status(400).json({ message: error.message });
-    }
-
     console.error(error);
     res.status(500).json({ message: "Server error during registration" });
   }
@@ -234,5 +179,138 @@ This link will expire in 15 minutes.`,
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error in forgot password" });
+  }
+};
+
+/* =========================
+   GOOGLE AUTH VERIFICATION
+   Handles both Login and Registration via Google OAuth
+========================= */
+export const verifyGoogleToken = async (req, res) => {
+  try {
+    const { token, role, mobile, companyName } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: "Token is required" });
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({ message: "Google OAuth not configured" });
+    }
+
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture, sub } = payload;
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // 🆕 NEW USER REGISTRATION via Google
+      // For registration, role and mobile are required
+      if (!role) {
+        return res.status(400).json({ 
+          message: "Role is required for registration",
+          isNewUser: true 
+        });
+      }
+
+      if (!mobile) {
+        return res.status(400).json({ 
+          message: "Mobile number is required for registration",
+          isNewUser: true 
+        });
+      }
+
+      // Validate role
+      const allowedRoles = ["student", "freelancer", "startup", "investor"];
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({ 
+          message: "Invalid role selected",
+          isNewUser: true 
+        });
+      }
+
+      // Validate mobile (Indian mobile format)
+      const mobileRegex = /^[6-9]\d{9}$/;
+      if (!mobileRegex.test(mobile)) {
+        return res.status(400).json({ 
+          message: "Please enter a valid 10-digit Indian mobile number",
+          isNewUser: true 
+        });
+      }
+
+      // Check if mobile already exists
+      const mobileExists = await User.findOne({ mobile });
+      if (mobileExists) {
+        return res.status(400).json({ 
+          message: "Mobile number already registered",
+          isNewUser: true 
+        });
+      }
+
+      // Build user data
+      const userData = {
+        name,
+        email,
+        mobile,
+        googleId: sub,
+        profilePhoto: picture,
+        isVerified: true, // Google verified emails
+        password: Math.random().toString(36).slice(-20), // Random password for OAuth users
+        role: role,
+      };
+
+      // Add startup profile if role is startup
+      if (role === "startup" && companyName) {
+        userData.startupProfile = {
+          companyName: companyName,
+        };
+      }
+
+      user = await User.create(userData);
+    } else {
+      // 👤 EXISTING USER LOGIN via Google
+      if (!user.googleId) {
+        // Link Google account to existing user
+        user.googleId = sub;
+        if (picture && !user.profilePhoto) {
+          user.profilePhoto = picture;
+        }
+        await user.save();
+      }
+    }
+
+    if (user.isBanned) {
+      return res.status(403).json({
+        message: "Your account has been banned",
+        reason: user.bannedReason || "Violated platform policies",
+        isBanned: true,
+      });
+    }
+
+    if (!user.isActive) {
+      user.isActive = true;
+      await user.save();
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
+      role: user.role,
+      isVerified: user.isVerified,
+      profilePhoto: user.profilePhoto,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    console.error("Google auth error:", error);
+    res.status(401).json({ message: "Invalid Google token" });
   }
 };
