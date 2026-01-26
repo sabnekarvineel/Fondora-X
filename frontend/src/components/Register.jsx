@@ -131,7 +131,8 @@ const Register = () => {
       );
 
       localStorage.setItem("token", data.token);
-      navigate("/dashboard");
+      localStorage.setItem("user", JSON.stringify(data));
+      window.location.href = "/dashboard";
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
       setLoading(false);
@@ -154,7 +155,9 @@ const Register = () => {
           <p style={{ marginBottom: "20px", textAlign: "center", color: "#666" }}>
             Sign up with your Google account to get started
           </p>
-          <div id="google-signup-btn"></div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div id="google-signup-btn"></div>
+          </div>
         </div>
       ) : (
         <>
