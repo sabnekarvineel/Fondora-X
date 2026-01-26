@@ -188,15 +188,21 @@ This link will expire in 15 minutes.`,
 ========================= */
 export const verifyGoogleToken = async (req, res) => {
   try {
+    console.log("🔐 Google token verification started");
     const { token, role, mobile, companyName } = req.body;
+
+    console.log("📝 Received:", { hasToken: !!token, role, mobile, hasCompanyName: !!companyName });
 
     if (!token) {
       return res.status(400).json({ message: "Token is required" });
     }
 
     if (!process.env.GOOGLE_CLIENT_ID) {
+      console.error("❌ GOOGLE_CLIENT_ID not set in environment");
       return res.status(500).json({ message: "Google OAuth not configured" });
     }
+
+    console.log("✅ GOOGLE_CLIENT_ID found:", process.env.GOOGLE_CLIENT_ID.substring(0, 20) + "...");
 
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     const ticket = await client.verifyIdToken({
@@ -207,8 +213,11 @@ export const verifyGoogleToken = async (req, res) => {
     const payload = ticket.getPayload();
     const { email, name, picture, sub } = payload;
 
+    console.log("✅ Token verified successfully for:", email);
+
     // Check if user exists
     let user = await User.findOne({ email });
+    console.log("👤 User exists:", !!user);
 
     if (!user) {
       // 🆕 NEW USER REGISTRATION via Google
