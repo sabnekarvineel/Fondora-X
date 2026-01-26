@@ -132,7 +132,7 @@ const Register = () => {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
-      window.location.href = "/dashboard";
+      window.location.href = "/profile";
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
       setLoading(false);
