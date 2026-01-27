@@ -405,7 +405,7 @@ const Profile = () => {
                                 <input
                                     type="url"
                                     name="instagram"
-                                    value={formData.socialLinks.github}
+                                    value={formData.socialLinks.instagram}
                                     onChange={onSocialChange}
                                     placeholder="https://instagram.com/username"
                                 />

@@ -22,6 +22,7 @@ const EditProfile = () => {
             website: '',
             github: '',
             linkedin: '',
+            instagram: '',
         },
     });
 
@@ -49,12 +50,12 @@ const EditProfile = () => {
             setUserRole(data.role);
 
             setFormData({
-                name: data.name,
-                bio: data.bio || '',
-                location: data.location || '',
-                skills: data.skills || [],
-                socialLinks: data.socialLinks || { website: '', github: '', linkedin: '' },
-            });
+                 name: data.name,
+                 bio: data.bio || '',
+                 location: data.location || '',
+                 skills: data.skills || [],
+                 socialLinks: data.socialLinks || { website: '', github: '', linkedin: '', instagram: '' },
+             });
 
             if (data.role === 'student') {
                 setRoleData(data.studentProfile || {});
@@ -259,17 +260,28 @@ const EditProfile = () => {
                     </div>
 
                     <div className="form-group">
-                        <label>LinkedIn</label>
-                        <input
-                            type="url"
-                            name="linkedin"
-                            value={formData.socialLinks.linkedin}
-                            onChange={onSocialChange}
-                            placeholder="https://linkedin.com/in/username"
-                        />
-                    </div>
+                         <label>LinkedIn</label>
+                         <input
+                             type="url"
+                             name="linkedin"
+                             value={formData.socialLinks.linkedin}
+                             onChange={onSocialChange}
+                             placeholder="https://linkedin.com/in/username"
+                         />
+                     </div>
 
-                    {/* ✅ Startup-specific fields */}
+                     <div className="form-group">
+                         <label>Instagram</label>
+                         <input
+                             type="url"
+                             name="instagram"
+                             value={formData.socialLinks.instagram}
+                             onChange={onSocialChange}
+                             placeholder="https://instagram.com/username"
+                         />
+                     </div>
+
+                     {/* ✅ Startup-specific fields */}
                     {userRole === 'startup' && (
                       <>
                         <h3>Startup Information</h3>
