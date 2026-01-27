@@ -97,7 +97,7 @@ const Admin = () => {
       const token = user?.token;
       const { data } = await axios.get(`${API}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { role: 'investor', verified: 'false' },
+        params: { role: 'investor' },
       });
       setInvestors(data.users);
     } catch (error) {
@@ -110,7 +110,7 @@ const Admin = () => {
       const token = user?.token;
       const { data } = await axios.get(`${API}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { role: 'startup', verified: 'false' },
+        params: { role: 'startup' },
       });
       setStartups(data.users);
     } catch (error) {
@@ -406,7 +406,7 @@ const Admin = () => {
 
         {activeTab === 'investors' && (
           <div className="admin-content">
-            <h3>Investor Verification ({investors.filter(i => !i.isVerified).length} pending)</h3>
+            <h3>Investor Verification ({investors.length} total - {investors.filter(i => !i.isVerified).length} pending)</h3>
             <div className="verification-list">
               {investors.map((investor) => (
                 <div key={investor._id} className="verification-card">
@@ -454,7 +454,7 @@ const Admin = () => {
 
         {activeTab === 'startups' && (
           <div className="admin-content">
-            <h3>Startup Verification ({startups.filter(s => !s.isVerified).length} pending)</h3>
+            <h3>Startup Verification ({startups.length} total - {startups.filter(s => !s.isVerified).length} pending)</h3>
             <div className="verification-list">
               {startups.map((startup) => (
                 <div key={startup._id} className="verification-card">
