@@ -24,8 +24,10 @@ const Admin = () => {
 
   useEffect(() => {
     if (user?.role === 'admin') {
+      const emptyFilters = { role: '', verified: '', banned: '', search: '' };
+      setFilters(emptyFilters);
       fetchAnalytics();
-      fetchUsers();
+      fetchUsers(emptyFilters);
       fetchPosts();
       fetchInvestors();
       fetchStartups();
@@ -57,12 +59,12 @@ const Admin = () => {
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (params = filters) => {
     try {
       const token = user?.token;
       const { data } = await axios.get(`${API}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: filters,
+        params: params,
       });
       setUsers(data.users);
     } catch (error) {
