@@ -62,9 +62,17 @@ const Admin = () => {
   const fetchUsers = async (params = filters) => {
     try {
       const token = user?.token;
+      // Clean up empty string filters
+      const cleanParams = Object.keys(params).reduce((acc, key) => {
+        if (params[key] !== '') {
+          acc[key] = params[key];
+        }
+        return acc;
+      }, {});
+      
       const { data } = await axios.get(`${API}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: params,
+        params: cleanParams,
       });
       setUsers(data.users);
     } catch (error) {
