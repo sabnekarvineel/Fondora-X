@@ -116,6 +116,7 @@ const userSchema = new mongoose.Schema(
       website: { type: String, default: "" },
       github: { type: String, default: "" },
       linkedin: { type: String, default: "" },
+      instagram: { type: String, default: "" },
     },
 
     followers: [
