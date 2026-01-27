@@ -36,6 +36,7 @@ const Profile = () => {
             website: '',
             github: '',
             linkedin: '',
+            instagram: '',
         },
     });
     const [roleData, setRoleData] = useState({}); // For startup/student/freelancer/investor profile data
@@ -56,12 +57,12 @@ const Profile = () => {
                 setIsFollowing(data.followers.some((f) => f && f._id === currentUser._id));
             }
             setFormData({
-                name: data.name || '',
-                bio: data.bio || '',
-                location: data.location || '',
-                skills: data.skills || [],
-                socialLinks: data.socialLinks || { website: '', github: '', linkedin: '' },
-            });
+                 name: data.name || '',
+                 bio: data.bio || '',
+                 location: data.location || '',
+                 skills: data.skills || [],
+                 socialLinks: data.socialLinks || { website: '', github: '', linkedin: '', instagram: '' },
+             });
 
             // ✅ Load role-specific data
             if (data.role === 'startup') {
@@ -535,27 +536,27 @@ const Profile = () => {
                         )}
 
                         {profile.socialLinks && (
-                            <div className="profile-section">
-                                <h3>Links</h3>
-                                <div className="social-links">
-                                    {profile.socialLinks.website && (
-                                        <a href={profile.socialLinks.website} target="_blank" rel="noopener noreferrer">
-                                            Website
-                                        </a>
-                                    )}
-                                    {profile.socialLinks.instagram && (
-                                        <a href={profile.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
-                                            Instagram
-                                        </a>
-                                    )}
-                                    {profile.socialLinks.linkedin && (
-                                        <a href={profile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
-                                            LinkedIn
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-                        )}
+                             <div className="profile-section">
+                                 <h3>Links</h3>
+                                 <div className="social-links">
+                                     {profile.socialLinks.website && (
+                                         <a href={profile.socialLinks.website} target="_blank" rel="noopener noreferrer">
+                                             Website
+                                         </a>
+                                     )}
+                                     {profile.socialLinks.instagram && (
+                                         <a href={profile.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
+                                             Instagram
+                                         </a>
+                                     )}
+                                     {profile.socialLinks.linkedin && (
+                                         <a href={profile.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
+                                             LinkedIn
+                                         </a>
+                                     )}
+                                 </div>
+                             </div>
+                         )}
 
                         {profile.role === 'student' && profile.studentProfile && (
                             <>
