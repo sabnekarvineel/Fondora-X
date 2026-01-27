@@ -135,6 +135,23 @@ const Admin = () => {
     }
   };
 
+  const handleUnverify = async (userId) => {
+    try {
+      const token = user?.token;
+      await axios.put(`${API}/api/admin/users/${userId}/unverify`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTimeout(() => {
+        fetchUsers(filters);
+        fetchInvestors();
+        fetchStartups();
+      }, 500);
+    } catch (error) {
+      console.error(error);
+      alert('Error unverifying user');
+    }
+  };
+
   const handleBan = async (userId) => {
     const reason = prompt('Enter ban reason:');
     if (!reason) return;
@@ -432,8 +449,8 @@ const Admin = () => {
                       </button>
                     )}
                     {investor.isVerified && (
-                      <button onClick={() => handleVerify(investor._id)} className="btn-action">
-                        Already Verified
+                      <button onClick={() => handleUnverify(investor._id)} className="btn-action ban">
+                        ✗ Unverify
                       </button>
                     )}
                     {!investor.isBanned ? (
@@ -482,8 +499,8 @@ const Admin = () => {
                       </button>
                     )}
                     {startup.isVerified && (
-                      <button onClick={() => handleVerify(startup._id)} className="btn-action">
-                        Already Verified
+                      <button onClick={() => handleUnverify(startup._id)} className="btn-action ban">
+                        ✗ Unverify
                       </button>
                     )}
                     {!startup.isBanned ? (
