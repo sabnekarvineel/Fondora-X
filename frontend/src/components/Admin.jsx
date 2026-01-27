@@ -38,6 +38,11 @@ const Admin = () => {
     }
   }, [filters]);
 
+  const handleUserTabClick = () => {
+    setActiveTab('users');
+    setFilters({ role: '', verified: '', banned: '', search: '' });
+  };
+
   const fetchAnalytics = async () => {
     try {
       const token = user?.token;
@@ -201,7 +206,7 @@ const Admin = () => {
           </button>
           <button
             className={activeTab === 'users' ? 'admin-tab active' : 'admin-tab'}
-            onClick={() => setActiveTab('users')}
+            onClick={handleUserTabClick}
           >
             👥 Users
           </button>
