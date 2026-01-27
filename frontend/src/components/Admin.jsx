@@ -82,7 +82,7 @@ const Admin = () => {
       const token = user?.token;
       const { data } = await axios.get(`${API}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { role: 'investor' },
+        params: { role: 'investor', verified: 'false' },
       });
       setInvestors(data.users);
     } catch (error) {
@@ -95,7 +95,7 @@ const Admin = () => {
       const token = user?.token;
       const { data } = await axios.get(`${API}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { role: 'startup' },
+        params: { role: 'startup', verified: 'false' },
       });
       setStartups(data.users);
     } catch (error) {
