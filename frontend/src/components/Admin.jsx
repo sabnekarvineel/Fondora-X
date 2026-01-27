@@ -116,11 +116,14 @@ const Admin = () => {
       await axios.put(`${API}/api/admin/users/${userId}/verify`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchUsers();
-      fetchInvestors();
-      fetchStartups();
+      setTimeout(() => {
+        fetchUsers(filters);
+        fetchInvestors();
+        fetchStartups();
+      }, 500);
     } catch (error) {
       console.error(error);
+      alert('Error verifying user');
     }
   };
 
@@ -133,11 +136,14 @@ const Admin = () => {
       await axios.put(`${API}/api/admin/users/${userId}/ban`, { reason }, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchUsers();
-      fetchInvestors();
-      fetchStartups();
+      setTimeout(() => {
+        fetchUsers(filters);
+        fetchInvestors();
+        fetchStartups();
+      }, 500);
     } catch (error) {
       console.error(error);
+      alert('Error banning user');
     }
   };
 
@@ -147,11 +153,14 @@ const Admin = () => {
       await axios.put(`${API}/api/admin/users/${userId}/unban`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchUsers();
-      fetchInvestors();
-      fetchStartups();
+      setTimeout(() => {
+        fetchUsers(filters);
+        fetchInvestors();
+        fetchStartups();
+      }, 500);
     } catch (error) {
       console.error(error);
+      alert('Error unbanning user');
     }
   };
 
@@ -163,9 +172,12 @@ const Admin = () => {
       await axios.delete(`${API}/api/admin/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchUsers();
+      setTimeout(() => {
+        fetchUsers(filters);
+      }, 500);
     } catch (error) {
       console.error(error);
+      alert('Error deleting user');
     }
   };
 
